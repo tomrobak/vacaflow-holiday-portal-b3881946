@@ -2,7 +2,8 @@
 import * as React from "react";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { addDays, format } from "date-fns";
-import { DateRange } from "react-day-picker";
+// Change to type-only import for DateRange
+import type { DateRange } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -26,7 +27,8 @@ interface DateRangePickerProps {
   className?: string;
 }
 
-export function DateRange({
+// Rename the component to DateRangePicker to avoid naming conflict
+export function DateRangePicker({
   date,
   onDateChange,
   className,

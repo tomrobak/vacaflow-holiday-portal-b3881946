@@ -1,6 +1,6 @@
-
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
+import type { DateRange } from "react-day-picker";
 import { 
   CreditCard, 
   Filter, 
@@ -46,9 +46,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Payment, PaymentStatus, PaymentStats } from "@/types/payment";
-import { DateRange } from "@/components/ui/date-range-picker";
+import { DateRangePicker } from "@/components/ui/date-range-picker";
 
-// Mock data for payments
 const mockPayments: Payment[] = Array.from({ length: 20 }, (_, i) => ({
   id: `PAY-${3000 + i}`,
   bookingId: `BOOK-${2000 + Math.floor(Math.random() * 100)}`,
@@ -68,7 +67,6 @@ const mockPayments: Payment[] = Array.from({ length: 20 }, (_, i) => ({
   refundReason: Math.random() > 0.8 ? "Customer requested refund" : undefined,
 }));
 
-// Mock data for stats
 const mockStats: PaymentStats = {
   totalReceived: 42500.75,
   totalPending: 3750.25,
@@ -79,7 +77,6 @@ const mockStats: PaymentStats = {
   percentChange: 16.28,
 };
 
-// Customer names for display
 const customerNames: Record<string, string> = {};
 mockPayments.forEach(payment => {
   const customerId = payment.customerId;
@@ -90,7 +87,6 @@ mockPayments.forEach(payment => {
   }
 });
 
-// Property names for display
 const propertyNames: Record<string, string> = {};
 mockPayments.forEach(payment => {
   const propertyId = payment.propertyId;
@@ -106,9 +102,8 @@ const Payments = () => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sortField, setSortField] = useState<keyof Payment>("date");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
-  const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({});
+  const [dateRange, setDateRange] = useState<DateRange>({ from: undefined, to: undefined });
 
-  // Handle sorting
   const handleSort = (field: keyof Payment) => {
     if (sortField === field) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
@@ -118,15 +113,13 @@ const Payments = () => {
     }
   };
 
-  // Format currency
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
     }).format(amount);
   };
-  
-  // Format date
+
   const formatDate = (date: Date | undefined) => {
     if (!date) return 'N/A';
     return new Intl.DateTimeFormat('en-US', {
@@ -135,8 +128,7 @@ const Payments = () => {
       day: 'numeric',
     }).format(date);
   };
-  
-  // Payment status badge
+
   const getPaymentStatusBadge = (status: PaymentStatus) => {
     switch (status) {
       case "successful":
@@ -152,7 +144,6 @@ const Payments = () => {
     }
   };
 
-  // Payment method icon
   const getPaymentMethodIcon = (method: string) => {
     switch (method) {
       case "credit_card":
@@ -168,7 +159,6 @@ const Payments = () => {
     }
   };
 
-  // Get payment method display name
   const getPaymentMethodName = (method: string) => {
     switch (method) {
       case "credit_card":
@@ -184,16 +174,13 @@ const Payments = () => {
     }
   };
 
-  // Filter and sort payments
   const filteredPayments = useMemo(() => {
     return mockPayments
       .filter(payment => {
-        // Status filter
         if (statusFilter !== "all" && payment.status !== statusFilter) {
           return false;
         }
         
-        // Text search
         if (searchTerm) {
           const searchLower = searchTerm.toLowerCase();
           const customerName = customerNames[payment.customerId]?.toLowerCase() || '';
@@ -209,7 +196,6 @@ const Payments = () => {
           }
         }
         
-        // Date range filter
         if (dateRange.from && payment.date < dateRange.from) {
           return false;
         }
@@ -249,7 +235,6 @@ const Payments = () => {
       });
   }, [mockPayments, searchTerm, statusFilter, sortField, sortDirection, dateRange]);
 
-  // Format percentage change with arrow
   const formatPercentChange = (value: number) => {
     const formatted = Math.abs(value).toFixed(1) + '%';
     if (value > 0) {
@@ -379,10 +364,10 @@ const Payments = () => {
                 <DropdownMenuSeparator />
                 <div className="p-2">
                   <p className="text-sm font-medium mb-2">Date Range</p>
-                  <DateRange date={dateRange} onDateChange={setDateRange} />
+                  <DateRangePicker date={dateRange} onDateChange={setDateRange} />
                 </div>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => setDateRange({})}>Clear Filters</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setDateRange({ from: undefined, to: undefined })}>Clear Filters</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

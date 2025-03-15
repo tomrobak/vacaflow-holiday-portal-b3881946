@@ -79,42 +79,40 @@ const CalendarView = ({
       </div>
 
       {view === "dual" ? (
-        <div className="grid grid-cols-1 md:grid-cols-8 gap-6">
-          {/* Current month calendar */}
-          <div className="md:col-span-3">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle>{format(currentDate, "MMMM yyyy")}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <SingleMonthCalendar
-                  selected={selectedDate}
-                  onSelect={handleDateClick}
-                  month={currentDate}
-                  hasEvents={hasEvents}
-                />
-              </CardContent>
-            </Card>
-          </div>
+        <div className="grid grid-cols-1 gap-6">
+          {/* Combined calendar card */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle>Calendar View</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Current month calendar */}
+                <div>
+                  <h3 className="text-sm font-medium mb-2">{format(currentDate, "MMMM yyyy")}</h3>
+                  <SingleMonthCalendar
+                    selected={selectedDate}
+                    onSelect={handleDateClick}
+                    month={currentDate}
+                    hasEvents={hasEvents}
+                  />
+                </div>
 
-          {/* Next month calendar */}
-          <div className="md:col-span-3">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle>{format(nextMonth, "MMMM yyyy")}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <SingleMonthCalendar
-                  selected={selectedDate}
-                  onSelect={handleDateClick}
-                  month={nextMonth}
-                  hasEvents={hasEvents}
-                />
-              </CardContent>
-            </Card>
-          </div>
+                {/* Next month calendar */}
+                <div>
+                  <h3 className="text-sm font-medium mb-2">{format(nextMonth, "MMMM yyyy")}</h3>
+                  <SingleMonthCalendar
+                    selected={selectedDate}
+                    onSelect={handleDateClick}
+                    month={nextMonth}
+                    hasEvents={hasEvents}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-          {/* Selected date info */}
+          {/* Selected date events */}
           <DateEventsCard
             selectedDate={selectedDate}
             events={selectedDateEvents}
@@ -122,16 +120,22 @@ const CalendarView = ({
           />
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-7 gap-6">
-          <div className="md:col-span-5">
-            <SingleMonthCalendar
-              selected={selectedDate}
-              onSelect={handleDateClick}
-              month={currentDate}
-              onMonthChange={setCurrentDate}
-              hasEvents={hasEvents}
-            />
-          </div>
+        <div className="grid grid-cols-1 gap-6">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle>Monthly View</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <SingleMonthCalendar
+                selected={selectedDate}
+                onSelect={handleDateClick}
+                month={currentDate}
+                onMonthChange={setCurrentDate}
+                hasEvents={hasEvents}
+                fullWidth
+              />
+            </CardContent>
+          </Card>
 
           <DateEventsCard
             selectedDate={selectedDate}
@@ -155,6 +159,7 @@ interface SingleMonthCalendarProps {
   month: Date;
   onMonthChange?: React.Dispatch<React.SetStateAction<Date>>;
   hasEvents: (date: Date) => boolean;
+  fullWidth?: boolean;
 }
 
 const SingleMonthCalendar = ({
@@ -163,6 +168,7 @@ const SingleMonthCalendar = ({
   month,
   onMonthChange,
   hasEvents,
+  fullWidth = false,
 }: SingleMonthCalendarProps) => {
   return (
     <CalendarComponent
@@ -170,12 +176,15 @@ const SingleMonthCalendar = ({
       onSelect={(date) => date && onSelect(date)}
       month={month}
       onMonthChange={onMonthChange}
-      className="border rounded-md"
+      className={cn("border rounded-md", fullWidth && "w-full")}
       classNames={{
         day_today: "bg-muted text-primary-foreground font-bold",
         day: cn(
           "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-muted hover:text-foreground focus:bg-primary focus:text-primary-foreground"
         ),
+        months: fullWidth ? "w-full" : "",
+        month: fullWidth ? "w-full" : "",
+        table: fullWidth ? "w-full" : "",
       }}
       components={{
         Day: ({ date }) => {
@@ -233,9 +242,10 @@ const DateEventsCard = ({ selectedDate, events, goToNewBooking }: DateEventsCard
   };
   
   return (
-    <Card className="md:col-span-2">
+    <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg">
+        <CardTitle className="text-lg flex items-center">
+          <CalendarIcon className="h-5 w-5 mr-2" />
           {selectedDate ? format(selectedDate, "MMMM d, yyyy") : "No date selected"}
         </CardTitle>
       </CardHeader>
@@ -246,7 +256,7 @@ const DateEventsCard = ({ selectedDate, events, goToNewBooking }: DateEventsCard
               <div
                 key={booking.id}
                 className={cn(
-                  "p-2 rounded-md border cursor-pointer",
+                  "p-3 rounded-md border cursor-pointer",
                   getStatusColor(booking.status)
                 )}
                 onClick={() => goToBookingDetails(booking.id)}

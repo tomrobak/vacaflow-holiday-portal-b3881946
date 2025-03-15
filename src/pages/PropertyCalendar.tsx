@@ -6,14 +6,13 @@ import PropertyCalendarHeader from "@/components/property-calendar/PropertyCalen
 import CalendarGrid from "@/components/property-calendar/CalendarGrid";
 import BookingsList from "@/components/property-calendar/BookingsList";
 import BookingDialog from "@/components/property-calendar/BookingDialog";
+import { BookingStatus } from "@/types/booking";
 
 const mockPropertyData = {
   id: 1,
   name: "Sunset Villa",
   location: "Malibu, CA",
 };
-
-type BookingStatus = "confirmed" | "pending" | "canceled";
 
 interface Booking {
   id: string;
@@ -38,7 +37,7 @@ const generateMockBookings = (): Booking[] => {
     const bookingStart = addDays(startDate, randomStartDayOffset);
     const bookingEnd = addDays(bookingStart, randomDuration);
     
-    const statuses: BookingStatus[] = ["confirmed", "pending", "canceled"];
+    const statuses: BookingStatus[] = ["confirmed", "pending", "cancelled"];
     const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
     
     bookings.push({

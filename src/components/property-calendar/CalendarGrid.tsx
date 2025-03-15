@@ -4,8 +4,7 @@ import { format, isSameDay, isSameMonth, addMonths } from "date-fns";
 import { ChevronLeft, ChevronRight, CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
-type BookingStatus = "confirmed" | "pending" | "canceled";
+import { BookingStatus } from "@/types/booking";
 
 interface Booking {
   id: string;
@@ -81,7 +80,7 @@ const CalendarGrid = ({ filteredBookings, selectedDate, setSelectedDate }: Calen
         return "bg-green-100 text-green-800 border-green-300 hover:bg-green-200";
       case "pending":
         return "bg-yellow-100 text-yellow-800 border-yellow-300 hover:bg-yellow-200";
-      case "canceled":
+      case "cancelled":
         return "bg-red-100 text-red-800 border-red-300 hover:bg-red-200";
       default:
         return "bg-gray-100 text-gray-800 border-gray-300 hover:bg-gray-200";

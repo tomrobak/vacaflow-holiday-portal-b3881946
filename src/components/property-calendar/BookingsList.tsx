@@ -6,8 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-
-type BookingStatus = "confirmed" | "pending" | "canceled";
+import { BookingStatus } from "@/types/booking";
 
 interface Booking {
   id: string;
@@ -36,7 +35,7 @@ const BookingsList = ({ filteredBookings, selectedDate, getBookingsForDate }: Bo
         return "default";
       case "pending":
         return "secondary";
-      case "canceled":
+      case "cancelled":
         return "destructive";
       default:
         return "outline";
@@ -99,7 +98,7 @@ const BookingsList = ({ filteredBookings, selectedDate, getBookingsForDate }: Bo
         <CardContent>
           <div className="space-y-4">
             {filteredBookings
-              .filter(booking => booking.startDate >= new Date() && booking.status !== "canceled")
+              .filter(booking => booking.startDate >= new Date() && booking.status !== "cancelled")
               .sort((a, b) => a.startDate.getTime() - b.startDate.getTime())
               .slice(0, 5)
               .map((booking) => (
@@ -123,7 +122,7 @@ const BookingsList = ({ filteredBookings, selectedDate, getBookingsForDate }: Bo
                 </div>
               ))}
 
-            {filteredBookings.filter(booking => booking.startDate >= new Date() && booking.status !== "canceled").length === 0 && (
+            {filteredBookings.filter(booking => booking.startDate >= new Date() && booking.status !== "cancelled").length === 0 && (
               <div className="text-center py-6 text-muted-foreground">
                 No upcoming bookings
               </div>

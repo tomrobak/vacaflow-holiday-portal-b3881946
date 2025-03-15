@@ -11,8 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-
-type BookingStatus = "confirmed" | "pending" | "canceled";
+import { BookingStatus } from "@/types/booking";
 
 interface BookingForm {
   startDate: Date;
@@ -160,7 +159,7 @@ const BookingDialog = ({ open, onOpenChange, propertyName }: BookingDialogProps)
               <Label htmlFor="status">Status</Label>
               <Select
                 value={bookingForm.status}
-                onValueChange={(value: string) => setBookingForm(prev => ({ ...prev, status: value as BookingStatus }))}
+                onValueChange={(value: BookingStatus) => setBookingForm(prev => ({ ...prev, status: value }))}
               >
                 <SelectTrigger id="status">
                   <SelectValue placeholder="Select status" />
@@ -168,7 +167,7 @@ const BookingDialog = ({ open, onOpenChange, propertyName }: BookingDialogProps)
                 <SelectContent>
                   <SelectItem value="confirmed">Confirmed</SelectItem>
                   <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="canceled">Canceled</SelectItem>
+                  <SelectItem value="cancelled">Cancelled</SelectItem>
                 </SelectContent>
               </Select>
             </div>

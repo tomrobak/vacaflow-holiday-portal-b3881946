@@ -7,6 +7,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Properties from "./pages/Properties";
+import PropertyDetail from "./pages/PropertyDetail";
+import NewProperty from "./pages/NewProperty";
+import PropertyCalendar from "./pages/PropertyCalendar";
 import NotFound from "./pages/NotFound";
 import MainLayout from "./components/layout/MainLayout";
 
@@ -38,6 +41,8 @@ const App = () => (
               </MainLayout>
             }
           />
+
+          {/* Property Routes */}
           <Route
             path="/properties"
             element={
@@ -46,6 +51,31 @@ const App = () => (
               </MainLayout>
             }
           />
+          <Route
+            path="/properties/new"
+            element={
+              <MainLayout>
+                <NewProperty />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/properties/:id"
+            element={
+              <MainLayout>
+                <PropertyDetail />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/properties/:id/calendar"
+            element={
+              <MainLayout>
+                <PropertyCalendar />
+              </MainLayout>
+            }
+          />
+
           <Route
             path="/calendar"
             element={

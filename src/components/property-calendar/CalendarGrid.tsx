@@ -132,7 +132,7 @@ const CalendarGrid = ({ filteredBookings, selectedDate, setSelectedDate }: Calen
               <div
                 key={index}
                 className={cn(
-                  "min-h-24 p-1 border-r border-b relative",
+                  "min-h-[6rem] p-1 border-r border-b relative",
                   !isCurrentMonth && "bg-muted/30",
                   isSelected && "bg-primary/10",
                   isToday && "bg-primary/5"
@@ -150,21 +150,21 @@ const CalendarGrid = ({ filteredBookings, selectedDate, setSelectedDate }: Calen
                     {format(day, "d")}
                   </span>
                 </div>
-                <div className="mt-1 space-y-1 max-w-full">
+                <div className="mt-1 space-y-1 w-full overflow-hidden">
                   {dayBookings.slice(0, 2).map((booking) => (
                     <div
                       key={booking.id}
                       className={cn(
-                        "text-xs px-1 py-0.5 rounded truncate border",
+                        "text-xs px-1 py-0.5 rounded truncate border w-full",
                         getStatusColor(booking.status),
                         isSameDay(day, booking.startDate) && "border-l-4"
                       )}
                       title={`${booking.guestName}: ${format(booking.startDate, "PP")} - ${format(booking.endDate, "PP")}`}
                     >
                       {isSameDay(day, booking.startDate) ? (
-                        <span className="font-medium">{booking.guestName}</span>
+                        <span className="font-medium truncate block">{booking.guestName}</span>
                       ) : (
-                        <span>•••</span>
+                        <span className="truncate block">•••</span>
                       )}
                     </div>
                   ))}

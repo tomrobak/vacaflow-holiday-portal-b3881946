@@ -88,7 +88,7 @@ const CalendarView = ({
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Current month calendar */}
-                <div>
+                <div className="w-full">
                   <h3 className="text-sm font-medium mb-2">{format(currentDate, "MMMM yyyy")}</h3>
                   <SingleMonthCalendar
                     selected={selectedDate}
@@ -99,7 +99,7 @@ const CalendarView = ({
                 </div>
 
                 {/* Next month calendar */}
-                <div>
+                <div className="w-full">
                   <h3 className="text-sm font-medium mb-2">{format(nextMonth, "MMMM yyyy")}</h3>
                   <SingleMonthCalendar
                     selected={selectedDate}
@@ -180,15 +180,15 @@ const SingleMonthCalendar = ({
       classNames={{
         day_today: "bg-muted text-primary-foreground font-bold",
         day: cn(
-          "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-muted hover:text-foreground focus:bg-primary focus:text-primary-foreground"
+          "h-10 w-full p-0 font-normal aria-selected:opacity-100 hover:bg-muted hover:text-foreground focus:bg-primary focus:text-primary-foreground"
         ),
-        months: fullWidth ? "w-full" : "",
-        month: fullWidth ? "w-full" : "",
-        table: fullWidth ? "w-full" : "",
-        row: "flex w-full justify-between mt-2",
-        cell: "flex items-center justify-center p-0",
+        months: "w-full",
+        month: "w-full",
+        table: "w-full",
+        row: "flex w-full mt-2 space-x-1",
+        cell: "flex p-0 text-center justify-center items-center",
         head_row: "flex w-full justify-between",
-        head_cell: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem] flex items-center justify-center",
+        head_cell: "text-muted-foreground rounded-md w-10 font-normal text-[0.8rem] flex items-center justify-center",
       }}
       components={{
         Day: ({ date }) => {
@@ -201,7 +201,7 @@ const SingleMonthCalendar = ({
             <div
               onClick={() => date && onSelect(date)}
               className={cn(
-                "h-9 w-9 flex items-center justify-center rounded-md relative cursor-pointer",
+                "h-10 w-10 flex items-center justify-center rounded-md relative cursor-pointer",
                 hasBooking ? "font-semibold" : "",
                 hasBooking ? "bg-blue-50" : "",
                 isSelected && "bg-primary text-primary-foreground"

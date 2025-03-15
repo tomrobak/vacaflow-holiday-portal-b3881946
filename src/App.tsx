@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import Dashboard from "@/pages/Dashboard";
@@ -19,12 +18,28 @@ import PropertyCalendar from "@/pages/PropertyCalendar";
 import CustomerDashboard from "@/pages/CustomerDashboard"; // Add this import
 import CustomerDetail from "@/pages/CustomerDetail";
 import { Toaster } from "sonner";
+import CustomerLayout from "@/components/layout/CustomerLayout";
+import CustomerLogin from "@/pages/CustomerLogin";
+import CustomerDashboardPage from "@/pages/customer/CustomerDashboard";
+import CustomerBookings from "@/pages/customer/CustomerBookings";
+import CustomerPayments from "@/pages/customer/CustomerPayments";
+import CustomerMessages from "@/pages/customer/CustomerMessages";
 
 function App() {
   return (
     <Router>
       <Toaster position="top-right" />
       <Routes>
+        {/* Customer routes */}
+        <Route path="/customer/login" element={<CustomerLogin />} />
+        <Route path="/customer" element={<CustomerLayout><Outlet /></CustomerLayout>}>
+          <Route path="dashboard" element={<CustomerDashboardPage />} />
+          <Route path="bookings" element={<CustomerBookings />} />
+          <Route path="payments" element={<CustomerPayments />} />
+          <Route path="messages" element={<CustomerMessages />} />
+        </Route>
+
+        {/* Admin routes */}
         <Route path="/" element={<MainLayout><Outlet /></MainLayout>}>
           <Route index element={<Dashboard />} />
           <Route path="customers/*" element={<Customers />} />

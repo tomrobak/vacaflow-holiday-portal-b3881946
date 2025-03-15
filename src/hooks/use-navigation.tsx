@@ -31,7 +31,7 @@ export function useNavigation() {
     () => [
       {
         label: "Dashboard",
-        href: "/dashboard",
+        href: "/",
         icon: Home,
       },
       {

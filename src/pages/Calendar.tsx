@@ -105,6 +105,18 @@ const Calendar = () => {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
+  const goToBookingDetails = (bookingId: string) => {
+    navigate(`/bookings/${bookingId}`);
+  };
+  
+  const goToPropertyDetails = (propertyId: string) => {
+    navigate(`/properties/${propertyId}`);
+  };
+  
+  const goToCustomerDetails = (customerId: string) => {
+    navigate(`/customers/${customerId}`);
+  };
+
   const filteredBookings = useMemo(() => {
     return mockBookings.filter(booking => {
       if (filterProperty !== "all" && booking.propertyId !== filterProperty) return false;
@@ -295,9 +307,9 @@ const Calendar = () => {
                     ),
                   }}
                   components={{
-                    Day: (props) => {
-                      const date = props.date;
+                    Day: ({ date, ...props }) => {
                       const hasBooking = hasEvents(date);
+                      const isSelected = selectedDate ? isSameDay(date, selectedDate) : false;
                       
                       return (
                         <div
@@ -305,11 +317,11 @@ const Calendar = () => {
                           className={cn(
                             "h-9 w-9 flex items-center justify-center rounded-md relative",
                             hasBooking ? "font-semibold" : "",
-                            props.selected && "bg-primary text-primary-foreground"
+                            isSelected && "bg-primary text-primary-foreground"
                           )}
                         >
                           {props.children}
-                          {hasBooking && !props.selected && (
+                          {hasBooking && !isSelected && (
                             <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
                           )}
                         </div>

@@ -180,15 +180,15 @@ const SingleMonthCalendar = ({
       classNames={{
         day_today: "bg-muted text-primary-foreground font-bold",
         day: cn(
-          "h-10 w-full p-0 font-normal aria-selected:opacity-100 hover:bg-muted hover:text-foreground focus:bg-primary focus:text-primary-foreground"
+          "h-10 w-10 p-0 font-normal aria-selected:opacity-100 hover:bg-muted hover:text-foreground focus:bg-primary focus:text-primary-foreground"
         ),
         months: "w-full",
         month: "w-full",
         table: "w-full",
-        row: "flex w-full mt-2 space-x-1",
-        cell: "flex p-0 text-center justify-center items-center",
-        head_row: "flex w-full justify-between",
-        head_cell: "text-muted-foreground rounded-md w-10 font-normal text-[0.8rem] flex items-center justify-center",
+        row: "flex w-full justify-between mt-2",
+        cell: "text-center",
+        head_row: "flex w-full justify-between mb-1",
+        head_cell: "text-muted-foreground rounded-md w-10 font-normal text-[0.8rem] text-center",
       }}
       components={{
         Day: ({ date }) => {

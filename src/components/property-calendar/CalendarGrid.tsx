@@ -113,9 +113,9 @@ const CalendarGrid = ({ filteredBookings, selectedDate, setSelectedDate }: Calen
       </div>
 
       <div className="rounded-lg border bg-card shadow-sm overflow-hidden">
-        <div className="grid grid-cols-7 bg-muted">
+        <div className="grid grid-cols-7">
           {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
-            <div key={day} className="py-2 text-center text-sm font-medium">
+            <div key={day} className="py-2 text-center text-sm font-medium border-b">
               {day}
             </div>
           ))}

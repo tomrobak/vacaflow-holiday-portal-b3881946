@@ -1,3 +1,4 @@
+
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { format, addMonths, isWithinInterval, isSameDay, parseISO } from "date-fns";
@@ -100,7 +101,7 @@ const Calendar = () => {
   const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-  const [view, setView] = useState<"month" | "list">("month");
+  const [view, setView] = useState<"month" | "list" | "dual">("dual");
   const [filterProperty, setFilterProperty] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -116,6 +117,18 @@ const Calendar = () => {
   const goToCustomerDetails = (customerId: string) => {
     navigate(`/customers/${customerId}`);
   };
+
+  const goToNewBooking = (date?: Date) => {
+    if (date) {
+      navigate(`/bookings/new?date=${format(date, 'yyyy-MM-dd')}`);
+    } else {
+      navigate('/bookings/new');
+    }
+  };
+
+  const nextMonth = useMemo(() => {
+    return addMonths(currentDate, 1);
+  }, [currentDate]);
 
   const filteredBookings = useMemo(() => {
     return mockBookings.filter(booking => {
@@ -168,11 +181,34 @@ const Calendar = () => {
     );
   };
 
+  const findBookingsForDate = (date: Date) => {
+    return filteredBookings.filter(booking => 
+      isWithinInterval(date, {
+        start: booking.startDate,
+        end: booking.endDate,
+      }) || isSameDay(date, booking.startDate) || isSameDay(date, booking.endDate)
+    );
+  };
+
+  const handleDateClick = (date: Date) => {
+    const bookingsOnDate = findBookingsForDate(date);
+    setSelectedDate(date);
+    
+    if (bookingsOnDate.length === 1) {
+      // If there's only one booking, go directly to it
+      goToBookingDetails(bookingsOnDate[0].id);
+    } else if (bookingsOnDate.length === 0) {
+      // If there are no bookings, go to new booking page
+      goToNewBooking(date);
+    }
+    // If there are multiple bookings, just select the date to show them in the sidebar
+  };
+
   const prevMonth = () => {
     setCurrentDate(prev => addMonths(prev, -1));
   };
 
-  const nextMonth = () => {
+  const nextMonthNav = () => {
     setCurrentDate(prev => addMonths(prev, 1));
   };
 
@@ -195,7 +231,7 @@ const Calendar = () => {
         <div className="flex flex-col sm:flex-row gap-2">
           <Button 
             variant="outline"
-            onClick={() => navigate("/bookings/new")}
+            onClick={() => goToNewBooking()}
           >
             Add Booking
           </Button>
@@ -264,11 +300,204 @@ const Calendar = () => {
           </div>
         </div>
 
-        <Tabs value={view} onValueChange={(v) => setView(v as "month" | "list")}>
+        <Tabs value={view} onValueChange={(v) => setView(v as "month" | "list" | "dual")}>
           <TabsList className="mb-4">
+            <TabsTrigger value="dual">Dual Calendar</TabsTrigger>
             <TabsTrigger value="month">Month View</TabsTrigger>
             <TabsTrigger value="list">List View</TabsTrigger>
           </TabsList>
+          
+          <TabsContent value="dual" className="space-y-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold">
+                {format(currentDate, "MMMM yyyy")} - {format(nextMonth, "MMMM yyyy")}
+              </h2>
+              <div className="flex space-x-2">
+                <Button variant="outline" size="icon" onClick={prevMonth}>
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  onClick={() => setCurrentDate(new Date())}
+                >
+                  <CalendarIcon className="h-4 w-4" />
+                </Button>
+                <Button variant="outline" size="icon" onClick={nextMonthNav}>
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-8 gap-6">
+              {/* Current month calendar */}
+              <div className="md:col-span-3">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle>{format(currentDate, "MMMM yyyy")}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <CalendarComponent
+                      selected={selectedDate}
+                      onSelect={(date) => date && handleDateClick(date)}
+                      month={currentDate}
+                      className="border rounded-md"
+                      classNames={{
+                        day_today: "bg-muted text-primary-foreground font-bold",
+                        day: cn(
+                          "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-muted hover:text-foreground focus:bg-primary focus:text-primary-foreground"
+                        ),
+                      }}
+                      components={{
+                        Day: ({ date }) => {
+                          if (!date) return null;
+                          
+                          const hasBooking = hasEvents(date);
+                          const isSelected = selectedDate ? isSameDay(date, selectedDate) : false;
+                          
+                          return (
+                            <div
+                              onClick={() => date && handleDateClick(date)}
+                              className={cn(
+                                "h-9 w-9 flex items-center justify-center rounded-md relative cursor-pointer",
+                                hasBooking ? "font-semibold" : "",
+                                hasBooking ? "bg-blue-50" : "",
+                                isSelected && "bg-primary text-primary-foreground"
+                              )}
+                            >
+                              {date.getDate()}
+                              {hasBooking && !isSelected && (
+                                <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
+                              )}
+                            </div>
+                          );
+                        },
+                      }}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+              
+              {/* Next month calendar */}
+              <div className="md:col-span-3">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle>{format(nextMonth, "MMMM yyyy")}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <CalendarComponent
+                      selected={selectedDate}
+                      onSelect={(date) => date && handleDateClick(date)}
+                      month={nextMonth}
+                      className="border rounded-md"
+                      classNames={{
+                        day_today: "bg-muted text-primary-foreground font-bold",
+                        day: cn(
+                          "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-muted hover:text-foreground focus:bg-primary focus:text-primary-foreground"
+                        ),
+                      }}
+                      components={{
+                        Day: ({ date }) => {
+                          if (!date) return null;
+                          
+                          const hasBooking = hasEvents(date);
+                          const isSelected = selectedDate ? isSameDay(date, selectedDate) : false;
+                          
+                          return (
+                            <div
+                              onClick={() => date && handleDateClick(date)}
+                              className={cn(
+                                "h-9 w-9 flex items-center justify-center rounded-md relative cursor-pointer",
+                                hasBooking ? "font-semibold" : "",
+                                hasBooking ? "bg-blue-50" : "",
+                                isSelected && "bg-primary text-primary-foreground"
+                              )}
+                            >
+                              {date.getDate()}
+                              {hasBooking && !isSelected && (
+                                <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
+                              )}
+                            </div>
+                          );
+                        },
+                      }}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+              
+              {/* Selected date info */}
+              <Card className="md:col-span-2">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg">
+                    {selectedDate ? format(selectedDate, "MMMM d, yyyy") : "No date selected"}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {selectedDateEvents.length > 0 ? (
+                    <div className="space-y-3">
+                      {selectedDateEvents.map((booking) => (
+                        <div 
+                          key={booking.id}
+                          className={cn(
+                            "p-2 rounded-md border cursor-pointer",
+                            getStatusColor(booking.status)
+                          )}
+                          onClick={() => goToBookingDetails(booking.id)}
+                        >
+                          <div className="flex justify-between items-start mb-1">
+                            <div className="font-medium">{booking.propertyName}</div>
+                            <Badge variant={booking.status === "confirmed" ? "default" : 
+                                         booking.status === "pending" ? "secondary" : 
+                                         booking.status === "cancelled" ? "destructive" : "outline"}>
+                              {booking.status}
+                            </Badge>
+                          </div>
+                          <div className="text-sm mb-1">{booking.customerName}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {format(booking.startDate, "MMM d")} - {format(booking.endDate, "MMM d, yyyy")}
+                          </div>
+                          <div className="flex justify-between text-xs mt-1">
+                            <span>{booking.guestCount} guests</span>
+                            <span>${booking.totalAmount}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="text-center py-3 text-muted-foreground">
+                        No bookings for this date
+                      </div>
+                      <Button 
+                        className="w-full" 
+                        onClick={() => selectedDate && goToNewBooking(selectedDate)}
+                      >
+                        Add New Booking
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+            
+            <div className="mt-4">
+              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                <div className="flex items-center">
+                  <div className="w-3 h-3 rounded-full bg-blue-50 border border-blue-200 mr-1"></div>
+                  <span>Has Booking</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-3 h-3 rounded-full bg-primary mr-1"></div>
+                  <span>Selected Date</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-3 h-3 rounded-full bg-muted mr-1"></div>
+                  <span>Today</span>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
           
           <TabsContent value="month" className="space-y-4">
             <div className="flex items-center justify-between mb-4">
@@ -286,7 +515,7 @@ const Calendar = () => {
                 >
                   <CalendarIcon className="h-4 w-4" />
                 </Button>
-                <Button variant="outline" size="icon" onClick={nextMonth}>
+                <Button variant="outline" size="icon" onClick={nextMonthNav}>
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
@@ -296,7 +525,7 @@ const Calendar = () => {
               <div className="md:col-span-5">
                 <CalendarComponent
                   selected={selectedDate}
-                  onSelect={setSelectedDate}
+                  onSelect={(date) => date && handleDateClick(date)}
                   month={currentDate}
                   onMonthChange={setCurrentDate}
                   className="border rounded-md"
@@ -315,10 +544,11 @@ const Calendar = () => {
                       
                       return (
                         <div
-                          onClick={() => setSelectedDate(date)}
+                          onClick={() => date && handleDateClick(date)}
                           className={cn(
-                            "h-9 w-9 flex items-center justify-center rounded-md relative",
+                            "h-9 w-9 flex items-center justify-center rounded-md relative cursor-pointer",
                             hasBooking ? "font-semibold" : "",
+                            hasBooking ? "bg-blue-50" : "",
                             isSelected && "bg-primary text-primary-foreground"
                           )}
                         >
@@ -371,8 +601,16 @@ const Calendar = () => {
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-6 text-muted-foreground">
-                      No bookings for this date
+                    <div className="space-y-4">
+                      <div className="text-center py-3 text-muted-foreground">
+                        No bookings for this date
+                      </div>
+                      <Button 
+                        className="w-full" 
+                        onClick={() => selectedDate && goToNewBooking(selectedDate)}
+                      >
+                        Add New Booking
+                      </Button>
                     </div>
                   )}
                 </CardContent>

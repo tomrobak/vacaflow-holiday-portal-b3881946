@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import Dashboard from "@/pages/Dashboard";
@@ -15,7 +16,7 @@ import Messages from "@/pages/Messages";
 import NewProperty from "@/pages/NewProperty";
 import PropertyDetail from "@/pages/PropertyDetail";
 import PropertyCalendar from "@/pages/PropertyCalendar";
-import CustomerDashboard from "@/pages/CustomerDashboard"; // Add this import
+import CustomerDashboard from "@/pages/CustomerDashboard";
 import CustomerDetail from "@/pages/CustomerDetail";
 import { Toaster } from "sonner";
 import CustomerLayout from "@/components/layout/CustomerLayout";
@@ -24,6 +25,12 @@ import CustomerDashboardPage from "@/pages/customer/CustomerDashboard";
 import CustomerBookings from "@/pages/customer/CustomerBookings";
 import CustomerPayments from "@/pages/customer/CustomerPayments";
 import CustomerMessages from "@/pages/customer/CustomerMessages";
+import Settings from "@/pages/Settings";
+import GeneralSettings from "@/pages/settings/GeneralSettings";
+import MailSettings from "@/pages/settings/MailSettings";
+import PaymentSettings from "@/pages/settings/PaymentSettings";
+import StorageSettings from "@/pages/settings/StorageSettings";
+import EmailSettings from "@/pages/settings/EmailSettings";
 
 function App() {
   return (
@@ -57,6 +64,17 @@ function App() {
           <Route path="payments/:id" element={<PaymentDetail />} />
           <Route path="calendar/*" element={<Calendar />} />
           <Route path="messages/*" element={<Messages />} />
+          
+          {/* Settings routes */}
+          <Route path="settings" element={<Settings />}>
+            <Route index element={<GeneralSettings />} />
+            <Route path="general" element={<GeneralSettings />} />
+            <Route path="mail" element={<MailSettings />} />
+            <Route path="payment" element={<PaymentSettings />} />
+            <Route path="storage" element={<StorageSettings />} />
+            <Route path="email" element={<EmailSettings />} />
+          </Route>
+          
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

@@ -11,6 +11,9 @@ import {
   Building,
   BookOpen,
   Plus,
+  Mail,
+  Cloud,
+  Server,
 } from "lucide-react";
 
 export type NavigationItem = {
@@ -96,6 +99,33 @@ export function useNavigation() {
         label: "Settings",
         href: "/settings",
         icon: Settings,
+        children: [
+          {
+            label: "General",
+            href: "/settings/general",
+            icon: Settings,
+          },
+          {
+            label: "Unified Mailbox",
+            href: "/settings/mail",
+            icon: Mail,
+          },
+          {
+            label: "Payment",
+            href: "/settings/payment",
+            icon: CreditCard,
+          },
+          {
+            label: "Storage",
+            href: "/settings/storage",
+            icon: Cloud,
+          },
+          {
+            label: "Email Delivery",
+            href: "/settings/email",
+            icon: Server,
+          },
+        ],
       },
     ],
     []

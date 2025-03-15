@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { format } from "date-fns";
 import { useForm } from "react-hook-form";
@@ -106,7 +106,7 @@ const NewBooking = () => {
   const customerId = form.watch("customerId");
 
   // Update selections and calculate price
-  React.useEffect(() => {
+  useEffect(() => {
     if (propertyId) {
       const property = mockProperties.find(p => p.id === propertyId);
       setSelectedProperty(property);

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { CalendarIcon, Building, Upload, X, Plus, MapPin, Calendar } from "lucide-react";
+import { CalendarIcon, Building, Upload, X, Plus, MapPin, Calendar as CalendarLucide } from "lucide-react";
 import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
@@ -31,7 +31,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { notifyPropertyCreated } from "@/utils/property-notifications";
@@ -633,7 +633,7 @@ const NewProperty = () => {
                         <FormLabel>Google Calendar ID</FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <Calendar className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <CalendarLucide className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                             <Input
                               placeholder="e.g. example@gmail.com"
                               className="pl-8"

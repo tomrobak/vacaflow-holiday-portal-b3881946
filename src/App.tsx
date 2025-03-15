@@ -1,5 +1,5 @@
 
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import Dashboard from "@/pages/Dashboard";
 import Customers from "@/pages/Customers";
@@ -17,7 +17,7 @@ function App() {
     <Router>
       <Toaster position="top-right" />
       <Routes>
-        <Route path="/" element={<MainLayout />}>
+        <Route path="/" element={<MainLayout><Outlet /></MainLayout>}>
           <Route index element={<Dashboard />} />
           <Route path="customers/*" element={<Customers />} />
           <Route path="properties/*" element={<Properties />} />

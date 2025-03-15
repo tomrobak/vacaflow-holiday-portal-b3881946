@@ -33,9 +33,9 @@ function Calendar({
         table: "w-full border-collapse space-y-1",
         head_row: "flex w-full justify-between",
         head_cell:
-          "text-muted-foreground w-full p-2 font-normal text-[0.8rem] text-center",
-        row: "flex w-full mt-2",
-        cell: "text-center relative p-0 w-full",
+          "text-muted-foreground w-[14.28%] px-1 py-2 font-normal text-[0.8rem] text-center",
+        row: "flex w-full mt-1",
+        cell: "relative p-0 text-center w-[14.28%]",
         day: cn(
           buttonVariants({ variant: "ghost" }),
           "h-9 w-full p-0 font-normal aria-selected:opacity-100"

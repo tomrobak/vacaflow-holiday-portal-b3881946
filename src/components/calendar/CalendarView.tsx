@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react";
 import { format, addMonths, isWithinInterval, isSameDay } from "date-fns";
 import { CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
@@ -177,19 +176,6 @@ const SingleMonthCalendar = ({
       month={month}
       onMonthChange={onMonthChange}
       className={cn("border rounded-md", fullWidth && "w-full")}
-      classNames={{
-        day_today: "bg-muted text-primary-foreground font-bold",
-        day: cn(
-          "h-9 w-full p-0 font-normal aria-selected:opacity-100 hover:bg-muted hover:text-foreground focus:bg-primary focus:text-primary-foreground"
-        ),
-        months: "w-full",
-        month: "w-full",
-        table: "w-full border-collapse",
-        row: "flex w-full justify-between",
-        cell: "p-0",
-        head_row: "flex w-full justify-between mb-1 border-b",
-        head_cell: "text-muted-foreground w-full py-2 font-normal text-[0.8rem] text-center",
-      }}
       components={{
         Day: ({ date }) => {
           if (!date) return null;
@@ -201,10 +187,10 @@ const SingleMonthCalendar = ({
             <div
               onClick={() => date && onSelect(date)}
               className={cn(
-                "h-9 w-full flex items-center justify-center rounded-md relative cursor-pointer",
+                "h-9 w-full flex items-center justify-center relative cursor-pointer",
                 hasBooking ? "font-semibold" : "",
-                hasBooking ? "bg-blue-50" : "",
-                isSelected && "bg-primary text-primary-foreground"
+                hasBooking ? "bg-blue-50 hover:bg-blue-100" : "hover:bg-muted",
+                isSelected && "bg-primary text-primary-foreground hover:bg-primary"
               )}
             >
               {date.getDate()}

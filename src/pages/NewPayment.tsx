@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { ArrowLeft, CreditCard, Calendar, DollarSign, User, FileText } from "lucide-react";
@@ -32,13 +31,12 @@ import {
 } from "@/components/ui/form";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
-import { PaymentMethod } from "@/types/payment";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { notifyPaymentRecorded } from "@/utils/payment-notifications";
+import { PaymentMethod } from "@/types/payment";
 
-// Define form schema with Zod
 const paymentFormSchema = z.object({
   bookingId: z.string().min(1, "Booking is required"),
   customerId: z.string().min(1, "Customer is required"),
@@ -52,7 +50,6 @@ const paymentFormSchema = z.object({
 
 type PaymentFormValues = z.infer<typeof paymentFormSchema>;
 
-// Mock data for select options
 const mockBookings = [
   { id: "BOOK-2043", label: "BOOK-2043 - Beachfront Villa", customerId: "CUST-1012", propertyId: "PROP-524", amount: 150.00 },
   { id: "BOOK-2044", label: "BOOK-2044 - Mountain Cabin", customerId: "CUST-1013", propertyId: "PROP-525", amount: 320.50 },
@@ -76,12 +73,10 @@ const NewPayment = () => {
   const [searchParams] = useSearchParams();
   const initialBookingId = searchParams.get("bookingId") || "";
   
-  // Find the matching booking
   const selectedBooking = initialBookingId 
     ? mockBookings.find(booking => booking.id === initialBookingId) 
     : undefined;
   
-  // Form setup with default values
   const form = useForm<PaymentFormValues>({
     resolver: zodResolver(paymentFormSchema),
     defaultValues: {
@@ -96,10 +91,8 @@ const NewPayment = () => {
     },
   });
   
-  // Watch the bookingId to update linked fields
   const watchedBookingId = form.watch("bookingId");
   
-  // Update linked fields when booking changes
   const handleBookingChange = (bookingId: string) => {
     const booking = mockBookings.find(b => b.id === bookingId);
     if (booking) {
@@ -109,7 +102,6 @@ const NewPayment = () => {
     }
   };
   
-  // Format currency
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -119,23 +111,23 @@ const NewPayment = () => {
     }).format(amount);
   };
   
-  // Handle form submission
   const onSubmit = (data: PaymentFormValues) => {
     console.log("Payment form submitted:", data);
     
-    // In a real app, we would send this data to an API
-    // For now, we'll just show a success message and navigate back
-    toast.success("Payment recorded successfully!");
+    notifyPaymentRecorded({
+      amount: data.amount,
+      method: data.method,
+      date: data.date
+    });
+    
     navigate("/payments");
   };
   
-  // Selected customer name
   const getSelectedCustomerName = () => {
     const customerId = form.getValues("customerId");
     return mockCustomers.find(c => c.id === customerId)?.name || "";
   };
   
-  // Selected property name
   const getSelectedPropertyName = () => {
     const propertyId = form.getValues("propertyId");
     return mockProperties.find(p => p.id === propertyId)?.name || "";

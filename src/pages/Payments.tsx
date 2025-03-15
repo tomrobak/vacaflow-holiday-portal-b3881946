@@ -47,6 +47,7 @@ import {
 } from "@/components/ui/select";
 import { Payment, PaymentStatus, PaymentStats } from "@/types/payment";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
+import { notifyPaymentExported, notifyPaymentStatus } from "@/utils/payment-notifications";
 
 const mockPayments: Payment[] = Array.from({ length: 20 }, (_, i) => ({
   id: `PAY-${3000 + i}`,
@@ -102,7 +103,7 @@ const Payments = () => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sortField, setSortField] = useState<keyof Payment>("date");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
-  const [dateRange, setDateRange] = useState<DateRange>({ from: undefined, to: undefined });
+  const [dateRange, setDateRange] = useState<DateRange>({ from: new Date(), to: undefined });
 
   const handleSort = (field: keyof Payment) => {
     if (sortField === field) {
@@ -256,6 +257,14 @@ const Payments = () => {
     }
   };
 
+  const handleExport = () => {
+    notifyPaymentExported(filteredPayments.length);
+  };
+
+  const handleStatusChange = (payment: Payment, newStatus: PaymentStatus) => {
+    notifyPaymentStatus({...payment, status: newStatus}, newStatus);
+  };
+
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -265,11 +274,9 @@ const Payments = () => {
         </div>
         
         <div className="flex flex-wrap md:flex-nowrap gap-2">
-          <Button variant="outline" asChild>
-            <Link to="/payments/reports">
-              <Download className="mr-2 h-4 w-4" />
-              Export
-            </Link>
+          <Button variant="outline" onClick={handleExport}>
+            <Download className="mr-2 h-4 w-4" />
+            Export
           </Button>
           <Button asChild>
             <Link to="/payments/new">
@@ -440,7 +447,31 @@ const Payments = () => {
                               {getPaymentMethodName(payment.method)}
                             </div>
                           </TableCell>
-                          <TableCell>{getPaymentStatusBadge(payment.status)}</TableCell>
+                          <TableCell>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm" className="h-auto p-0">
+                                  {getPaymentStatusBadge(payment.status)}
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Change Status</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={() => handleStatusChange(payment, "successful")}>
+                                  Mark as Successful
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleStatusChange(payment, "pending")}>
+                                  Mark as Pending
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleStatusChange(payment, "failed")}>
+                                  Mark as Failed
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleStatusChange(payment, "refunded")}>
+                                  Mark as Refunded
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
                           <TableCell>
                             <Button variant="ghost" size="icon" asChild>
                               <Link to={`/payments/${payment.id}`}>

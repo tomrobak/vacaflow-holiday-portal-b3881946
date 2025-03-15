@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { format, addMonths, isWithinInterval, isSameDay, parseISO } from "date-fns";
@@ -308,10 +307,7 @@ const Calendar = () => {
                     ),
                   }}
                   components={{
-                    Day: (props) => {
-                      // Access the date from the props
-                      const date = props.date;
-                      
+                    Day: ({ date }) => {
                       if (!date) return null;
                       
                       const hasBooking = hasEvents(date);
@@ -326,7 +322,7 @@ const Calendar = () => {
                             isSelected && "bg-primary text-primary-foreground"
                           )}
                         >
-                          {props.children}
+                          {date.getDate()}
                           {hasBooking && !isSelected && (
                             <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
                           )}

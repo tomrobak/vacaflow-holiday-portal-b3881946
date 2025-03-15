@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -37,9 +36,10 @@ import {
   Building,
   Filter,
   SlidersHorizontal,
+  Check,
+  X,
 } from "lucide-react";
 
-// Mock properties data - in a real app, this would come from the API
 const properties = [
   {
     id: 1,
@@ -133,10 +133,8 @@ const Properties = () => {
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [view, setView] = useState<"grid" | "list">("grid");
 
-  // Unique property types for filter
   const propertyTypes = Array.from(new Set(properties.map(p => p.type)));
-  
-  // Filter properties based on search query and filters
+
   const filteredProperties = properties.filter(property => {
     const matchesSearch = 
       property.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -371,7 +369,6 @@ const Properties = () => {
         </div>
       </div>
 
-      {/* Filters & View Toggle */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div className="flex flex-wrap gap-2">
           <DropdownMenu>
@@ -480,7 +477,6 @@ const Properties = () => {
         </div>
       </div>
 
-      {/* Properties display */}
       {view === "grid" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredProperties.map((property) => (

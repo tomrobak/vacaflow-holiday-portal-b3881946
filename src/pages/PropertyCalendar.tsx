@@ -1,8 +1,8 @@
-
 import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { addDays, format, isSameDay, addMonths, isSameMonth, parseISO } from "date-fns";
-import { Calendar, ChevronLeft, ChevronRight, Plus, User, Filter, Calendar as CalendarIcon, X, Check } from "lucide-react";
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Plus, User, Filter, X, Check } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
 
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -16,14 +16,12 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
-// Mock data for property and bookings
 const mockPropertyData = {
   id: 1,
   name: "Sunset Villa",
   location: "Malibu, CA",
 };
 
-// Define booking types
 type BookingStatus = "confirmed" | "pending" | "canceled";
 
 interface Booking {
@@ -38,15 +36,13 @@ interface Booking {
   totalPrice: number;
 }
 
-// Generate mock bookings for the next 6 months
 const generateMockBookings = (): Booking[] => {
   const bookings: Booking[] = [];
   const startDate = new Date();
   
-  // Generate 15 random bookings over the next 6 months
   for (let i = 0; i < 15; i++) {
-    const randomStartDayOffset = Math.floor(Math.random() * 180); // Random day within 6 months
-    const randomDuration = Math.floor(Math.random() * 7) + 2; // Random duration between 2-8 days
+    const randomStartDayOffset = Math.floor(Math.random() * 180);
+    const randomDuration = Math.floor(Math.random() * 7) + 2;
     
     const bookingStart = addDays(startDate, randomStartDayOffset);
     const bookingEnd = addDays(bookingStart, randomDuration);
@@ -63,7 +59,7 @@ const generateMockBookings = (): Booking[] => {
       guestEmail: "guest@example.com",
       status: randomStatus,
       guestCount: Math.floor(Math.random() * 4) + 1,
-      totalPrice: (Math.floor(Math.random() * 20) + 10) * 100, // Random price between $1000-$3000
+      totalPrice: (Math.floor(Math.random() * 20) + 10) * 100,
     });
   }
   
@@ -72,7 +68,6 @@ const generateMockBookings = (): Booking[] => {
 
 const mockBookings = generateMockBookings();
 
-// Helper function to get color based on booking status
 const getStatusColor = (status: BookingStatus) => {
   switch (status) {
     case "confirmed":
@@ -102,8 +97,8 @@ const getStatusBadgeVariant = (status: BookingStatus): "default" | "destructive"
 const PropertyCalendar = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const property = mockPropertyData; // In a real app, fetch based on ID
-  const bookings = mockBookings; // In a real app, fetch based on property ID
+  const property = mockPropertyData;
+  const bookings = mockBookings;
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -118,12 +113,10 @@ const PropertyCalendar = () => {
   });
   const [statusFilter, setStatusFilter] = useState<BookingStatus | "all">("all");
 
-  // Filter bookings based on selected status
   const filteredBookings = statusFilter === "all"
     ? bookings
     : bookings.filter(booking => booking.status === statusFilter);
 
-  // Get bookings for the selected date
   const getBookingsForDate = (date: Date) => {
     return filteredBookings.filter(booking => {
       const bookingStart = new Date(booking.startDate);
@@ -132,7 +125,6 @@ const PropertyCalendar = () => {
     });
   };
 
-  // Navigation between months
   const prevMonth = () => {
     setCurrentDate(prev => addMonths(prev, -1));
   };
@@ -141,7 +133,6 @@ const PropertyCalendar = () => {
     setCurrentDate(prev => addMonths(prev, 1));
   };
 
-  // Generate the days of the current month for display
   const generateCalendarDays = () => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
@@ -149,23 +140,18 @@ const PropertyCalendar = () => {
     const firstDayOfMonth = new Date(year, month, 1);
     const lastDayOfMonth = new Date(year, month + 1, 0);
     
-    // Get the day of the week for the first day (0 = Sunday, 6 = Saturday)
     const firstDayOfWeek = firstDayOfMonth.getDay();
     
-    // Array to hold all days to display
     const days: Date[] = [];
     
-    // Add days from previous month to fill the first week
     for (let i = firstDayOfWeek - 1; i >= 0; i--) {
       days.push(addDays(firstDayOfMonth, -i - 1));
     }
     
-    // Add all days of the current month
     for (let i = 1; i <= lastDayOfMonth.getDate(); i++) {
       days.push(new Date(year, month, i));
     }
     
-    // Add days from next month to complete the last week
     const remainingDays = 7 - (days.length % 7);
     if (remainingDays < 7) {
       for (let i = 1; i <= remainingDays; i++) {
@@ -178,14 +164,11 @@ const PropertyCalendar = () => {
 
   const calendarDays = generateCalendarDays();
 
-  // Handle date selection
   const handleDateClick = (date: Date) => {
     setSelectedDate(date);
   };
 
-  // Handle new booking form submission
   const handleNewBooking = () => {
-    // In a real app, this would send the data to the backend
     console.log("New booking:", bookingForm);
     
     toast.success("Booking created successfully", {
@@ -193,7 +176,6 @@ const PropertyCalendar = () => {
     });
     
     setShowNewBookingDialog(false);
-    // Reset the form
     setBookingForm({
       startDate: new Date(),
       endDate: addDays(new Date(), 3),
@@ -274,7 +256,10 @@ const PropertyCalendar = () => {
                         <Calendar
                           mode="single"
                           selected={bookingForm.startDate}
-                          onSelect={(date) => date && setBookingForm(prev => ({ ...prev, startDate: date }))}
+                          onSelect={(date) => date && setBookingForm(prev => ({ 
+                            ...prev, 
+                            startDate: date 
+                          }))}
                           initialFocus
                           className={cn("p-3 pointer-events-auto")}
                         />
@@ -299,7 +284,10 @@ const PropertyCalendar = () => {
                         <Calendar
                           mode="single"
                           selected={bookingForm.endDate}
-                          onSelect={(date) => date && setBookingForm(prev => ({ ...prev, endDate: date }))}
+                          onSelect={(date) => date && setBookingForm(prev => ({
+                            ...prev,
+                            endDate: date
+                          }))}
                           initialFocus
                           className={cn("p-3 pointer-events-auto")}
                           disabled={(date) => date < bookingForm.startDate}
@@ -371,7 +359,6 @@ const PropertyCalendar = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          {/* Calendar Header */}
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">
               {format(currentDate, "MMMM yyyy")}
@@ -389,9 +376,7 @@ const PropertyCalendar = () => {
             </div>
           </div>
 
-          {/* Calendar Grid */}
           <div className="rounded-lg border bg-card shadow-sm overflow-hidden">
-            {/* Days of the week */}
             <div className="grid grid-cols-7 bg-muted">
               {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
                 <div key={day} className="py-2 text-center text-sm font-medium">
@@ -400,7 +385,6 @@ const PropertyCalendar = () => {
               ))}
             </div>
 
-            {/* Calendar days */}
             <div className="grid grid-cols-7 border-t">
               {calendarDays.map((day, index) => {
                 const dayBookings = getBookingsForDate(day);
@@ -460,7 +444,6 @@ const PropertyCalendar = () => {
             </div>
           </div>
 
-          {/* Selected Date Bookings */}
           {selectedDate && (
             <Card className="mt-6">
               <CardHeader className="pb-3">
@@ -509,7 +492,6 @@ const PropertyCalendar = () => {
           )}
         </div>
 
-        {/* Upcoming Bookings */}
         <div>
           <Card className="sticky top-6">
             <CardHeader>

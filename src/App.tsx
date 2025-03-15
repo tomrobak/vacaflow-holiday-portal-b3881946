@@ -16,6 +16,8 @@ import Messages from "@/pages/Messages";
 import NewProperty from "@/pages/NewProperty";
 import PropertyDetail from "@/pages/PropertyDetail";
 import PropertyCalendar from "@/pages/PropertyCalendar";
+import CustomerDashboard from "@/pages/CustomerDashboard"; // Add this import
+import CustomerDetail from "@/pages/CustomerDetail";
 import { Toaster } from "sonner";
 
 function App() {
@@ -27,6 +29,8 @@ function App() {
           <Route index element={<Dashboard />} />
           <Route path="customers/*" element={<Customers />} />
           <Route path="customers/new" element={<NewCustomer />} />
+          <Route path="customers/dashboard/:id" element={<CustomerDashboard />} />
+          <Route path="customers/:id" element={<CustomerDetail />} />
           <Route path="properties/*" element={<Properties />} />
           <Route path="properties/new" element={<NewProperty />} />
           <Route path="properties/:id" element={<PropertyDetail />} />

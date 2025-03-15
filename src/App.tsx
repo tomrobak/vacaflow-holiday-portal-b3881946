@@ -6,6 +6,7 @@ import Customers from "@/pages/Customers";
 import NewCustomer from "@/pages/NewCustomer";
 import Properties from "@/pages/Properties";
 import Bookings from "@/pages/Bookings";
+import NewBooking from "@/pages/NewBooking";
 import Payments from "@/pages/Payments";
 import Calendar from "@/pages/Calendar";
 import NotFound from "@/pages/NotFound";
@@ -31,6 +32,7 @@ function App() {
           <Route path="properties/:id" element={<PropertyDetail />} />
           <Route path="properties/:id/calendar" element={<PropertyCalendar />} />
           <Route path="bookings/*" element={<Bookings />} />
+          <Route path="bookings/new" element={<NewBooking />} />
           <Route path="payments" element={<Payments />} />
           <Route path="payments/new" element={<NewPayment />} />
           <Route path="payments/:id" element={<PaymentDetail />} />

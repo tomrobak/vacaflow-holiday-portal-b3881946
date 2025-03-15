@@ -180,15 +180,15 @@ const SingleMonthCalendar = ({
       classNames={{
         day_today: "bg-muted text-primary-foreground font-bold",
         day: cn(
-          "h-10 w-10 p-0 font-normal aria-selected:opacity-100 hover:bg-muted hover:text-foreground focus:bg-primary focus:text-primary-foreground"
+          "h-9 w-full p-0 font-normal aria-selected:opacity-100 hover:bg-muted hover:text-foreground focus:bg-primary focus:text-primary-foreground"
         ),
         months: "w-full",
         month: "w-full",
-        table: "w-full",
-        row: "flex w-full justify-between mt-2",
-        cell: "text-center",
-        head_row: "flex w-full justify-between mb-1",
-        head_cell: "text-muted-foreground rounded-md w-10 font-normal text-[0.8rem] text-center",
+        table: "w-full border-collapse",
+        row: "flex w-full justify-between",
+        cell: "p-0",
+        head_row: "flex w-full justify-between mb-1 border-b",
+        head_cell: "text-muted-foreground w-full py-2 font-normal text-[0.8rem] text-center",
       }}
       components={{
         Day: ({ date }) => {
@@ -201,7 +201,7 @@ const SingleMonthCalendar = ({
             <div
               onClick={() => date && onSelect(date)}
               className={cn(
-                "h-10 w-10 flex items-center justify-center rounded-md relative cursor-pointer",
+                "h-9 w-full flex items-center justify-center rounded-md relative cursor-pointer",
                 hasBooking ? "font-semibold" : "",
                 hasBooking ? "bg-blue-50" : "",
                 isSelected && "bg-primary text-primary-foreground"

@@ -132,7 +132,7 @@ const CalendarGrid = ({ filteredBookings, selectedDate, setSelectedDate }: Calen
               <div
                 key={index}
                 className={cn(
-                  "min-h-[6rem] p-1 border-r border-b relative",
+                  "h-24 p-1 border-r border-b relative",
                   !isCurrentMonth && "bg-muted/30",
                   isSelected && "bg-primary/10",
                   isToday && "bg-primary/5"

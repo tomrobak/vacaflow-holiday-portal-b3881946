@@ -35,7 +35,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
+import { notifyPropertyCreated } from "@/utils/property-notifications";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -47,6 +47,7 @@ const formSchema = z.object({
   location: z.string().min(2, {
     message: "Location must be at least 2 characters.",
   }),
+  address: z.string().optional(),
   price: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
     message: "Price must be a positive number.",
   }),
@@ -62,11 +63,32 @@ const formSchema = z.object({
       message: "Number of bathrooms must be a non-negative number.",
     }
   ),
+  maxGuests: z.string().refine(
+    (val) => !isNaN(Number(val)) && Number(val) > 0,
+    {
+      message: "Maximum guests must be a positive number.",
+    }
+  ).optional(),
+  squareFeet: z.string().refine(
+    (val) => val === "" || (!isNaN(Number(val)) && Number(val) > 0),
+    {
+      message: "Square feet must be a positive number.",
+    }
+  ).optional(),
   amenities: z.array(z.string()).optional(),
   availableFrom: z.date(),
-  availableTo: z.date(),
+  availableTo: z.date().refine(
+    (date, ctx) => {
+      const { availableFrom } = ctx.parent;
+      return date > availableFrom;
+    },
+    {
+      message: "End date must be after start date.",
+    }
+  ),
   propertyType: z.string(),
   isActive: z.boolean().default(true),
+  featured: z.boolean().default(false),
 });
 
 const amenitiesOptions = [
@@ -78,6 +100,14 @@ const amenitiesOptions = [
   { id: "kitchen", label: "Kitchen" },
   { id: "tv", label: "TV" },
   { id: "washing", label: "Washing Machine" },
+  { id: "heating", label: "Heating" },
+  { id: "balcony", label: "Balcony" },
+  { id: "fireplace", label: "Fireplace" },
+  { id: "bbq", label: "BBQ" },
+  { id: "hotTub", label: "Hot Tub" },
+  { id: "petsAllowed", label: "Pets Allowed" },
+  { id: "childFriendly", label: "Child Friendly" },
+  { id: "workspace", label: "Workspace" },
 ];
 
 const propertyTypes = [
@@ -100,14 +130,18 @@ const NewProperty = () => {
       name: "",
       description: "",
       location: "",
+      address: "",
       price: "",
       bedrooms: "",
       bathrooms: "",
+      maxGuests: "",
+      squareFeet: "",
       amenities: [],
       availableFrom: new Date(),
       availableTo: new Date(new Date().setMonth(new Date().getMonth() + 3)),
       propertyType: "house",
       isActive: true,
+      featured: false,
     },
   });
 
@@ -117,8 +151,9 @@ const NewProperty = () => {
     console.log("Uploaded images:", uploadedImages);
 
     // Show success message
-    toast.success("Property created successfully", {
-      description: "Your new property has been added.",
+    notifyPropertyCreated({ 
+      name: values.name,
+      id: Math.random().toString(36).substr(2, 9)
     });
 
     // Redirect to the properties listing page after form submission
@@ -220,6 +255,27 @@ const NewProperty = () => {
                 )}
               />
 
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Full Address (Optional)</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Enter the complete address..."
+                        className="resize-none"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      This address will be shared with guests after booking.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -251,6 +307,46 @@ const NewProperty = () => {
                           type="number"
                           min="0"
                           placeholder="2"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="maxGuests"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Max Guests</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min="1"
+                          placeholder="4"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="squareFeet"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Square Feet (Optional)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min="0"
+                          placeholder="1200"
                           {...field}
                         />
                       </FormControl>
@@ -451,27 +547,50 @@ const NewProperty = () => {
                 />
               </div>
 
-              <FormField
-                control={form.control}
-                name="isActive"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>Active Listing</FormLabel>
-                      <FormDescription>
-                        This property will be immediately available for bookings
-                        if active.
-                      </FormDescription>
-                    </div>
-                  </FormItem>
-                )}
-              />
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="isActive"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Active Listing</FormLabel>
+                        <FormDescription>
+                          This property will be immediately available for bookings
+                          if active.
+                        </FormDescription>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="featured"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Featured Property</FormLabel>
+                        <FormDescription>
+                          Featured properties are highlighted on the homepage and in search results.
+                        </FormDescription>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <div>
                 <FormLabel>Property Images</FormLabel>

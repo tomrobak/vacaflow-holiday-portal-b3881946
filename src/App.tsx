@@ -12,6 +12,7 @@ import NotFound from "@/pages/NotFound";
 import NewPayment from "@/pages/NewPayment";
 import PaymentDetail from "@/pages/PaymentDetail";
 import Messages from "@/pages/Messages";
+import NewProperty from "@/pages/NewProperty";
 import { Toaster } from "sonner";
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
           <Route path="customers/*" element={<Customers />} />
           <Route path="customers/new" element={<NewCustomer />} />
           <Route path="properties/*" element={<Properties />} />
+          <Route path="properties/new" element={<NewProperty />} />
           <Route path="bookings/*" element={<Bookings />} />
           <Route path="payments" element={<Payments />} />
           <Route path="payments/new" element={<NewPayment />} />

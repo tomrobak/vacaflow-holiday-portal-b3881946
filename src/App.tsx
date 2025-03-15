@@ -14,12 +14,15 @@ import Customers from "./pages/Customers";
 import NewCustomer from "./pages/NewCustomer";
 import CustomerDetail from "./pages/CustomerDetail";
 import EditCustomer from "./pages/EditCustomer";
+import Bookings from "./pages/Bookings";
+import BookingDetail from "./pages/BookingDetail";
+import NewBooking from "./pages/NewBooking";
+import EditBooking from "./pages/EditBooking";
 import NotFound from "./pages/NotFound";
 import MainLayout from "./components/layout/MainLayout";
 
 // Pages that will be implemented later
 const Calendar = () => <div className="p-6"><h1 className="text-3xl font-bold">Calendar</h1></div>;
-const Bookings = () => <div className="p-6"><h1 className="text-3xl font-bold">Bookings</h1></div>;
 const Payments = () => <div className="p-6"><h1 className="text-3xl font-bold">Payments</h1></div>;
 const Messages = () => <div className="p-6"><h1 className="text-3xl font-bold">Messages</h1></div>;
 const Settings = () => <div className="p-6"><h1 className="text-3xl font-bold">Settings</h1></div>;
@@ -113,19 +116,45 @@ const App = () => (
             }
           />
 
-          <Route
-            path="/calendar"
-            element={
-              <MainLayout>
-                <Calendar />
-              </MainLayout>
-            }
-          />
+          {/* Booking Routes */}
           <Route
             path="/bookings"
             element={
               <MainLayout>
                 <Bookings />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/bookings/new"
+            element={
+              <MainLayout>
+                <NewBooking />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/bookings/:id"
+            element={
+              <MainLayout>
+                <BookingDetail />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/bookings/:id/edit"
+            element={
+              <MainLayout>
+                <EditBooking />
+              </MainLayout>
+            }
+          />
+
+          <Route
+            path="/calendar"
+            element={
+              <MainLayout>
+                <Calendar />
               </MainLayout>
             }
           />

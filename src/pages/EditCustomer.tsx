@@ -43,8 +43,27 @@ const customerFormSchema = z.object({
 
 type CustomerFormValues = z.infer<typeof customerFormSchema>;
 
+// Define a proper customer type that matches our schema plus the additional fields
+type Customer = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+  status: "active" | "inactive" | "pending";
+  notes: string;
+  totalBookings: number;
+  totalSpent: number;
+  lastBooking: Date | null;
+  createdAt: Date;
+};
+
 // Mock customer data
-const mockCustomer = {
+const mockCustomer: Customer = {
   id: "CUST-1001",
   name: "John Smith",
   email: "john.smith@example.com",
@@ -54,7 +73,7 @@ const mockCustomer = {
   state: "Florida",
   zipCode: "33101",
   country: "United States",
-  status: "active" as const,
+  status: "active",
   notes: "Prefers beachfront properties. Allergic to pets. Often books for family vacations.",
   totalBookings: 8,
   totalSpent: 6250.75,
@@ -66,7 +85,9 @@ const EditCustomer = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [customer, setCustomer] = useState(mockCustomer);
+  
+  // Explicitly type the state to match our Customer type
+  const [customer, setCustomer] = useState<Customer>(mockCustomer);
   
   // Initialize form with customer data
   const form = useForm<CustomerFormValues>({
@@ -112,7 +133,7 @@ const EditCustomer = () => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Update local state
+      // Update local state - this is now properly typed
       setCustomer({
         ...customer,
         ...data,

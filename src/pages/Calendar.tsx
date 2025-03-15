@@ -1,3 +1,4 @@
+
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { format, addMonths, isWithinInterval, isSameDay, parseISO } from "date-fns";
@@ -307,7 +308,12 @@ const Calendar = () => {
                     ),
                   }}
                   components={{
-                    Day: ({ date, ...props }) => {
+                    Day: ({ day, displayMonth }) => {
+                      // The date is now in the day object
+                      const date = day?.date;
+                      
+                      if (!date) return null;
+                      
                       const hasBooking = hasEvents(date);
                       const isSelected = selectedDate ? isSameDay(date, selectedDate) : false;
                       
@@ -320,7 +326,7 @@ const Calendar = () => {
                             isSelected && "bg-primary text-primary-foreground"
                           )}
                         >
-                          {props.children}
+                          {day.day}
                           {hasBooking && !isSelected && (
                             <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
                           )}

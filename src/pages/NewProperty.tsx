@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -77,19 +76,19 @@ const formSchema = z.object({
   ).optional(),
   amenities: z.array(z.string()).optional(),
   availableFrom: z.date(),
-  availableTo: z.date().refine(
-    (date, ctx) => {
-      const { availableFrom } = ctx.parent;
-      return date > availableFrom;
-    },
-    {
-      message: "End date must be after start date.",
-    }
-  ),
+  availableTo: z.date(),
   propertyType: z.string(),
   isActive: z.boolean().default(true),
   featured: z.boolean().default(false),
-});
+}).refine(
+  (data) => {
+    return data.availableTo > data.availableFrom;
+  },
+  {
+    message: "End date must be after start date.",
+    path: ["availableTo"],
+  }
+);
 
 const amenitiesOptions = [
   { id: "wifi", label: "WiFi" },
@@ -146,17 +145,14 @@ const NewProperty = () => {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // In a real app, this would send the data to the backend
     console.log("Form values:", values);
     console.log("Uploaded images:", uploadedImages);
 
-    // Show success message
     notifyPropertyCreated({ 
       name: values.name,
       id: Math.random().toString(36).substr(2, 9)
     });
 
-    // Redirect to the properties listing page after form submission
     navigate("/properties");
   }
 
@@ -164,7 +160,6 @@ const NewProperty = () => {
     if (e.target.files && e.target.files.length > 0) {
       const newImages = Array.from(e.target.files).map((file) => ({
         name: file.name,
-        // Create a temporary URL for the image
         url: URL.createObjectURL(file),
       }));
 
@@ -174,7 +169,6 @@ const NewProperty = () => {
 
   const removeImage = (index: number) => {
     const newImages = [...uploadedImages];
-    // Revoke the object URL to avoid memory leaks
     URL.revokeObjectURL(newImages[index].url);
     newImages.splice(index, 1);
     setUploadedImages(newImages);

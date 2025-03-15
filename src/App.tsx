@@ -10,6 +10,7 @@ import Calendar from "@/pages/Calendar";
 import NotFound from "@/pages/NotFound";
 import NewPayment from "@/pages/NewPayment";
 import PaymentDetail from "@/pages/PaymentDetail";
+import Messages from "@/pages/Messages";
 import { Toaster } from "sonner";
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
           <Route path="payments/new" element={<NewPayment />} />
           <Route path="payments/:id" element={<PaymentDetail />} />
           <Route path="calendar/*" element={<Calendar />} />
+          <Route path="messages/*" element={<Messages />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

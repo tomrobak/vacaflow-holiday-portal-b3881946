@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -18,11 +17,11 @@ import Bookings from "./pages/Bookings";
 import BookingDetail from "./pages/BookingDetail";
 import NewBooking from "./pages/NewBooking";
 import EditBooking from "./pages/EditBooking";
+import Calendar from "./pages/Calendar";
 import NotFound from "./pages/NotFound";
 import MainLayout from "./components/layout/MainLayout";
 
 // Pages that will be implemented later
-const Calendar = () => <div className="p-6"><h1 className="text-3xl font-bold">Calendar</h1></div>;
 const Payments = () => <div className="p-6"><h1 className="text-3xl font-bold">Payments</h1></div>;
 const Messages = () => <div className="p-6"><h1 className="text-3xl font-bold">Messages</h1></div>;
 const Settings = () => <div className="p-6"><h1 className="text-3xl font-bold">Settings</h1></div>;

@@ -1,21 +1,21 @@
 
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { format, addMonths, isWithinInterval, isSameDay, parseISO } from "date-fns";
-import { CalendarIcon, ChevronLeft, ChevronRight, Filter, X, Building, Users, ListFilter } from "lucide-react";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { format, isWithinInterval, isSameDay } from "date-fns";
+import { X, Building, ListFilter } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
+import { Property, Customer, BookingEvent } from "@/types/calendar";
 import { BookingStatus } from "@/types/booking";
+import CalendarView from "@/components/calendar/CalendarView";
+import BookingList from "@/components/calendar/BookingList";
+import PropertyStats from "@/components/calendar/PropertyStats";
+import CustomerStats from "@/components/calendar/CustomerStats";
 
-const mockProperties = [
+// Mock data
+const mockProperties: Property[] = [
   { id: "prop1", name: "Sunset Villa", location: "Malibu, CA" },
   { id: "prop2", name: "Mountain Retreat", location: "Aspen, CO" },
   { id: "prop3", name: "Downtown Loft", location: "New York, NY" },
@@ -23,26 +23,13 @@ const mockProperties = [
   { id: "prop5", name: "Lakeside Cabin", location: "Lake Tahoe, CA" },
 ];
 
-const mockCustomers = [
+const mockCustomers: Customer[] = [
   { id: "cust1", name: "John Smith", email: "john@example.com" },
   { id: "cust2", name: "Emma Johnson", email: "emma@example.com" },
   { id: "cust3", name: "Michael Brown", email: "michael@example.com" },
   { id: "cust4", name: "Sophia Davis", email: "sophia@example.com" },
   { id: "cust5", name: "William Miller", email: "william@example.com" },
 ];
-
-interface BookingEvent {
-  id: string;
-  propertyId: string;
-  propertyName: string;
-  customerId: string;
-  customerName: string;
-  startDate: Date;
-  endDate: Date;
-  status: BookingStatus;
-  guestCount: number;
-  totalAmount: number;
-}
 
 const generateMockBookings = (): BookingEvent[] => {
   const bookings: BookingEvent[] = [];
@@ -82,21 +69,6 @@ const generateMockBookings = (): BookingEvent[] => {
 
 const mockBookings = generateMockBookings();
 
-const getStatusColor = (status: BookingStatus) => {
-  switch (status) {
-    case "confirmed":
-      return "bg-green-100 text-green-800 border-green-300 hover:bg-green-200";
-    case "pending":
-      return "bg-yellow-100 text-yellow-800 border-yellow-300 hover:bg-yellow-200";
-    case "cancelled":
-      return "bg-red-100 text-red-800 border-red-300 hover:bg-red-200";
-    case "completed":
-      return "bg-blue-100 text-blue-800 border-blue-300 hover:bg-blue-200";
-    default:
-      return "bg-gray-100 text-gray-800 border-gray-300 hover:bg-gray-200";
-  }
-};
-
 const Calendar = () => {
   const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
@@ -125,10 +97,6 @@ const Calendar = () => {
       navigate('/bookings/new');
     }
   };
-
-  const nextMonth = useMemo(() => {
-    return addMonths(currentDate, 1);
-  }, [currentDate]);
 
   const filteredBookings = useMemo(() => {
     return mockBookings.filter(booking => {
@@ -172,15 +140,6 @@ const Calendar = () => {
     ).sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
   }, [currentDate, filteredBookings]);
 
-  const hasEvents = (date: Date) => {
-    return filteredBookings.some(booking => 
-      isWithinInterval(date, {
-        start: booking.startDate,
-        end: booking.endDate,
-      })
-    );
-  };
-
   const findBookingsForDate = (date: Date) => {
     return filteredBookings.filter(booking => 
       isWithinInterval(date, {
@@ -202,14 +161,6 @@ const Calendar = () => {
       goToNewBooking(date);
     }
     // If there are multiple bookings, just select the date to show them in the sidebar
-  };
-
-  const prevMonth = () => {
-    setCurrentDate(prev => addMonths(prev, -1));
-  };
-
-  const nextMonthNav = () => {
-    setCurrentDate(prev => addMonths(prev, 1));
   };
 
   const resetFilters = () => {
@@ -248,7 +199,6 @@ const Calendar = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
               />
-              <CalendarIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               {searchQuery && (
                 <Button 
                   variant="ghost" 
@@ -308,445 +258,54 @@ const Calendar = () => {
           </TabsList>
           
           <TabsContent value="dual" className="space-y-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold">
-                {format(currentDate, "MMMM yyyy")} - {format(nextMonth, "MMMM yyyy")}
-              </h2>
-              <div className="flex space-x-2">
-                <Button variant="outline" size="icon" onClick={prevMonth}>
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="icon" 
-                  onClick={() => setCurrentDate(new Date())}
-                >
-                  <CalendarIcon className="h-4 w-4" />
-                </Button>
-                <Button variant="outline" size="icon" onClick={nextMonthNav}>
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-8 gap-6">
-              {/* Current month calendar */}
-              <div className="md:col-span-3">
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle>{format(currentDate, "MMMM yyyy")}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <CalendarComponent
-                      selected={selectedDate}
-                      onSelect={(date) => date && handleDateClick(date)}
-                      month={currentDate}
-                      className="border rounded-md"
-                      classNames={{
-                        day_today: "bg-muted text-primary-foreground font-bold",
-                        day: cn(
-                          "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-muted hover:text-foreground focus:bg-primary focus:text-primary-foreground"
-                        ),
-                      }}
-                      components={{
-                        Day: ({ date }) => {
-                          if (!date) return null;
-                          
-                          const hasBooking = hasEvents(date);
-                          const isSelected = selectedDate ? isSameDay(date, selectedDate) : false;
-                          
-                          return (
-                            <div
-                              onClick={() => date && handleDateClick(date)}
-                              className={cn(
-                                "h-9 w-9 flex items-center justify-center rounded-md relative cursor-pointer",
-                                hasBooking ? "font-semibold" : "",
-                                hasBooking ? "bg-blue-50" : "",
-                                isSelected && "bg-primary text-primary-foreground"
-                              )}
-                            >
-                              {date.getDate()}
-                              {hasBooking && !isSelected && (
-                                <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
-                              )}
-                            </div>
-                          );
-                        },
-                      }}
-                    />
-                  </CardContent>
-                </Card>
-              </div>
-              
-              {/* Next month calendar */}
-              <div className="md:col-span-3">
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle>{format(nextMonth, "MMMM yyyy")}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <CalendarComponent
-                      selected={selectedDate}
-                      onSelect={(date) => date && handleDateClick(date)}
-                      month={nextMonth}
-                      className="border rounded-md"
-                      classNames={{
-                        day_today: "bg-muted text-primary-foreground font-bold",
-                        day: cn(
-                          "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-muted hover:text-foreground focus:bg-primary focus:text-primary-foreground"
-                        ),
-                      }}
-                      components={{
-                        Day: ({ date }) => {
-                          if (!date) return null;
-                          
-                          const hasBooking = hasEvents(date);
-                          const isSelected = selectedDate ? isSameDay(date, selectedDate) : false;
-                          
-                          return (
-                            <div
-                              onClick={() => date && handleDateClick(date)}
-                              className={cn(
-                                "h-9 w-9 flex items-center justify-center rounded-md relative cursor-pointer",
-                                hasBooking ? "font-semibold" : "",
-                                hasBooking ? "bg-blue-50" : "",
-                                isSelected && "bg-primary text-primary-foreground"
-                              )}
-                            >
-                              {date.getDate()}
-                              {hasBooking && !isSelected && (
-                                <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
-                              )}
-                            </div>
-                          );
-                        },
-                      }}
-                    />
-                  </CardContent>
-                </Card>
-              </div>
-              
-              {/* Selected date info */}
-              <Card className="md:col-span-2">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">
-                    {selectedDate ? format(selectedDate, "MMMM d, yyyy") : "No date selected"}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {selectedDateEvents.length > 0 ? (
-                    <div className="space-y-3">
-                      {selectedDateEvents.map((booking) => (
-                        <div 
-                          key={booking.id}
-                          className={cn(
-                            "p-2 rounded-md border cursor-pointer",
-                            getStatusColor(booking.status)
-                          )}
-                          onClick={() => goToBookingDetails(booking.id)}
-                        >
-                          <div className="flex justify-between items-start mb-1">
-                            <div className="font-medium">{booking.propertyName}</div>
-                            <Badge variant={booking.status === "confirmed" ? "default" : 
-                                         booking.status === "pending" ? "secondary" : 
-                                         booking.status === "cancelled" ? "destructive" : "outline"}>
-                              {booking.status}
-                            </Badge>
-                          </div>
-                          <div className="text-sm mb-1">{booking.customerName}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {format(booking.startDate, "MMM d")} - {format(booking.endDate, "MMM d, yyyy")}
-                          </div>
-                          <div className="flex justify-between text-xs mt-1">
-                            <span>{booking.guestCount} guests</span>
-                            <span>${booking.totalAmount}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <div className="text-center py-3 text-muted-foreground">
-                        No bookings for this date
-                      </div>
-                      <Button 
-                        className="w-full" 
-                        onClick={() => selectedDate && goToNewBooking(selectedDate)}
-                      >
-                        Add New Booking
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-            
-            <div className="mt-4">
-              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                <div className="flex items-center">
-                  <div className="w-3 h-3 rounded-full bg-blue-50 border border-blue-200 mr-1"></div>
-                  <span>Has Booking</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-3 h-3 rounded-full bg-primary mr-1"></div>
-                  <span>Selected Date</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-3 h-3 rounded-full bg-muted mr-1"></div>
-                  <span>Today</span>
-                </div>
-              </div>
-            </div>
+            <CalendarView
+              currentDate={currentDate}
+              setCurrentDate={setCurrentDate}
+              selectedDate={selectedDate}
+              handleDateClick={handleDateClick}
+              filteredBookings={filteredBookings}
+              view="dual"
+              selectedDateEvents={selectedDateEvents}
+              goToNewBooking={goToNewBooking}
+            />
           </TabsContent>
           
           <TabsContent value="month" className="space-y-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold">
-                {format(currentDate, "MMMM yyyy")}
-              </h2>
-              <div className="flex space-x-2">
-                <Button variant="outline" size="icon" onClick={prevMonth}>
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="icon" 
-                  onClick={() => setCurrentDate(new Date())}
-                >
-                  <CalendarIcon className="h-4 w-4" />
-                </Button>
-                <Button variant="outline" size="icon" onClick={nextMonthNav}>
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-7 gap-6">
-              <div className="md:col-span-5">
-                <CalendarComponent
-                  selected={selectedDate}
-                  onSelect={(date) => date && handleDateClick(date)}
-                  month={currentDate}
-                  onMonthChange={setCurrentDate}
-                  className="border rounded-md"
-                  classNames={{
-                    day_today: "bg-muted text-primary-foreground font-bold",
-                    day: cn(
-                      "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-muted hover:text-foreground focus:bg-primary focus:text-primary-foreground"
-                    ),
-                  }}
-                  components={{
-                    Day: ({ date }) => {
-                      if (!date) return null;
-                      
-                      const hasBooking = hasEvents(date);
-                      const isSelected = selectedDate ? isSameDay(date, selectedDate) : false;
-                      
-                      return (
-                        <div
-                          onClick={() => date && handleDateClick(date)}
-                          className={cn(
-                            "h-9 w-9 flex items-center justify-center rounded-md relative cursor-pointer",
-                            hasBooking ? "font-semibold" : "",
-                            hasBooking ? "bg-blue-50" : "",
-                            isSelected && "bg-primary text-primary-foreground"
-                          )}
-                        >
-                          {date.getDate()}
-                          {hasBooking && !isSelected && (
-                            <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
-                          )}
-                        </div>
-                      );
-                    },
-                  }}
-                />
-              </div>
-              
-              <Card className="md:col-span-2">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">
-                    {selectedDate ? format(selectedDate, "MMMM d, yyyy") : "No date selected"}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {selectedDateEvents.length > 0 ? (
-                    <div className="space-y-3">
-                      {selectedDateEvents.map((booking) => (
-                        <div 
-                          key={booking.id}
-                          className={cn(
-                            "p-2 rounded-md border cursor-pointer",
-                            getStatusColor(booking.status)
-                          )}
-                          onClick={() => goToBookingDetails(booking.id)}
-                        >
-                          <div className="flex justify-between items-start mb-1">
-                            <div className="font-medium">{booking.propertyName}</div>
-                            <Badge variant={booking.status === "confirmed" ? "default" : 
-                                         booking.status === "pending" ? "secondary" : 
-                                         booking.status === "cancelled" ? "destructive" : "outline"}>
-                              {booking.status}
-                            </Badge>
-                          </div>
-                          <div className="text-sm mb-1">{booking.customerName}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {format(booking.startDate, "MMM d")} - {format(booking.endDate, "MMM d, yyyy")}
-                          </div>
-                          <div className="flex justify-between text-xs mt-1">
-                            <span>{booking.guestCount} guests</span>
-                            <span>${booking.totalAmount}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <div className="text-center py-3 text-muted-foreground">
-                        No bookings for this date
-                      </div>
-                      <Button 
-                        className="w-full" 
-                        onClick={() => selectedDate && goToNewBooking(selectedDate)}
-                      >
-                        Add New Booking
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+            <CalendarView
+              currentDate={currentDate}
+              setCurrentDate={setCurrentDate}
+              selectedDate={selectedDate}
+              handleDateClick={handleDateClick}
+              filteredBookings={filteredBookings}
+              view="month"
+              selectedDateEvents={selectedDateEvents}
+              goToNewBooking={goToNewBooking}
+            />
           </TabsContent>
           
           <TabsContent value="list">
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Property</TableHead>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Check In/Out</TableHead>
-                    <TableHead>Guests</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Amount</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {monthEvents.length > 0 ? (
-                    monthEvents.map((booking) => (
-                      <TableRow 
-                        key={booking.id}
-                        className="cursor-pointer"
-                        onClick={() => goToBookingDetails(booking.id)}
-                      >
-                        <TableCell 
-                          className="font-medium hover:underline"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            goToPropertyDetails(booking.propertyId);
-                          }}
-                        >
-                          {booking.propertyName}
-                        </TableCell>
-                        <TableCell
-                          className="hover:underline"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            goToCustomerDetails(booking.customerId);
-                          }}
-                        >
-                          {booking.customerName}
-                        </TableCell>
-                        <TableCell>
-                          <div>{format(booking.startDate, "MMM d")}</div>
-                          <div>{format(booking.endDate, "MMM d")}</div>
-                        </TableCell>
-                        <TableCell>{booking.guestCount}</TableCell>
-                        <TableCell>
-                          <Badge variant={booking.status === "confirmed" ? "default" : 
-                                        booking.status === "pending" ? "secondary" : 
-                                        booking.status === "cancelled" ? "destructive" : "outline"}>
-                            {booking.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">${booking.totalAmount}</TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
-                        No bookings found for the selected filters
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
+            <BookingList
+              bookings={monthEvents}
+              goToBookingDetails={goToBookingDetails}
+              goToPropertyDetails={goToPropertyDetails}
+              goToCustomerDetails={goToCustomerDetails}
+            />
           </TabsContent>
         </Tabs>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Properties with Most Bookings</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {mockProperties.slice(0, 5).map((property, index) => {
-                const propertyBookings = filteredBookings.filter(b => b.propertyId === property.id);
-                return (
-                  <div key={property.id} className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <span className="font-medium text-muted-foreground">{index + 1}</span>
-                      <div>
-                        <div className="font-medium hover:underline cursor-pointer" 
-                          onClick={() => goToPropertyDetails(property.id)}>
-                          {property.name}
-                        </div>
-                        <div className="text-sm text-muted-foreground">{property.location}</div>
-                      </div>
-                    </div>
-                    <Badge variant="outline">{propertyBookings.length} bookings</Badge>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
+        <PropertyStats
+          properties={mockProperties}
+          filteredBookings={filteredBookings}
+          goToPropertyDetails={goToPropertyDetails}
+        />
         
-        <Card>
-          <CardHeader>
-            <CardTitle>Top Customers</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {mockCustomers.slice(0, 5).map((customer, index) => {
-                const customerBookings = filteredBookings.filter(b => b.customerId === customer.id);
-                const totalSpent = customerBookings.reduce((sum, b) => sum + b.totalAmount, 0);
-                
-                return (
-                  <div key={customer.id} className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <span className="font-medium text-muted-foreground">{index + 1}</span>
-                      <div>
-                        <div className="font-medium hover:underline cursor-pointer"
-                          onClick={() => goToCustomerDetails(customer.id)}>
-                          {customer.name}
-                        </div>
-                        <div className="text-sm text-muted-foreground">{customer.email}</div>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-medium">${totalSpent}</div>
-                      <div className="text-sm text-muted-foreground">{customerBookings.length} bookings</div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
+        <CustomerStats
+          customers={mockCustomers}
+          filteredBookings={filteredBookings}
+          goToCustomerDetails={goToCustomerDetails}
+        />
       </div>
     </div>
   );

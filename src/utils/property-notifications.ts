@@ -55,3 +55,30 @@ export function notifyPropertyBulkAction(count: number, action: string) {
     description: `${count} properties have been ${action.toLowerCase()} successfully.`,
   });
 }
+
+/**
+ * Display a toast notification for Google Calendar connection
+ */
+export function notifyGoogleCalendarConnected(property: Partial<Property>) {
+  toast.success("Google Calendar Connected", {
+    description: `${property.name} is now synced with Google Calendar.`,
+  });
+}
+
+/**
+ * Display a toast notification for Google Calendar sync
+ */
+export function notifyGoogleCalendarSynced(property: Partial<Property>) {
+  toast.success("Calendar Synced", {
+    description: `${property.name}'s calendar has been successfully synced with Google Calendar.`,
+  });
+}
+
+/**
+ * Display a toast notification for Google Calendar sync error
+ */
+export function notifyGoogleCalendarError(property: Partial<Property>, error: string) {
+  toast.error("Calendar Sync Error", {
+    description: `Failed to sync ${property.name} with Google Calendar: ${error}`,
+  });
+}

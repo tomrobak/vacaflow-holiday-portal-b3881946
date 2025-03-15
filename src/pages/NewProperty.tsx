@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { CalendarIcon, Building, Upload, X, Plus, MapPin } from "lucide-react";
+import { CalendarIcon, Building, Upload, X, Plus, MapPin, Calendar } from "lucide-react";
 import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
@@ -31,7 +31,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { notifyPropertyCreated } from "@/utils/property-notifications";
@@ -80,6 +80,8 @@ const formSchema = z.object({
   propertyType: z.string(),
   isActive: z.boolean().default(true),
   featured: z.boolean().default(false),
+  googleCalendarSync: z.boolean().default(false),
+  googleCalendarId: z.string().optional(),
 }).refine(
   (data) => {
     return data.availableTo > data.availableFrom;
@@ -87,6 +89,14 @@ const formSchema = z.object({
   {
     message: "End date must be after start date.",
     path: ["availableTo"],
+  }
+).refine(
+  (data) => {
+    return !data.googleCalendarSync || (data.googleCalendarSync && data.googleCalendarId && data.googleCalendarId.trim() !== "");
+  },
+  {
+    message: "Google Calendar ID is required when Google Calendar Sync is enabled.",
+    path: ["googleCalendarId"],
   }
 );
 
@@ -141,6 +151,8 @@ const NewProperty = () => {
       propertyType: "house",
       isActive: true,
       featured: false,
+      googleCalendarSync: false,
+      googleCalendarId: "",
     },
   });
 
@@ -173,6 +185,8 @@ const NewProperty = () => {
     newImages.splice(index, 1);
     setUploadedImages(newImages);
   };
+
+  const watchGoogleCalendarSync = form.watch("googleCalendarSync");
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
@@ -584,6 +598,57 @@ const NewProperty = () => {
                     </FormItem>
                   )}
                 />
+              </div>
+
+              <div className="space-y-4 p-4 border rounded-md">
+                <h3 className="text-lg font-medium">Calendar Sync</h3>
+                
+                <FormField
+                  control={form.control}
+                  name="googleCalendarSync"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md p-2">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Enable Google Calendar Sync</FormLabel>
+                        <FormDescription>
+                          Automatically sync bookings with a Google Calendar
+                        </FormDescription>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+
+                {watchGoogleCalendarSync && (
+                  <FormField
+                    control={form.control}
+                    name="googleCalendarId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Google Calendar ID</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Calendar className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              placeholder="e.g. example@gmail.com"
+                              className="pl-8"
+                              {...field}
+                            />
+                          </div>
+                        </FormControl>
+                        <FormDescription>
+                          Enter the Google Calendar ID to sync with. You can find this in your Google Calendar settings.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
               </div>
 
               <div>

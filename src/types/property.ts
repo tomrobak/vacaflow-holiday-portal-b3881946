@@ -26,6 +26,8 @@ export interface Property {
   status: PropertyStatus;
   featured: boolean;
   images: string[];
+  googleCalendarSync?: boolean;
+  googleCalendarId?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -46,4 +48,6 @@ export interface PropertyFormData {
   propertyType: string;
   isActive: boolean;
   featured?: boolean;
+  googleCalendarSync?: boolean;
+  googleCalendarId?: string;
 }

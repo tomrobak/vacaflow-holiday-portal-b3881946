@@ -13,6 +13,8 @@ import NewPayment from "@/pages/NewPayment";
 import PaymentDetail from "@/pages/PaymentDetail";
 import Messages from "@/pages/Messages";
 import NewProperty from "@/pages/NewProperty";
+import PropertyDetail from "@/pages/PropertyDetail";
+import PropertyCalendar from "@/pages/PropertyCalendar";
 import { Toaster } from "sonner";
 
 function App() {
@@ -26,6 +28,8 @@ function App() {
           <Route path="customers/new" element={<NewCustomer />} />
           <Route path="properties/*" element={<Properties />} />
           <Route path="properties/new" element={<NewProperty />} />
+          <Route path="properties/:id" element={<PropertyDetail />} />
+          <Route path="properties/:id/calendar" element={<PropertyCalendar />} />
           <Route path="bookings/*" element={<Bookings />} />
           <Route path="payments" element={<Payments />} />
           <Route path="payments/new" element={<NewPayment />} />

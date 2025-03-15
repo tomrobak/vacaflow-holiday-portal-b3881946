@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -18,11 +19,13 @@ import BookingDetail from "./pages/BookingDetail";
 import NewBooking from "./pages/NewBooking";
 import EditBooking from "./pages/EditBooking";
 import Calendar from "./pages/Calendar";
+import Payments from "./pages/Payments";
+import PaymentDetail from "./pages/PaymentDetail";
+import NewPayment from "./pages/NewPayment";
 import NotFound from "./pages/NotFound";
 import MainLayout from "./components/layout/MainLayout";
 
-// Pages that will be implemented later
-const Payments = () => <div className="p-6"><h1 className="text-3xl font-bold">Payments</h1></div>;
+// Page that will be implemented later
 const Messages = () => <div className="p-6"><h1 className="text-3xl font-bold">Messages</h1></div>;
 const Settings = () => <div className="p-6"><h1 className="text-3xl font-bold">Settings</h1></div>;
 
@@ -149,19 +152,37 @@ const App = () => (
             }
           />
 
-          <Route
-            path="/calendar"
-            element={
-              <MainLayout>
-                <Calendar />
-              </MainLayout>
-            }
-          />
+          {/* Payment Routes */}
           <Route
             path="/payments"
             element={
               <MainLayout>
                 <Payments />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/payments/new"
+            element={
+              <MainLayout>
+                <NewPayment />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/payments/:id"
+            element={
+              <MainLayout>
+                <PaymentDetail />
+              </MainLayout>
+            }
+          />
+
+          <Route
+            path="/calendar"
+            element={
+              <MainLayout>
+                <Calendar />
               </MainLayout>
             }
           />

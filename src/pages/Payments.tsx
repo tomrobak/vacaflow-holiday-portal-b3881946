@@ -201,11 +201,12 @@ const mockStats: PaymentStats = (() => {
 })();
 
 const Payments = () => {
+  // Fixed initializing dateRange with undefined instead of current date
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sortField, setSortField] = useState<keyof Payment>("date");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
-  const [dateRange, setDateRange] = useState<DateRange>({ from: new Date(), to: undefined });
+  const [dateRange, setDateRange] = useState<DateRange>({ from: undefined, to: undefined });
 
   const handleSort = (field: keyof Payment) => {
     if (sortField === field) {
@@ -280,10 +281,12 @@ const Payments = () => {
   const filteredPayments = useMemo(() => {
     return mockPayments
       .filter(payment => {
+        // Check status filter first
         if (statusFilter !== "all" && payment.status !== statusFilter) {
           return false;
         }
         
+        // Then search term
         if (searchTerm) {
           const searchLower = searchTerm.toLowerCase();
           const customerName = customerNames[payment.customerId]?.toLowerCase() || '';
@@ -299,6 +302,7 @@ const Payments = () => {
           }
         }
         
+        // Finally date range
         if (dateRange.from && payment.date < dateRange.from) {
           return false;
         }
@@ -366,6 +370,9 @@ const Payments = () => {
   const handleStatusChange = (payment: Payment, newStatus: PaymentStatus) => {
     notifyPaymentStatus({...payment, status: newStatus}, newStatus);
   };
+
+  // Add console log to debug filtered payments
+  console.log('Filtered payments:', filteredPayments.length, 'Status filter:', statusFilter);
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
@@ -440,7 +447,7 @@ const Payments = () => {
         </Card>
       </div>
       
-      <Tabs defaultValue="all" onValueChange={value => setStatusFilter(value)}>
+      <Tabs defaultValue="all" value={statusFilter} onValueChange={setStatusFilter}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
           <TabsList className="flex-shrink-0">
             <TabsTrigger value="all">All Payments</TabsTrigger>
@@ -587,6 +594,265 @@ const Payments = () => {
                       <TableRow>
                         <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                           No payments found matching your filters.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="successful" className="m-0">
+          <Card>
+            <CardContent className="p-0">
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>ID</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Customer</TableHead>
+                      <TableHead>Property</TableHead>
+                      <TableHead>Amount</TableHead>
+                      <TableHead>Method</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredPayments.length > 0 ? (
+                      filteredPayments.map((payment) => (
+                        <TableRow key={payment.id}>
+                          <TableCell className="font-medium">{payment.id}</TableCell>
+                          <TableCell>{formatDate(payment.date)}</TableCell>
+                          <TableCell>
+                            <Button variant="link" className="p-0 h-auto" asChild>
+                              <Link to={`/customers/${payment.customerId}`} className="flex items-center">
+                                <User className="h-4 w-4 mr-1" />
+                                {customerNames[payment.customerId]}
+                              </Link>
+                            </Button>
+                          </TableCell>
+                          <TableCell>
+                            <Button variant="link" className="p-0 h-auto" asChild>
+                              <Link to={`/properties/${payment.propertyId}`} className="flex items-center">
+                                <Home className="h-4 w-4 mr-1" />
+                                {propertyNames[payment.propertyId]}
+                              </Link>
+                            </Button>
+                          </TableCell>
+                          <TableCell>{formatCurrency(payment.amount)}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center">
+                              {getPaymentMethodIcon(payment.method)}
+                              {getPaymentMethodName(payment.method)}
+                            </div>
+                          </TableCell>
+                          <TableCell>{getPaymentStatusBadge(payment.status)}</TableCell>
+                          <TableCell>
+                            <Button variant="ghost" size="icon" asChild>
+                              <Link to={`/payments/${payment.id}`}>
+                                <Eye className="h-4 w-4" />
+                              </Link>
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                          No successful payments found.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="pending" className="m-0">
+          <Card>
+            <CardContent className="p-0">
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>ID</TableHead>
+                      <TableHead>Due Date</TableHead>
+                      <TableHead>Customer</TableHead>
+                      <TableHead>Property</TableHead>
+                      <TableHead>Amount</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredPayments.length > 0 ? (
+                      filteredPayments.map((payment) => (
+                        <TableRow key={payment.id}>
+                          <TableCell className="font-medium">{payment.id}</TableCell>
+                          <TableCell>{formatDate(payment.dueDate)}</TableCell>
+                          <TableCell>
+                            <Button variant="link" className="p-0 h-auto" asChild>
+                              <Link to={`/customers/${payment.customerId}`} className="flex items-center">
+                                <User className="h-4 w-4 mr-1" />
+                                {customerNames[payment.customerId]}
+                              </Link>
+                            </Button>
+                          </TableCell>
+                          <TableCell>
+                            <Button variant="link" className="p-0 h-auto" asChild>
+                              <Link to={`/properties/${payment.propertyId}`} className="flex items-center">
+                                <Home className="h-4 w-4 mr-1" />
+                                {propertyNames[payment.propertyId]}
+                              </Link>
+                            </Button>
+                          </TableCell>
+                          <TableCell>{formatCurrency(payment.amount)}</TableCell>
+                          <TableCell>{getPaymentStatusBadge(payment.status)}</TableCell>
+                          <TableCell>
+                            <Button variant="ghost" size="icon" asChild>
+                              <Link to={`/payments/${payment.id}`}>
+                                <Eye className="h-4 w-4" />
+                              </Link>
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                          No pending payments found.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="failed" className="m-0">
+          <Card>
+            <CardContent className="p-0">
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>ID</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Customer</TableHead>
+                      <TableHead>Property</TableHead>
+                      <TableHead>Amount</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredPayments.length > 0 ? (
+                      filteredPayments.map((payment) => (
+                        <TableRow key={payment.id}>
+                          <TableCell className="font-medium">{payment.id}</TableCell>
+                          <TableCell>{formatDate(payment.date)}</TableCell>
+                          <TableCell>
+                            <Button variant="link" className="p-0 h-auto" asChild>
+                              <Link to={`/customers/${payment.customerId}`} className="flex items-center">
+                                <User className="h-4 w-4 mr-1" />
+                                {customerNames[payment.customerId]}
+                              </Link>
+                            </Button>
+                          </TableCell>
+                          <TableCell>
+                            <Button variant="link" className="p-0 h-auto" asChild>
+                              <Link to={`/properties/${payment.propertyId}`} className="flex items-center">
+                                <Home className="h-4 w-4 mr-1" />
+                                {propertyNames[payment.propertyId]}
+                              </Link>
+                            </Button>
+                          </TableCell>
+                          <TableCell>{formatCurrency(payment.amount)}</TableCell>
+                          <TableCell>{getPaymentStatusBadge(payment.status)}</TableCell>
+                          <TableCell>
+                            <Button variant="ghost" size="icon" asChild>
+                              <Link to={`/payments/${payment.id}`}>
+                                <Eye className="h-4 w-4" />
+                              </Link>
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                          No failed payments found.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="refunded" className="m-0">
+          <Card>
+            <CardContent className="p-0">
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>ID</TableHead>
+                      <TableHead>Refund Date</TableHead>
+                      <TableHead>Customer</TableHead>
+                      <TableHead>Property</TableHead>
+                      <TableHead>Amount</TableHead>
+                      <TableHead>Reason</TableHead>
+                      <TableHead></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredPayments.length > 0 ? (
+                      filteredPayments.map((payment) => (
+                        <TableRow key={payment.id}>
+                          <TableCell className="font-medium">{payment.id}</TableCell>
+                          <TableCell>{formatDate(payment.refundDate)}</TableCell>
+                          <TableCell>
+                            <Button variant="link" className="p-0 h-auto" asChild>
+                              <Link to={`/customers/${payment.customerId}`} className="flex items-center">
+                                <User className="h-4 w-4 mr-1" />
+                                {customerNames[payment.customerId]}
+                              </Link>
+                            </Button>
+                          </TableCell>
+                          <TableCell>
+                            <Button variant="link" className="p-0 h-auto" asChild>
+                              <Link to={`/properties/${payment.propertyId}`} className="flex items-center">
+                                <Home className="h-4 w-4 mr-1" />
+                                {propertyNames[payment.propertyId]}
+                              </Link>
+                            </Button>
+                          </TableCell>
+                          <TableCell>{formatCurrency(payment.refundAmount || 0)}</TableCell>
+                          <TableCell className="max-w-[200px] truncate">{payment.refundReason || 'N/A'}</TableCell>
+                          <TableCell>
+                            <Button variant="ghost" size="icon" asChild>
+                              <Link to={`/payments/${payment.id}`}>
+                                <Eye className="h-4 w-4" />
+                              </Link>
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                          No refunded payments found.
                         </TableCell>
                       </TableRow>
                     )}

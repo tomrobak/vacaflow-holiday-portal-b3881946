@@ -121,7 +121,7 @@ const CalendarGrid = ({ filteredBookings, selectedDate, setSelectedDate }: Calen
           ))}
         </div>
 
-        <div className="grid grid-cols-7 border-t">
+        <div className="grid grid-cols-7">
           {calendarDays.map((day, index) => {
             const dayBookings = getBookingsForDate(day);
             const isToday = isSameDay(day, new Date());
@@ -150,7 +150,7 @@ const CalendarGrid = ({ filteredBookings, selectedDate, setSelectedDate }: Calen
                     {format(day, "d")}
                   </span>
                 </div>
-                <div className="mt-1 space-y-1">
+                <div className="mt-1 space-y-1 max-w-full">
                   {dayBookings.slice(0, 2).map((booking) => (
                     <div
                       key={booking.id}

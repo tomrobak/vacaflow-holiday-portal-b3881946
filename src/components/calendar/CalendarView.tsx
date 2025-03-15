@@ -185,6 +185,10 @@ const SingleMonthCalendar = ({
         months: fullWidth ? "w-full" : "",
         month: fullWidth ? "w-full" : "",
         table: fullWidth ? "w-full" : "",
+        row: "flex w-full justify-between mt-2",
+        cell: "flex items-center justify-center p-0",
+        head_row: "flex w-full justify-between",
+        head_cell: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem] flex items-center justify-center",
       }}
       components={{
         Day: ({ date }) => {

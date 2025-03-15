@@ -10,13 +10,16 @@ import Properties from "./pages/Properties";
 import PropertyDetail from "./pages/PropertyDetail";
 import NewProperty from "./pages/NewProperty";
 import PropertyCalendar from "./pages/PropertyCalendar";
+import Customers from "./pages/Customers";
+import NewCustomer from "./pages/NewCustomer";
+import CustomerDetail from "./pages/CustomerDetail";
+import EditCustomer from "./pages/EditCustomer";
 import NotFound from "./pages/NotFound";
 import MainLayout from "./components/layout/MainLayout";
 
 // Pages that will be implemented later
 const Calendar = () => <div className="p-6"><h1 className="text-3xl font-bold">Calendar</h1></div>;
 const Bookings = () => <div className="p-6"><h1 className="text-3xl font-bold">Bookings</h1></div>;
-const Customers = () => <div className="p-6"><h1 className="text-3xl font-bold">Customers</h1></div>;
 const Payments = () => <div className="p-6"><h1 className="text-3xl font-bold">Payments</h1></div>;
 const Messages = () => <div className="p-6"><h1 className="text-3xl font-bold">Messages</h1></div>;
 const Settings = () => <div className="p-6"><h1 className="text-3xl font-bold">Settings</h1></div>;
@@ -76,6 +79,40 @@ const App = () => (
             }
           />
 
+          {/* Customer Routes */}
+          <Route
+            path="/customers"
+            element={
+              <MainLayout>
+                <Customers />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/customers/new"
+            element={
+              <MainLayout>
+                <NewCustomer />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/customers/:id"
+            element={
+              <MainLayout>
+                <CustomerDetail />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/customers/:id/edit"
+            element={
+              <MainLayout>
+                <EditCustomer />
+              </MainLayout>
+            }
+          />
+
           <Route
             path="/calendar"
             element={
@@ -89,14 +126,6 @@ const App = () => (
             element={
               <MainLayout>
                 <Bookings />
-              </MainLayout>
-            }
-          />
-          <Route
-            path="/customers"
-            element={
-              <MainLayout>
-                <Customers />
               </MainLayout>
             }
           />

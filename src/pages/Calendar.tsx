@@ -1,9 +1,8 @@
-
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { format, addMonths, isWithinInterval, isSameDay, parseISO } from "date-fns";
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Filter, X, Building, Users, ListFilter } from "lucide-react";
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -15,7 +14,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { cn } from "@/lib/utils";
 import { BookingStatus } from "@/types/booking";
 
-// Mock data for the calendar page
 const mockProperties = [
   { id: "prop1", name: "Sunset Villa", location: "Malibu, CA" },
   { id: "prop2", name: "Mountain Retreat", location: "Aspen, CO" },
@@ -45,22 +43,18 @@ interface BookingEvent {
   totalAmount: number;
 }
 
-// Generate mock bookings
 const generateMockBookings = (): BookingEvent[] => {
   const bookings: BookingEvent[] = [];
   const today = new Date();
   
-  // Generate 30 random bookings across properties and customers
   for (let i = 0; i < 30; i++) {
     const randomProperty = mockProperties[Math.floor(Math.random() * mockProperties.length)];
     const randomCustomer = mockCustomers[Math.floor(Math.random() * mockCustomers.length)];
     
-    // Random start date between -30 and +90 days from today
     const startOffset = Math.floor(Math.random() * 120) - 30;
     const startDate = new Date(today);
     startDate.setDate(startDate.getDate() + startOffset);
     
-    // Random duration between 1 and 10 days
     const duration = Math.floor(Math.random() * 10) + 1;
     const endDate = new Date(startDate);
     endDate.setDate(endDate.getDate() + duration);
@@ -111,16 +105,12 @@ const Calendar = () => {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Filter bookings based on selected filters
   const filteredBookings = useMemo(() => {
     return mockBookings.filter(booking => {
-      // Property filter
       if (filterProperty !== "all" && booking.propertyId !== filterProperty) return false;
       
-      // Status filter
       if (filterStatus !== "all" && booking.status !== filterStatus) return false;
       
-      // Search query
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         if (
@@ -135,7 +125,6 @@ const Calendar = () => {
     });
   }, [filterProperty, filterStatus, searchQuery]);
 
-  // Events for the selected date
   const selectedDateEvents = useMemo(() => {
     if (!selectedDate) return [];
     
@@ -147,7 +136,6 @@ const Calendar = () => {
     );
   }, [selectedDate, filteredBookings]);
 
-  // All events in the current month for list view
   const monthEvents = useMemo(() => {
     const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
     const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
@@ -159,22 +147,6 @@ const Calendar = () => {
     ).sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
   }, [currentDate, filteredBookings]);
 
-  // Function to handle navigation to booking details
-  const goToBookingDetails = (bookingId: string) => {
-    navigate(`/bookings/${bookingId}`);
-  };
-
-  // Function to handle navigation to property details
-  const goToPropertyDetails = (propertyId: string) => {
-    navigate(`/properties/${propertyId}`);
-  };
-
-  // Function to handle navigation to customer details
-  const goToCustomerDetails = (customerId: string) => {
-    navigate(`/customers/${customerId}`);
-  };
-
-  // Function to check if a date has events
   const hasEvents = (date: Date) => {
     return filteredBookings.some(booking => 
       isWithinInterval(date, {
@@ -184,17 +156,14 @@ const Calendar = () => {
     );
   };
 
-  // Navigate to previous month
   const prevMonth = () => {
     setCurrentDate(prev => addMonths(prev, -1));
   };
 
-  // Navigate to next month
   const nextMonth = () => {
     setCurrentDate(prev => addMonths(prev, 1));
   };
 
-  // Reset filters
   const resetFilters = () => {
     setFilterProperty("all");
     setFilterStatus("all");
@@ -313,8 +282,7 @@ const Calendar = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-7 gap-6">
               <div className="md:col-span-5">
-                <Calendar
-                  mode="single"
+                <CalendarComponent
                   selected={selectedDate}
                   onSelect={setSelectedDate}
                   month={currentDate}

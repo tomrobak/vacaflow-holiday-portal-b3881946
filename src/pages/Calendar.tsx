@@ -2,7 +2,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { format, addMonths, isWithinInterval, isSameDay, parseISO } from "date-fns";
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Filter, X, Building, Users, ListFilter } from "lucide-react";
+import { CalendarIcon, ChevronLeft, ChevronRight, Filter, X, Building, Users, ListFilter } from "lucide-react";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -308,9 +308,9 @@ const Calendar = () => {
                     ),
                   }}
                   components={{
-                    Day: ({ day, displayMonth }) => {
-                      // The date is now in the day object
-                      const date = day?.date;
+                    Day: (props) => {
+                      // Access the date from the props
+                      const date = props.date;
                       
                       if (!date) return null;
                       
@@ -326,7 +326,7 @@ const Calendar = () => {
                             isSelected && "bg-primary text-primary-foreground"
                           )}
                         >
-                          {day.day}
+                          {props.children}
                           {hasBooking && !isSelected && (
                             <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
                           )}

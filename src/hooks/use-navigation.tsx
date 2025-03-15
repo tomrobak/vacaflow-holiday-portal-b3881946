@@ -8,6 +8,9 @@ import {
   MessageSquare,
   Settings,
   Users,
+  Building,
+  BookOpen,
+  Plus,
 } from "lucide-react";
 
 export type NavigationItem = {
@@ -31,22 +34,53 @@ export function useNavigation() {
       {
         label: "Properties",
         href: "/properties",
-        icon: Home,
-      },
-      {
-        label: "Calendar",
-        href: "/calendar",
-        icon: Calendar,
+        icon: Building,
+        children: [
+          {
+            label: "All Properties",
+            href: "/properties",
+            icon: Building,
+          },
+          {
+            label: "Add Property",
+            href: "/properties/new",
+            icon: Plus,
+          },
+        ],
       },
       {
         label: "Bookings",
         href: "/bookings",
-        icon: Calendar,
+        icon: BookOpen,
+        children: [
+          {
+            label: "All Bookings",
+            href: "/bookings",
+            icon: BookOpen,
+          },
+          {
+            label: "Calendar",
+            href: "/calendar",
+            icon: Calendar,
+          },
+        ]
       },
       {
         label: "Customers",
         href: "/customers",
         icon: Users,
+        children: [
+          {
+            label: "All Customers",
+            href: "/customers",
+            icon: Users,
+          },
+          {
+            label: "Add Customer",
+            href: "/customers/new",
+            icon: Plus,
+          },
+        ]
       },
       {
         label: "Payments",
@@ -70,7 +104,15 @@ export function useNavigation() {
   const currentPath = location.pathname;
 
   const isActive = (path: string) => {
-    return currentPath === path;
+    if (path === "/") {
+      return currentPath === path;
+    }
+    return currentPath.startsWith(path);
+  };
+
+  const isChildActive = (item: NavigationItem) => {
+    if (!item.children) return false;
+    return item.children.some(child => isActive(child.href));
   };
 
   return {
@@ -78,5 +120,6 @@ export function useNavigation() {
     navigationItems,
     currentPath,
     isActive,
+    isChildActive,
   };
 }

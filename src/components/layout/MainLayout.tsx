@@ -1,16 +1,12 @@
 
 import { ReactNode, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
-  Calendar,
-  CreditCard,
-  Home,
+  ChevronDown,
   LogOut,
-  MessageSquare,
   PanelLeft,
-  Settings,
+  Plus,
   User,
-  Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,34 +16,83 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { useNavigation, NavigationItem } from "@/hooks/use-navigation";
 
 interface MainLayoutProps {
   children: ReactNode;
 }
 
-interface NavItem {
-  label: string;
-  icon: React.ElementType;
-  href: string;
-}
-
 const MainLayout = ({ children }: MainLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const location = useLocation();
-
-  const navItems: NavItem[] = [
-    { label: "Dashboard", icon: Home, href: "/dashboard" },
-    { label: "Properties", icon: Home, href: "/properties" },
-    { label: "Calendar", icon: Calendar, href: "/calendar" },
-    { label: "Bookings", icon: Calendar, href: "/bookings" },
-    { label: "Customers", icon: Users, href: "/customers" },
-    { label: "Payments", icon: CreditCard, href: "/payments" },
-    { label: "Messages", icon: MessageSquare, href: "/messages" },
-    { label: "Settings", icon: Settings, href: "/settings" },
-  ];
+  const { navigationItems, isActive, isChildActive } = useNavigation();
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
+  };
+
+  const renderNavItem = (item: NavigationItem) => {
+    const active = isActive(item.href);
+    const hasChildren = item.children && item.children.length > 0;
+    const childActive = hasChildren && isChildActive(item);
+    const [expanded, setExpanded] = useState(childActive);
+    
+    return (
+      <div key={item.href} className="w-full">
+        <Link
+          to={hasChildren ? "#" : item.href}
+          className={cn(
+            "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+            (active || childActive)
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:bg-secondary hover:text-secondary-foreground"
+          )}
+          onClick={(e) => {
+            if (hasChildren) {
+              e.preventDefault();
+              setExpanded(!expanded);
+            }
+          }}
+        >
+          <item.icon className="h-5 w-5" />
+          <span
+            className={cn(
+              "flex-1 transition-opacity",
+              !sidebarOpen && "opacity-0"
+            )}
+          >
+            {item.label}
+          </span>
+          {hasChildren && sidebarOpen && (
+            <ChevronDown 
+              className={cn(
+                "h-4 w-4 transition-transform", 
+                expanded && "rotate-180"
+              )} 
+            />
+          )}
+        </Link>
+        
+        {hasChildren && expanded && sidebarOpen && (
+          <div className="ml-6 mt-1 space-y-1">
+            {item.children?.map((child) => (
+              <Link
+                key={child.href}
+                to={child.href}
+                className={cn(
+                  "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                  isActive(child.href)
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-secondary hover:text-secondary-foreground"
+                )}
+              >
+                <child.icon className="h-4 w-4" />
+                <span>{child.label}</span>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -83,28 +128,10 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         {/* Navigation */}
         <nav className="flex-1 space-y-1 p-2">
           <TooltipProvider delayDuration={0}>
-            {navItems.map((item) => (
+            {navigationItems.map((item) => (
               <Tooltip key={item.href}>
                 <TooltipTrigger asChild>
-                  <Link
-                    to={item.href}
-                    className={cn(
-                      "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                      location.pathname === item.href
-                        ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground hover:bg-secondary hover:text-secondary-foreground"
-                    )}
-                  >
-                    <item.icon className="h-5 w-5" />
-                    <span
-                      className={cn(
-                        "transition-opacity",
-                        !sidebarOpen && "opacity-0"
-                      )}
-                    >
-                      {item.label}
-                    </span>
-                  </Link>
+                  <div>{renderNavItem(item)}</div>
                 </TooltipTrigger>
                 <TooltipContent
                   side="right"

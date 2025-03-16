@@ -46,10 +46,10 @@ export interface PropertyFormData {
   maxGuests?: string;
   squareFeet?: string;
   amenities?: string[];
-  availableFrom: Date;
-  availableTo: Date;
-  propertyType: string;
-  isActive: boolean;
+  availableFrom?: Date;
+  availableTo?: Date;
+  propertyType?: string;
+  isActive?: boolean;
   featured?: boolean;
   googleCalendarSync?: boolean;
   googleCalendarId?: string;

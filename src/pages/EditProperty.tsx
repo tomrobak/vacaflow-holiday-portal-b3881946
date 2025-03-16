@@ -186,9 +186,9 @@ const formSchema = z.object({
   ).optional(),
   amenities: z.array(z.string()).optional(),
   addons: z.array(z.string()).optional(),
-  availableFrom: z.date(),
-  availableTo: z.date(),
-  propertyType: z.string(),
+  availableFrom: z.date().optional(),
+  availableTo: z.date().optional(),
+  propertyType: z.string().optional(),
   isActive: z.boolean().default(true),
   featured: z.boolean().default(false),
   googleCalendarSync: z.boolean().default(false),
@@ -197,7 +197,7 @@ const formSchema = z.object({
   gallery: z.array(z.string()).optional(),
 }).refine(
   (data) => {
-    return data.availableTo > data.availableFrom;
+    return !data.availableFrom || !data.availableTo || data.availableTo > data.availableFrom;
   },
   {
     message: "End date must be after start date.",

@@ -29,3 +29,9 @@ export interface SmsFilter {
   value?: string;
   label: string;
 }
+
+export interface SmsTemplateFormValues {
+  name: string;
+  content: string;
+  tags: string[];
+}

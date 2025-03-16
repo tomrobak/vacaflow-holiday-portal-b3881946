@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { 
@@ -13,7 +12,8 @@ import {
   Check, 
   X,
   Eye,
-  UserCog
+  UserCog,
+  MessageSquare
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -38,8 +38,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
+import SmsHistory from "@/components/sms/SmsHistory";
+import QuickSmsForm from "@/components/sms/QuickSmsForm";
+import { SmsMessage } from "@/types/sms";
 
-// Customer type definition
 type CustomerStatus = "active" | "inactive" | "pending";
 
 interface CustomerBooking {
@@ -80,7 +82,6 @@ interface Customer {
   payments: CustomerPayment[];
 }
 
-// Mock data for a single customer
 const mockCustomer: Customer = {
   id: "CUST-1001",
   name: "John Smith",
@@ -94,8 +95,8 @@ const mockCustomer: Customer = {
   status: "active",
   totalBookings: 8,
   totalSpent: 6250.75,
-  lastBooking: new Date(Date.now() - 1000 * 60 * 60 * 24 * 14), // 2 weeks ago
-  createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 365), // 1 year ago
+  lastBooking: new Date(Date.now() - 1000 * 60 * 60 * 24 * 14),
+  createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 365),
   notes: "Prefers beachfront properties. Allergic to pets. Often books for family vacations.",
   bookings: Array.from({ length: 8 }, (_, i) => ({
     id: `BOOK-${2000 + i}`,
@@ -115,13 +116,49 @@ const mockCustomer: Customer = {
   })),
 };
 
+const mockSmsMessages: SmsMessage[] = [
+  {
+    id: "sms-1",
+    customerId: "CUST-1001",
+    content: "Your booking #BOOK-2005 has been confirmed for Beach Villa 6. Check-in date: May 15, 2023. We look forward to welcoming you!",
+    sentAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30),
+    status: "delivered",
+    twilioMessageId: "SM123456789",
+  },
+  {
+    id: "sms-2",
+    customerId: "CUST-1001",
+    content: "Just a reminder that your payment of $750 for booking #BOOK-2006 is due tomorrow. Please let us know if you have any questions.",
+    sentAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 15),
+    status: "delivered",
+    twilioMessageId: "SM987654321",
+  },
+  {
+    id: "sms-3",
+    customerId: "CUST-1001",
+    content: "Thanks for your stay at Beach Villa 7! We hope you enjoyed your visit. We'd appreciate it if you could leave a review of your experience.",
+    sentAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5),
+    status: "sent",
+    twilioMessageId: "SM567891234",
+  },
+  {
+    id: "sms-4",
+    customerId: "CUST-1001",
+    content: "We noticed you have an upcoming booking (#BOOK-2007) at Beach Villa 8. Check-in instructions: Access code is 4321, park in space #8.",
+    sentAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2),
+    status: "failed",
+    twilioMessageId: "SM321654987",
+  },
+];
+
 const CustomerDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [customer] = useState<Customer>(mockCustomer);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [smsMessages, setSmsMessages] = useState<SmsMessage[]>(mockSmsMessages);
+  const [isQuickSmsOpen, setIsQuickSmsOpen] = useState(false);
   
-  // Format currency
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -129,7 +166,6 @@ const CustomerDetail = () => {
     }).format(amount);
   };
   
-  // Format date
   const formatDate = (date: Date | null) => {
     if (!date) return 'Never';
     return new Intl.DateTimeFormat('en-US', {
@@ -139,7 +175,6 @@ const CustomerDetail = () => {
     }).format(date);
   };
   
-  // Status badge
   const getStatusBadge = (status: CustomerStatus) => {
     switch (status) {
       case "active":
@@ -153,7 +188,6 @@ const CustomerDetail = () => {
     }
   };
   
-  // Booking status badge
   const getBookingStatusBadge = (status: string) => {
     switch (status) {
       case "confirmed":
@@ -169,7 +203,6 @@ const CustomerDetail = () => {
     }
   };
   
-  // Payment status badge
   const getPaymentStatusBadge = (status: string) => {
     switch (status) {
       case "successful":
@@ -183,12 +216,23 @@ const CustomerDetail = () => {
     }
   };
   
-  // Delete customer
   const deleteCustomer = () => {
-    // In a real app, this would call an API to delete the customer
     console.log(`Deleting customer: ${customer.id}`);
     toast.success("Customer deleted successfully!");
     navigate("/customers");
+  };
+
+  const handleSendSms = (message: string) => {
+    const newMessage: SmsMessage = {
+      id: `sms-${Date.now()}`,
+      customerId: customer.id,
+      content: message,
+      sentAt: new Date(),
+      status: "sent",
+      twilioMessageId: `SM${Math.floor(Math.random() * 1000000000)}`,
+    };
+    
+    setSmsMessages([newMessage, ...smsMessages]);
   };
 
   return (
@@ -207,6 +251,14 @@ const CustomerDetail = () => {
         </div>
         
         <div className="flex items-center space-x-2">
+          <Button 
+            variant="outline" 
+            onClick={() => setIsQuickSmsOpen(true)}
+          >
+            <MessageSquare className="mr-2 h-4 w-4" />
+            Send SMS
+          </Button>
+          
           <Button variant="outline" asChild>
             <Link to={`/customers/${id}/edit`}>
               <Pencil className="mr-2 h-4 w-4" />
@@ -353,7 +405,7 @@ const CustomerDetail = () => {
       </div>
       
       <Tabs defaultValue="bookings" className="w-full">
-        <TabsList className="grid w-full md:w-auto grid-cols-2">
+        <TabsList className="grid w-full md:w-auto grid-cols-3">
           <TabsTrigger value="bookings" className="flex items-center">
             <Calendar className="mr-2 h-4 w-4" />
             Bookings
@@ -361,6 +413,10 @@ const CustomerDetail = () => {
           <TabsTrigger value="payments" className="flex items-center">
             <CreditCard className="mr-2 h-4 w-4" />
             Payment History
+          </TabsTrigger>
+          <TabsTrigger value="messages" className="flex items-center">
+            <MessageSquare className="mr-2 h-4 w-4" />
+            SMS History
           </TabsTrigger>
         </TabsList>
         
@@ -489,7 +545,24 @@ const CustomerDetail = () => {
             </CardFooter>
           </Card>
         </TabsContent>
+        
+        <TabsContent value="messages" className="mt-6">
+          <SmsHistory 
+            messages={smsMessages} 
+            customerId={customer.id} 
+            onSendNew={() => setIsQuickSmsOpen(true)}
+          />
+        </TabsContent>
       </Tabs>
+      
+      <QuickSmsForm
+        open={isQuickSmsOpen}
+        onOpenChange={setIsQuickSmsOpen}
+        customerName={customer.name}
+        customerPhone={customer.phone}
+        customerId={customer.id}
+        onSend={handleSendSms}
+      />
     </div>
   );
 };

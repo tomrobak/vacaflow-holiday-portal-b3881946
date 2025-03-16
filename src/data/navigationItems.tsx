@@ -20,6 +20,7 @@ import {
   User,
   Sliders,
   SendHorizonal,
+  FileText,
 } from "lucide-react";
 import { NavigationItem } from "@/types/navigation";
 
@@ -141,6 +142,11 @@ export const navigationItems: NavigationItem[] = [
         label: "SMS",
         href: "/settings/sms",
         icon: SendHorizonal,
+      },
+      {
+        label: "SMS Templates",
+        href: "/settings/sms/templates",
+        icon: FileText,
       },
       {
         label: "Portal Settings",

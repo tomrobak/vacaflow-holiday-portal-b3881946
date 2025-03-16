@@ -1,9 +1,10 @@
 
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Save, Send } from "lucide-react";
+import { Save, Send, FileText } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TwilioSettings } from "@/types/sms";
 
 const twilioFormSchema = z.object({
@@ -35,6 +37,7 @@ type TwilioFormValues = z.infer<typeof twilioFormSchema>;
 const SmsSettings = () => {
   const [isTesting, setIsTesting] = useState(false);
   const [testPhone, setTestPhone] = useState("");
+  const [activeTab, setActiveTab] = useState("settings");
 
   // Initial values - in a real app, these would come from an API or context
   const defaultValues: TwilioFormValues = {
@@ -77,143 +80,179 @@ const SmsSettings = () => {
         <p className="text-muted-foreground">Configure your Twilio SMS integration</p>
       </div>
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="mb-4">
+          <TabsTrigger value="settings">
+            General Settings
+          </TabsTrigger>
+          <TabsTrigger value="templates">
+            Templates
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="settings">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Twilio Configuration</CardTitle>
+                  <CardDescription>
+                    Enter your Twilio credentials to enable SMS messaging
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="accountSid"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Account SID</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter your Twilio Account SID" {...field} />
+                        </FormControl>
+                        <FormDescription>
+                          Find this in your Twilio account dashboard
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="authToken"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Auth Token</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="password"
+                            placeholder="Enter your Twilio Auth Token"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Keep this token secure
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="phoneNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Twilio Phone Number</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="+1xxxxxxxxxx" 
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          The phone number you've purchased from Twilio
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="enabled"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">Enable SMS</FormLabel>
+                          <FormDescription>
+                            Turn on SMS capabilities for your platform
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="defaultMessage"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Default Message Footer</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Enter a default message that will be appended to all SMS"
+                            {...field}
+                            className="min-h-[100px]"
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          This will be appended to all outgoing messages
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+                <CardFooter className="flex justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Input
+                      placeholder="Test phone number"
+                      className="w-[200px]"
+                      value={testPhone}
+                      onChange={(e) => setTestPhone(e.target.value)}
+                    />
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={handleTestSms}
+                      disabled={isTesting}
+                    >
+                      {isTesting ? "Sending..." : "Test SMS"}
+                      {!isTesting && <Send className="ml-2 h-4 w-4" />}
+                    </Button>
+                  </div>
+                  <Button type="submit">
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Settings
+                  </Button>
+                </CardFooter>
+              </Card>
+            </form>
+          </Form>
+        </TabsContent>
+        
+        <TabsContent value="templates">
           <Card>
             <CardHeader>
-              <CardTitle>Twilio Configuration</CardTitle>
+              <CardTitle>SMS Templates</CardTitle>
               <CardDescription>
-                Enter your Twilio credentials to enable SMS messaging
+                Create and manage message templates for quick sending
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <FormField
-                control={form.control}
-                name="accountSid"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Account SID</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter your Twilio Account SID" {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      Find this in your Twilio account dashboard
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="authToken"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Auth Token</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="Enter your Twilio Auth Token"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Keep this token secure
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="phoneNumber"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Twilio Phone Number</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="+1xxxxxxxxxx" 
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      The phone number you've purchased from Twilio
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="enabled"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Enable SMS</FormLabel>
-                      <FormDescription>
-                        Turn on SMS capabilities for your platform
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="defaultMessage"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Default Message Footer</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Enter a default message that will be appended to all SMS"
-                        {...field}
-                        className="min-h-[100px]"
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      This will be appended to all outgoing messages
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-            <CardFooter className="flex justify-between">
-              <div className="flex items-center space-x-2">
-                <Input
-                  placeholder="Test phone number"
-                  className="w-[200px]"
-                  value={testPhone}
-                  onChange={(e) => setTestPhone(e.target.value)}
-                />
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={handleTestSms}
-                  disabled={isTesting}
-                >
-                  {isTesting ? "Sending..." : "Test SMS"}
-                  {!isTesting && <Send className="ml-2 h-4 w-4" />}
-                </Button>
-              </div>
-              <Button type="submit">
-                <Save className="mr-2 h-4 w-4" />
-                Save Settings
+            <CardContent className="p-6 text-center">
+              <FileText className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-lg font-medium">Manage SMS Templates</h3>
+              <p className="text-sm text-muted-foreground max-w-md mx-auto mt-1 mb-4">
+                Create reusable SMS templates to save time when sending messages to your customers
+              </p>
+              <Button asChild>
+                <Link to="/settings/sms/templates">
+                  Manage Templates
+                </Link>
               </Button>
-            </CardFooter>
+            </CardContent>
           </Card>
-        </form>
-      </Form>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

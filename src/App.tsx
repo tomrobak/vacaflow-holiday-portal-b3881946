@@ -36,6 +36,7 @@ import ImageSettings from "@/pages/settings/ImageSettings";
 import PortalSettings from "@/pages/settings/PortalSettings";
 import AdminProfile from "@/pages/settings/AdminProfile";
 import SmsSettings from "@/pages/settings/SmsSettings";
+import SmsTemplatesPage from "@/pages/settings/SmsTemplatesPage";
 
 function App() {
   return (
@@ -83,6 +84,7 @@ function App() {
             <Route path="portal" element={<PortalSettings />} />
             <Route path="profile" element={<AdminProfile />} />
             <Route path="sms" element={<SmsSettings />} />
+            <Route path="sms/templates" element={<SmsTemplatesPage />} />
           </Route>
           
           <Route path="*" element={<NotFound />} />

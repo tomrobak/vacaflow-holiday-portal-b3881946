@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -823,7 +824,7 @@ const EditProperty = () => {
                               <div className="p-4">
                                 <div className="flex justify-between items-start">
                                   <h3 className="font-medium">{addon.name}</h3>
-                                  <Badge variant="outline" className="ml-2 capitalize">
+                                  <Badge className="ml-2 capitalize">
                                     {addon.category}
                                   </Badge>
                                 </div>
@@ -898,4 +899,291 @@ const EditProperty = () => {
                       </p>
                     </div>
                     
-                    {galleryImages
+                    {galleryImages.length > 0 ? (
+                      <div className="grid grid-cols-2 gap-2">
+                        {galleryImages.map((url, index) => (
+                          <div key={index} className="relative rounded-md overflow-hidden h-32 bg-gray-100">
+                            <img 
+                              src={url} 
+                              alt={`Gallery ${index + 1}`} 
+                              className="w-full h-full object-cover"
+                            />
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              className="absolute top-1 right-1"
+                              onClick={() => removeFromGallery(url)}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="border-2 border-dashed rounded-md border-muted-foreground/25 flex flex-col items-center justify-center p-4 text-center h-40">
+                        <Image className="h-8 w-8 mb-2 text-muted-foreground" />
+                        <p className="text-sm font-medium text-muted-foreground mb-2">No gallery images</p>
+                        <p className="text-xs text-muted-foreground mb-4">
+                          Add images from your uploads to the gallery
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Uploaded Images</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Upload images for your property or select from existing images
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => document.getElementById('file-upload')?.click()}
+                    >
+                      <Upload className="mr-2 h-4 w-4" />
+                      Upload Images
+                    </Button>
+                    <Input
+                      id="file-upload"
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      onChange={handleImageUpload}
+                    />
+                  </div>
+
+                  {uploadedImages.length > 0 ? (
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                      {uploadedImages.map((image, index) => (
+                        <div
+                          key={index}
+                          className="relative group border rounded-md overflow-hidden"
+                        >
+                          <img
+                            src={image.url}
+                            alt={image.name}
+                            className="w-full h-40 object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all flex flex-col items-center justify-center opacity-0 group-hover:opacity-100">
+                            <div className="flex flex-wrap gap-2 p-2">
+                              <Button
+                                type="button"
+                                size="sm"
+                                onClick={() => setAsHeroImage(image.url)}
+                              >
+                                Set as Hero
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => addToGallery(image.url)}
+                              >
+                                Add to Gallery
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => removeImage(index)}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed rounded-md border-muted-foreground/25 flex flex-col items-center justify-center p-10 text-center">
+                      <Upload className="h-10 w-10 mb-4 text-muted-foreground" />
+                      <p className="text-muted-foreground mb-2">No images uploaded yet</p>
+                      <p className="text-xs text-muted-foreground mb-4">
+                        Drag and drop files or click upload to add images
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="availability" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Availability Period</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Set the period when this property is available for booking
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="availableFrom"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Available From</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Pick a date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              disabled={(date) =>
+                                date < new Date()
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="availableTo"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Available To</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Pick a date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              disabled={(date) =>
+                                date <= new Date() || 
+                                (form.watch("availableFrom") &&
+                                date <= form.watch("availableFrom"))
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                
+                <div className="pt-4">
+                  <FormField
+                    control={form.control}
+                    name="googleCalendarSync"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel>Google Calendar Sync</FormLabel>
+                          <FormDescription>
+                            Synchronize property availability with a Google Calendar
+                          </FormDescription>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                
+                {watchGoogleCalendarSync && (
+                  <div className="pt-2">
+                    <FormField
+                      control={form.control}
+                      name="googleCalendarId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Google Calendar ID</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <CalendarLucide className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                placeholder="your-calendar-id@group.calendar.google.com"
+                                className="pl-8"
+                                {...field}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormDescription>
+                            Enter the Google Calendar ID to sync with
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <div className="flex justify-end gap-4">
+            <Button 
+              type="button" 
+              variant="outline"
+              onClick={() => navigate(`/properties/${id}`)}
+            >
+              Cancel
+            </Button>
+            <Button type="submit">
+              Update Property
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </div>
+  );
+};
+
+export default EditProperty;

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Calendar, Home, Users, DollarSign, Star, Info, ShowerHead, Bed, Square, MapPin, Share, Heart, Check } from "lucide-react";
@@ -53,6 +54,7 @@ const getMockProperty = (id: string): Property => {
       "/placeholder.svg"
     ],
     heroImage: "/placeholder.svg",
+    addons: ["1", "2", "3"], // Available addons for this property
     googleCalendarSync: true,
     googleCalendarId: "calendar123",
     createdAt: new Date(),

@@ -28,6 +28,7 @@ export interface Property {
   images: string[];
   heroImage?: string;
   gallery?: string[];
+  addons?: string[]; // IDs of available addons
   googleCalendarSync?: boolean;
   googleCalendarId?: string;
   createdAt: Date;
@@ -54,4 +55,5 @@ export interface PropertyFormData {
   googleCalendarId?: string;
   heroImage?: string;
   gallery?: string[];
+  addons?: string[];
 }

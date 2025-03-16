@@ -1,99 +1,107 @@
 
 import { format } from "date-fns";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { CalendarDays, Users } from "lucide-react";
-import { differenceInDays } from "date-fns";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+
+interface Price {
+  nightly: number;
+  nights: number;
+  subtotal: number;
+  cleaningFee: number;
+  serviceFee: number;
+  addonsTotal?: number;
+  total: number;
+}
 
 interface BookingSummaryProps {
   propertyId: string;
   startDate: Date;
   endDate: Date;
   guests: number;
-  price: {
-    nightly: number;
-    nights: number;
-    subtotal: number;
-    cleaningFee: number;
-    serviceFee: number;
-    total: number;
-  };
+  price: Price;
 }
 
-const BookingSummary = ({ propertyId, startDate, endDate, guests, price }: BookingSummaryProps) => {
+const BookingSummary = ({
+  propertyId,
+  startDate,
+  endDate,
+  guests,
+  price,
+}: BookingSummaryProps) => {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle>Booking Summary</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center">
-          <div className="flex-shrink-0 mr-4 h-16 w-16 bg-primary/5 rounded overflow-hidden">
-            <img 
-              src="/placeholder.svg" 
-              alt="Property" 
-              className="h-full w-full object-cover"
-            />
-          </div>
+        <div className="flex items-center gap-2">
+          <div className="h-12 w-12 bg-muted rounded-md" />
           <div>
-            <h3 className="font-medium">Luxury Beachfront Villa</h3>
-            <p className="text-sm text-muted-foreground">Malibu, California</p>
+            <h3 className="font-medium text-sm">Your reservation</h3>
+            <p className="text-xs text-muted-foreground">
+              {price.nights} night stay in Property #{propertyId.substring(0, 8)}
+            </p>
           </div>
         </div>
-        
-        <Separator />
-        
+      </CardHeader>
+      <CardContent>
         <div className="space-y-3">
-          <div className="flex items-center">
-            <CalendarDays className="h-4 w-4 mr-2 text-muted-foreground" />
+          <div className="flex">
+            <CalendarDays className="h-4 w-4 mr-2 text-muted-foreground mt-0.5" />
             <div>
-              <p className="text-sm font-medium">Check-in</p>
-              <p className="text-muted-foreground text-sm">{format(startDate, "EEE, MMM d, yyyy")}</p>
+              <p className="text-sm">
+                <span className="font-medium">
+                  {format(new Date(startDate), "MMM d, yyyy")}
+                </span>{" "}
+                to{" "}
+                <span className="font-medium">
+                  {format(new Date(endDate), "MMM d, yyyy")}
+                </span>
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {price.nights} {price.nights === 1 ? "night" : "nights"}
+              </p>
             </div>
           </div>
-          
-          <div className="flex items-center">
-            <CalendarDays className="h-4 w-4 mr-2 text-muted-foreground" />
+          <div className="flex">
+            <Users className="h-4 w-4 mr-2 text-muted-foreground mt-0.5" />
             <div>
-              <p className="text-sm font-medium">Check-out</p>
-              <p className="text-muted-foreground text-sm">{format(endDate, "EEE, MMM d, yyyy")}</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center">
-            <Users className="h-4 w-4 mr-2 text-muted-foreground" />
-            <div>
-              <p className="text-sm font-medium">Guests</p>
-              <p className="text-muted-foreground text-sm">{guests} {guests === 1 ? "guest" : "guests"}</p>
+              <p className="text-sm">
+                <span className="font-medium">{guests}</span>{" "}
+                {guests === 1 ? "guest" : "guests"}
+              </p>
             </div>
           </div>
         </div>
-        
-        <Separator />
-        
-        <div className="space-y-2">
-          <div className="flex justify-between">
-            <span>${price.nightly} x {price.nights} nights</span>
+      </CardContent>
+      <Separator />
+      <CardFooter className="pt-6">
+        <div className="w-full space-y-2">
+          <div className="flex justify-between text-sm">
+            <span>
+              ${price.nightly} x {price.nights} nights
+            </span>
             <span>${price.subtotal}</span>
           </div>
-          <div className="flex justify-between">
+          {price.addonsTotal && price.addonsTotal > 0 && (
+            <div className="flex justify-between text-sm">
+              <span>Add-ons</span>
+              <span>${price.addonsTotal}</span>
+            </div>
+          )}
+          <div className="flex justify-between text-sm">
             <span>Cleaning fee</span>
             <span>${price.cleaningFee}</span>
           </div>
-          <div className="flex justify-between">
+          <div className="flex justify-between text-sm">
             <span>Service fee</span>
             <span>${price.serviceFee}</span>
           </div>
-          <Separator />
+          <Separator className="my-2" />
           <div className="flex justify-between font-bold">
             <span>Total</span>
             <span>${price.total}</span>
           </div>
-          <p className="text-xs text-muted-foreground text-right">
-            Taxes may be added at checkout
-          </p>
         </div>
-      </CardContent>
+      </CardFooter>
     </Card>
   );
 };

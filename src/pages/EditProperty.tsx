@@ -1,10 +1,9 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { CalendarIcon, Building, Upload, X, Plus, MapPin, Calendar as CalendarLucide, Image, ImageIcon } from "lucide-react";
+import { CalendarIcon, Building, Upload, X, Plus, MapPin, Calendar as CalendarLucide, Image, ImageIcon, Package, Check, PlusCircle, Badge } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 
@@ -34,12 +33,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Property } from "@/types/property";
 
-// Extended amenities list
 const amenitiesOptions = [
   { id: "wifi", label: "WiFi", category: "essentials" },
   { id: "pool", label: "Swimming Pool", category: "outdoors" },
@@ -91,7 +89,45 @@ const propertyTypes = [
   { value: "condo", label: "Condominium" },
 ];
 
-// Mock data for demo purposes
+const mockAddons = [
+  {
+    id: "1",
+    name: "Late Checkout",
+    description: "Extend your stay until 3 PM instead of the standard 11 AM checkout time.",
+    price: 45,
+    category: "checkout",
+    featuredImage: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7",
+    active: true
+  },
+  {
+    id: "2",
+    name: "Early Check-in",
+    description: "Check in as early as 10 AM instead of the standard 3 PM check-in time.",
+    price: 45,
+    category: "checkin",
+    featuredImage: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b",
+    active: true
+  },
+  {
+    id: "3",
+    name: "Train Station Pickup",
+    description: "We'll pick you up from the train station and bring you directly to the property.",
+    price: 30,
+    category: "transportation",
+    featuredImage: "https://images.unsplash.com/photo-1721322800607-8c38375eef04",
+    active: true
+  },
+  {
+    id: "4",
+    name: "Professional Photo Session",
+    description: "1-hour photo session with a professional photographer at the property or nearby landmarks.",
+    price: 120,
+    category: "entertainment",
+    featuredImage: "https://images.unsplash.com/photo-1472396961693-142e6e269027",
+    active: true
+  }
+];
+
 const mockPropertyData: Property = {
   id: "1",
   name: "Sunset Villa",
@@ -118,6 +154,7 @@ const mockPropertyData: Property = {
   ],
   googleCalendarSync: true,
   googleCalendarId: "example@gmail.com",
+  addons: ["1", "3"],
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -161,6 +198,7 @@ const formSchema = z.object({
     }
   ).optional(),
   amenities: z.array(z.string()).optional(),
+  addons: z.array(z.string()).optional(),
   availableFrom: z.date(),
   availableTo: z.date(),
   propertyType: z.string(),
@@ -188,7 +226,6 @@ const formSchema = z.object({
   }
 );
 
-// Group amenities by category
 const amenitiesByCategory = amenitiesOptions.reduce((acc, amenity) => {
   if (!acc[amenity.category]) {
     acc[amenity.category] = [];
@@ -197,7 +234,6 @@ const amenitiesByCategory = amenitiesOptions.reduce((acc, amenity) => {
   return acc;
 }, {} as Record<string, typeof amenitiesOptions>);
 
-// Capitalize category names for display
 const formatCategoryName = (category: string) => {
   return category.charAt(0).toUpperCase() + category.slice(1);
 };
@@ -213,6 +249,8 @@ const EditProperty = () => {
   const [heroImage, setHeroImage] = useState<string | null>(null);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState("basic");
+  const [availableAddons, setAvailableAddons] = useState(mockAddons);
+  const [isAddAddonDialogOpen, setIsAddAddonDialogOpen] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -227,6 +265,7 @@ const EditProperty = () => {
       maxGuests: "",
       squareFeet: "",
       amenities: [],
+      addons: [],
       availableFrom: new Date(),
       availableTo: new Date(new Date().setMonth(new Date().getMonth() + 3)),
       propertyType: "house",
@@ -239,18 +278,14 @@ const EditProperty = () => {
     },
   });
 
-  // Fetch property data
   useEffect(() => {
     const fetchProperty = async () => {
       setIsLoading(true);
       try {
-        // In a real app, this would be an API call
         console.log(`Fetching property data for ID: ${id}`);
-        // Mock data for demo
         const data = mockPropertyData;
         setProperty(data);
         
-        // Set form values from property data
         form.reset({
           name: data.name,
           description: data.description,
@@ -262,6 +297,7 @@ const EditProperty = () => {
           maxGuests: data.maxGuests.toString(),
           squareFeet: data.squareFeet ? data.squareFeet.toString() : "",
           amenities: data.amenities,
+          addons: data.addons,
           availableFrom: new Date(data.availableFrom),
           availableTo: new Date(data.availableTo),
           propertyType: data.propertyType,
@@ -273,7 +309,6 @@ const EditProperty = () => {
           gallery: data.gallery || [],
         });
         
-        // Set images
         if (data.heroImage) {
           setHeroImage(data.heroImage);
         }
@@ -282,7 +317,6 @@ const EditProperty = () => {
           setGalleryImages(data.gallery);
         }
         
-        // Set uploaded images for display
         const images = [...(data.images || [])];
         setUploadedImages(
           images.map((url, index) => ({
@@ -306,6 +340,7 @@ const EditProperty = () => {
     console.log("Hero image:", heroImage);
     console.log("Gallery images:", galleryImages);
     console.log("Uploaded images:", uploadedImages);
+    console.log("Selected addons:", values.addons);
     
     toast.success(`Property "${values.name}" has been updated!`);
     navigate(`/properties/${id}`);
@@ -355,6 +390,11 @@ const EditProperty = () => {
 
   const watchGoogleCalendarSync = form.watch("googleCalendarSync");
 
+  const handleCreateAddon = () => {
+    setIsAddAddonDialogOpen(false);
+    navigate("/addons");
+  };
+
   if (isLoading) {
     return (
       <div className="p-6 flex justify-center items-center h-96">
@@ -379,6 +419,7 @@ const EditProperty = () => {
         <TabsList className="w-full justify-start">
           <TabsTrigger value="basic">Basic Info</TabsTrigger>
           <TabsTrigger value="features">Features & Amenities</TabsTrigger>
+          <TabsTrigger value="addons">Addons</TabsTrigger>
           <TabsTrigger value="images">Images & Gallery</TabsTrigger>
           <TabsTrigger value="availability">Availability</TabsTrigger>
         </TabsList>
@@ -723,9 +764,88 @@ const EditProperty = () => {
             </Card>
           </TabsContent>
 
+          <TabsContent value="addons" className="space-y-6">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Property Addons</CardTitle>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Select addons that are available for this property
+                  </p>
+                </div>
+                <Button variant="outline" onClick={() => setIsAddAddonDialogOpen(true)}>
+                  <PlusCircle className="mr-2 h-4 w-4" /> 
+                  Create Addon
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <FormField
+                  control={form.control}
+                  name="addons"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {availableAddons.map((addon) => {
+                          const isSelected = field.value?.includes(addon.id);
+                          return (
+                            <div
+                              key={addon.id}
+                              className={cn(
+                                "border rounded-lg overflow-hidden transition-all cursor-pointer hover:shadow-md",
+                                isSelected ? "border-primary ring-2 ring-primary/20" : "border-border"
+                              )}
+                              onClick={() => {
+                                const currentValues = field.value || [];
+                                const newValues = isSelected
+                                  ? currentValues.filter(id => id !== addon.id)
+                                  : [...currentValues, addon.id];
+                                field.onChange(newValues);
+                              }}
+                            >
+                              <div className="relative">
+                                {addon.featuredImage ? (
+                                  <img
+                                    src={addon.featuredImage}
+                                    alt={addon.name}
+                                    className="h-36 w-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="h-36 w-full bg-muted flex items-center justify-center">
+                                    <Package className="h-10 w-10 text-muted-foreground" />
+                                  </div>
+                                )}
+                                {isSelected && (
+                                  <div className="absolute top-2 right-2 bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center">
+                                    <Check className="h-4 w-4" />
+                                  </div>
+                                )}
+                              </div>
+                              <div className="p-4">
+                                <div className="flex justify-between items-start">
+                                  <h3 className="font-medium">{addon.name}</h3>
+                                  <Badge variant="outline" className="ml-2 capitalize">
+                                    {addon.category}
+                                  </Badge>
+                                </div>
+                                <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                                  {addon.description}
+                                </p>
+                                <p className="text-sm font-medium mt-2">${addon.price}</p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           <TabsContent value="images" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Hero Image Section */}
               <Card>
                 <CardContent className="pt-6">
                   <div className="space-y-4">
@@ -768,7 +888,6 @@ const EditProperty = () => {
                 </CardContent>
               </Card>
 
-              {/* Gallery Section */}
               <Card>
                 <CardContent className="pt-6">
                   <div className="space-y-4">
@@ -813,241 +932,5 @@ const EditProperty = () => {
               </Card>
             </div>
 
-            {/* Upload Images Section */}
-            <Card>
-              <CardContent className="pt-6">
-                <div>
-                  <h3 className="text-lg font-medium mb-4">Uploaded Images</h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-4">
-                    {uploadedImages.map((image, index) => (
-                      <div
-                        key={index}
-                        className="relative h-36 bg-gray-100 rounded-md overflow-hidden group"
-                      >
-                        <img
-                          src={image.url}
-                          alt={`Property ${index + 1}`}
-                          className="h-full w-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-center items-center gap-2 p-2">
-                          <div className="flex gap-1">
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              className="h-8"
-                              onClick={() => setAsHeroImage(image.url)}
-                            >
-                              Set as Hero
-                            </Button>
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              className="h-8"
-                              onClick={() => addToGallery(image.url)}
-                            >
-                              Add to Gallery
-                            </Button>
-                          </div>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            className="h-8 w-full"
-                            onClick={() => removeImage(index)}
-                          >
-                            Remove
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="image-upload"
-                      className="cursor-pointer block"
-                    >
-                      <div className="border-2 border-dashed rounded-md border-muted-foreground/25 flex flex-col items-center justify-center p-4 text-center transition-colors hover:border-muted-foreground/50">
-                        <Upload className="h-8 w-8 mb-2 text-muted-foreground" />
-                        <p className="mb-1 text-xs font-medium text-muted-foreground">
-                          Drag and drop your images here or click to browse
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          JPG, PNG or WebP, up to 10MB each
-                        </p>
-                      </div>
-                      <input
-                        id="image-upload"
-                        type="file"
-                        multiple
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleImageUpload}
-                      />
-                    </label>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+            <
 
-          <TabsContent value="availability" className="space-y-6">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-medium">Availability Period</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="availableFrom"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-col">
-                            <FormLabel>Available From</FormLabel>
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <FormControl>
-                                  <Button
-                                    variant={"outline"}
-                                    className={cn(
-                                      "w-full pl-3 text-left font-normal",
-                                      !field.value && "text-muted-foreground"
-                                    )}
-                                  >
-                                    {field.value ? (
-                                      format(field.value, "PPP")
-                                    ) : (
-                                      <span>Pick a date</span>
-                                    )}
-                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                  </Button>
-                                </FormControl>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-auto p-0" align="start">
-                                <Calendar
-                                  mode="single"
-                                  selected={field.value}
-                                  onSelect={field.onChange}
-                                  initialFocus
-                                  className={cn("p-3 pointer-events-auto")}
-                                />
-                              </PopoverContent>
-                            </Popover>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="availableTo"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-col">
-                            <FormLabel>Available To</FormLabel>
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <FormControl>
-                                  <Button
-                                    variant={"outline"}
-                                    className={cn(
-                                      "w-full pl-3 text-left font-normal",
-                                      !field.value && "text-muted-foreground"
-                                    )}
-                                  >
-                                    {field.value ? (
-                                      format(field.value, "PPP")
-                                    ) : (
-                                      <span>Pick a date</span>
-                                    )}
-                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                  </Button>
-                                </FormControl>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-auto p-0" align="start">
-                                <Calendar
-                                  mode="single"
-                                  selected={field.value}
-                                  onSelect={field.onChange}
-                                  initialFocus
-                                  className={cn("p-3 pointer-events-auto")}
-                                />
-                              </PopoverContent>
-                            </Popover>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-medium">Calendar Settings</h3>
-                    <div className="space-y-4">
-                      <FormField
-                        control={form.control}
-                        name="googleCalendarSync"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                            <div className="space-y-1 leading-none">
-                              <FormLabel>Enable Google Calendar Sync</FormLabel>
-                              <FormDescription>
-                                Automatically sync bookings with a Google Calendar
-                              </FormDescription>
-                            </div>
-                          </FormItem>
-                        )}
-                      />
-
-                      {watchGoogleCalendarSync && (
-                        <FormField
-                          control={form.control}
-                          name="googleCalendarId"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Google Calendar ID</FormLabel>
-                              <FormControl>
-                                <div className="relative">
-                                  <CalendarLucide className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                                  <Input
-                                    placeholder="e.g. example@gmail.com"
-                                    className="pl-8"
-                                    {...field}
-                                  />
-                                </div>
-                              </FormControl>
-                              <FormDescription>
-                                Enter the Google Calendar ID to sync with.
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <div className="flex justify-end gap-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => navigate(`/properties/${id}`)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit">Save Changes</Button>
-          </div>
-        </form>
-      </Form>
-    </div>
-  );
-};
-
-export default EditProperty;

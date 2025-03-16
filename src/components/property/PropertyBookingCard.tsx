@@ -9,15 +9,72 @@ import { Calendar } from "@/components/ui/calendar";
 import { DateRange } from "react-day-picker";
 import { format, differenceInDays, addDays } from "date-fns";
 import { cn } from "@/lib/utils";
-import { CalendarIcon, Users, CheckCircle } from "lucide-react";
+import { CalendarIcon, Users, CheckCircle, Package } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Addon } from "@/types/addon";
 
 interface PropertyBookingCardProps {
   property: Property;
 }
+
+// Mock addons data - in a real app, this would come from an API call
+const mockAddons: Addon[] = [
+  {
+    id: "1",
+    name: "Late Checkout",
+    description: "Extend your stay until 3 PM instead of the standard 11 AM checkout time.",
+    price: 45,
+    category: "checkout",
+    featuredImage: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7",
+    gallery: [],
+    active: true,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  },
+  {
+    id: "2",
+    name: "Early Check-in",
+    description: "Check in as early as 10 AM instead of the standard 3 PM check-in time.",
+    price: 45,
+    category: "checkin",
+    featuredImage: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b",
+    gallery: [],
+    active: true,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  },
+  {
+    id: "3",
+    name: "Train Station Pickup",
+    description: "We'll pick you up from the train station and bring you directly to the property.",
+    price: 30,
+    category: "transportation",
+    featuredImage: "https://images.unsplash.com/photo-1721322800607-8c38375eef04",
+    gallery: [],
+    active: true,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  },
+  {
+    id: "4",
+    name: "Professional Photo Session",
+    description: "1-hour photo session with a professional photographer at the property or nearby landmarks.",
+    price: 120,
+    category: "entertainment",
+    featuredImage: "https://images.unsplash.com/photo-1472396961693-142e6e269027",
+    gallery: [
+      "https://images.unsplash.com/photo-1472396961693-142e6e269027",
+      "https://images.unsplash.com/photo-1466721591366-2d5fba72006d"
+    ],
+    active: true,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  }
+];
 
 const PropertyBookingCard = ({ property }: PropertyBookingCardProps) => {
   const navigate = useNavigate();
@@ -26,13 +83,27 @@ const PropertyBookingCard = ({ property }: PropertyBookingCardProps) => {
     to: addDays(new Date(), 5),
   });
   const [guests, setGuests] = useState("2");
+  const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
+  const [showAddons, setShowAddons] = useState(false);
+  
+  // Filter addons that are available for this property
+  const availableAddons = mockAddons.filter(addon => 
+    property.addons?.includes(addon.id)
+  );
   
   // Calculate number of nights and total price
   const nights = date?.from && date?.to ? differenceInDays(date.to, date.from) : 0;
   const subtotal = property.price * nights;
+  
+  // Calculate addons price
+  const addonsTotal = selectedAddons.reduce((total, addonId) => {
+    const addon = mockAddons.find(a => a.id === addonId);
+    return total + (addon?.price || 0);
+  }, 0);
+  
   const cleaningFee = 60;
   const serviceFee = Math.round(subtotal * 0.12);
-  const total = subtotal + cleaningFee + serviceFee;
+  const total = subtotal + cleaningFee + serviceFee + addonsTotal;
   
   const handleReserve = () => {
     if (!date?.from || !date?.to) {
@@ -46,10 +117,12 @@ const PropertyBookingCard = ({ property }: PropertyBookingCardProps) => {
         startDate: date.from,
         endDate: date.to,
         guests: parseInt(guests),
+        addons: selectedAddons,
         price: {
           nightly: property.price,
           nights,
           subtotal,
+          addonsTotal,
           cleaningFee,
           serviceFee,
           total
@@ -133,6 +206,55 @@ const PropertyBookingCard = ({ property }: PropertyBookingCardProps) => {
             </div>
           </div>
           
+          {availableAddons.length > 0 && (
+            <div className="space-y-2">
+              <Button 
+                variant="outline" 
+                className="w-full flex justify-between items-center"
+                onClick={() => setShowAddons(!showAddons)}
+              >
+                <div className="flex items-center">
+                  <Package className="h-4 w-4 mr-2" />
+                  <span>{showAddons ? "Hide Add-ons" : "View Add-ons"}</span>
+                </div>
+                <span className="text-muted-foreground text-sm">
+                  {selectedAddons.length ? `${selectedAddons.length} selected` : "Optional"}
+                </span>
+              </Button>
+              
+              {showAddons && (
+                <div className="border rounded-md p-3 space-y-3 mt-1">
+                  <h4 className="text-sm font-medium mb-2">Enhance your stay</h4>
+                  {availableAddons.map((addon) => (
+                    <div key={addon.id} className="flex items-start">
+                      <Checkbox
+                        id={`addon-${addon.id}`}
+                        checked={selectedAddons.includes(addon.id)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedAddons([...selectedAddons, addon.id]);
+                          } else {
+                            setSelectedAddons(selectedAddons.filter(id => id !== addon.id));
+                          }
+                        }}
+                        className="mt-1"
+                      />
+                      <div className="ml-3 space-y-1">
+                        <label
+                          htmlFor={`addon-${addon.id}`}
+                          className="text-sm font-medium cursor-pointer"
+                        >
+                          {addon.name} - ${addon.price}
+                        </label>
+                        <p className="text-xs text-muted-foreground">{addon.description}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+          
           <Button 
             className="w-full" 
             disabled={!date?.from || !date?.to || nights === 0}
@@ -154,6 +276,25 @@ const PropertyBookingCard = ({ property }: PropertyBookingCardProps) => {
                   <span>${property.price} x {nights} nights</span>
                   <span>${subtotal}</span>
                 </div>
+                
+                {selectedAddons.length > 0 && (
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-sm font-medium">
+                      <span>Add-ons</span>
+                      <span>${addonsTotal}</span>
+                    </div>
+                    {selectedAddons.map(addonId => {
+                      const addon = mockAddons.find(a => a.id === addonId);
+                      return addon ? (
+                        <div key={addon.id} className="flex justify-between text-xs text-muted-foreground pl-4">
+                          <span>{addon.name}</span>
+                          <span>${addon.price}</span>
+                        </div>
+                      ) : null;
+                    })}
+                  </div>
+                )}
+                
                 <div className="flex justify-between">
                   <span>Cleaning fee</span>
                   <span>${cleaningFee}</span>

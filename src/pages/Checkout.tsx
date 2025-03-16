@@ -5,12 +5,65 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, CreditCard, CalendarClock, Home, Info, User } from "lucide-react";
+import { ArrowLeft, CreditCard, CalendarClock, Home, Info, User, Package } from "lucide-react";
 import LoginForm from "@/components/checkout/LoginForm";
 import GuestInfoForm from "@/components/checkout/GuestInfoForm";
 import PaymentForm from "@/components/checkout/PaymentForm";
 import BookingSummary from "@/components/checkout/BookingSummary";
 import { toast } from "sonner";
+import { Addon } from "@/types/addon";
+
+// Mock addons data
+const mockAddons: Addon[] = [
+  {
+    id: "1",
+    name: "Late Checkout",
+    description: "Extend your stay until 3 PM instead of the standard 11 AM checkout time.",
+    price: 45,
+    category: "checkout",
+    featuredImage: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7",
+    gallery: [],
+    active: true,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  },
+  {
+    id: "2",
+    name: "Early Check-in",
+    description: "Check in as early as 10 AM instead of the standard 3 PM check-in time.",
+    price: 45,
+    category: "checkin",
+    featuredImage: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b",
+    gallery: [],
+    active: true,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  },
+  {
+    id: "3",
+    name: "Train Station Pickup",
+    description: "We'll pick you up from the train station and bring you directly to the property.",
+    price: 30,
+    category: "transportation",
+    featuredImage: "https://images.unsplash.com/photo-1721322800607-8c38375eef04",
+    gallery: [],
+    active: true,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  },
+  {
+    id: "4",
+    name: "Professional Photo Session",
+    description: "1-hour photo session with a professional photographer at the property or nearby landmarks.",
+    price: 120,
+    category: "entertainment",
+    featuredImage: "https://images.unsplash.com/photo-1472396961693-142e6e269027",
+    gallery: [],
+    active: true,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  }
+];
 
 const Checkout = () => {
   const location = useLocation();
@@ -25,15 +78,22 @@ const Checkout = () => {
     startDate: new Date(),
     endDate: new Date(new Date().setDate(new Date().getDate() + 5)),
     guests: 2,
+    addons: ["1", "3"], // Selected addon IDs
     price: {
       nightly: 299,
       nights: 5,
       subtotal: 1495,
+      addonsTotal: 75, // Late checkout + Train pickup
       cleaningFee: 60,
       serviceFee: 179,
-      total: 1734
+      total: 1809
     }
   };
+  
+  // Get addon details from selected IDs
+  const selectedAddons = bookingData.addons?.map(addonId => 
+    mockAddons.find(addon => addon.id === addonId)
+  ).filter(Boolean) || [];
   
   const handleGuestInfoComplete = () => {
     setActiveTab("payment");
@@ -55,6 +115,7 @@ const Checkout = () => {
         startDate: bookingData.startDate,
         endDate: bookingData.endDate,
         guests: bookingData.guests,
+        addons: bookingData.addons,
         total: bookingData.price.total,
         paymentId
       } 
@@ -145,6 +206,45 @@ const Checkout = () => {
             guests={bookingData.guests}
             price={bookingData.price}
           />
+          
+          {selectedAddons.length > 0 && (
+            <Card className="mt-6">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center">
+                  <Package className="h-4 w-4 mr-2" />
+                  Selected Add-ons
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {selectedAddons.map((addon: Addon) => (
+                  <div key={addon.id} className="flex justify-between items-start">
+                    <div className="flex items-start">
+                      <div className="h-10 w-10 rounded-md overflow-hidden flex-shrink-0 mr-2">
+                        {addon.featuredImage ? (
+                          <img 
+                            src={addon.featuredImage} 
+                            alt={addon.name} 
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <div className="h-full w-full bg-muted flex items-center justify-center">
+                            <Package className="h-4 w-4 text-muted-foreground" />
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">{addon.name}</p>
+                        <p className="text-xs text-muted-foreground line-clamp-1">
+                          {addon.description}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="font-semibold text-sm">${addon.price}</p>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
           
           <Card className="mt-6">
             <CardHeader className="pb-3">

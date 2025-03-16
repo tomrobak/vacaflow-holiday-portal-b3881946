@@ -3,13 +3,15 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { UseFormSetValue } from "react-hook-form";
 import { PropertyFormData } from "@/types/property";
+import { EditPropertyFormValues } from "@/components/property/EditPropertyDataProvider";
 
 interface UploadedImage {
   name: string;
   url: string;
 }
 
-export const usePropertyImages = (setValue: UseFormSetValue<PropertyFormData>) => {
+// We're making this hook compatible with both PropertyFormData and EditPropertyFormValues
+export const usePropertyImages = (setValue: UseFormSetValue<PropertyFormData | EditPropertyFormValues>) => {
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
   const [heroImage, setHeroImage] = useState<string | null>(null);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);

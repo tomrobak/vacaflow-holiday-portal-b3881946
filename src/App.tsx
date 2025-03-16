@@ -32,6 +32,8 @@ import PaymentSettings from "@/pages/settings/PaymentSettings";
 import StorageSettings from "@/pages/settings/StorageSettings";
 import EmailSettings from "@/pages/settings/EmailSettings";
 import ImageSettings from "@/pages/settings/ImageSettings";
+import PortalSettings from "@/pages/settings/PortalSettings";
+import AdminProfile from "@/pages/settings/AdminProfile";
 
 function App() {
   return (
@@ -75,6 +77,8 @@ function App() {
             <Route path="storage" element={<StorageSettings />} />
             <Route path="email" element={<EmailSettings />} />
             <Route path="images" element={<ImageSettings />} />
+            <Route path="portal" element={<PortalSettings />} />
+            <Route path="profile" element={<AdminProfile />} />
           </Route>
           
           <Route path="*" element={<NotFound />} />

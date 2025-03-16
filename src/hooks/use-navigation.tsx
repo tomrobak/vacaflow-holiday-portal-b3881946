@@ -18,6 +18,9 @@ import {
   UserCheck,
   UserX,
   Clock,
+  Palette,
+  User,
+  Sliders,
 } from "lucide-react";
 
 export type NavigationItem = {
@@ -133,6 +136,16 @@ export function useNavigation() {
             label: "Payment",
             href: "/settings/payment",
             icon: CreditCard,
+          },
+          {
+            label: "Portal Settings",
+            href: "/settings/portal",
+            icon: Palette,
+          },
+          {
+            label: "Admin Profile",
+            href: "/settings/profile",
+            icon: User,
           },
           {
             label: "Storage",

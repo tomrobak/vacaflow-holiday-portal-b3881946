@@ -1,6 +1,6 @@
 
 import { ReactNode, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   ChevronDown,
   LogOut,
@@ -20,6 +20,13 @@ import { cn } from "@/lib/utils";
 import { useNavigation, NavigationItem } from "@/hooks/use-navigation";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -29,6 +36,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const { navigationItems, isActive, isChildActive } = useNavigation();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -97,6 +105,11 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     );
   };
 
+  // Handle admin profile navigation
+  const handleProfileClick = () => {
+    navigate("/settings/profile");
+  };
+
   // Mobile sidebar using Sheet component
   if (isMobile) {
     return (
@@ -128,24 +141,27 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                   )}
                 </nav>
                 <div className="border-t p-4">
-                  <div className="flex items-center gap-3">
+                  <Button 
+                    variant="ghost"
+                    className="flex w-full items-center gap-3 px-2 py-1.5"
+                    onClick={() => {
+                      handleProfileClick();
+                      const closeButton = document.querySelector('[data-radix-sheet-close]');
+                      if (closeButton && closeButton instanceof HTMLElement) {
+                        closeButton.click();
+                      }
+                    }}
+                  >
                     <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground">
                       <User className="h-5 w-5" />
                     </div>
-                    <div className="flex flex-col">
+                    <div className="flex flex-col items-start">
                       <span className="text-sm font-medium">Admin User</span>
                       <span className="text-xs text-muted-foreground">
                         admin@vacaflow.com
                       </span>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="ml-auto h-8 w-8"
-                    >
-                      <LogOut className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  </Button>
                 </div>
               </div>
             </SheetContent>
@@ -156,9 +172,30 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           </Link>
           
           <div className="ml-auto flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
-              <User className="h-4 w-4" />
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                    <User className="h-4 w-4" />
+                  </div>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => navigate("/settings/profile")}>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>My Profile</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/settings/portal")}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Portal Settings</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Logout</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </header>
 
@@ -224,32 +261,47 @@ const MainLayout = ({ children }: MainLayoutProps) => {
 
         {/* User section */}
         <div className="border-t p-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground">
-              <User className="h-5 w-5" />
-            </div>
-            <div
-              className={cn(
-                "flex flex-col transition-opacity",
-                !sidebarOpen && "opacity-0"
-              )}
-            >
-              <span className="text-sm font-medium">Admin User</span>
-              <span className="text-xs text-muted-foreground">
-                admin@vacaflow.com
-              </span>
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className={cn(
-                "ml-auto h-8 w-8 transition-opacity",
-                !sidebarOpen && "opacity-0"
-              )}
-            >
-              <LogOut className="h-4 w-4" />
-            </Button>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className={cn(
+                  "flex w-full items-center gap-3 px-2 py-1.5 transition-opacity",
+                  !sidebarOpen && "justify-center"
+                )}
+              >
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                  <User className="h-5 w-5" />
+                </div>
+                <div
+                  className={cn(
+                    "flex flex-col items-start transition-opacity",
+                    !sidebarOpen && "opacity-0"
+                  )}
+                >
+                  <span className="text-sm font-medium">Admin User</span>
+                  <span className="text-xs text-muted-foreground">
+                    admin@vacaflow.com
+                  </span>
+                </div>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => navigate("/settings/profile")}>
+                <User className="mr-2 h-4 w-4" />
+                <span>My Profile</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/settings/portal")}>
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Portal Settings</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Logout</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </aside>
 

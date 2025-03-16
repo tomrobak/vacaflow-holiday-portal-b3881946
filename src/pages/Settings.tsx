@@ -8,9 +8,9 @@ import {
   Cloud, 
   Server 
 } from "lucide-react";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Button } from "@/components/ui/button";
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -18,9 +18,17 @@ const Settings = () => {
   const currentPath = location.pathname.split("/").pop() || "general";
   const isMobile = useIsMobile();
 
-  const handleTabChange = (value: string) => {
+  const handleNavigation = (value: string) => {
     navigate(`/settings/${value}`);
   };
+
+  const navItems = [
+    { value: "general", label: "General", icon: <SettingsIcon className="h-4 w-4" /> },
+    { value: "mail", label: "Mail", icon: <Mail className="h-4 w-4" /> },
+    { value: "payment", label: "Payment", icon: <CreditCard className="h-4 w-4" /> },
+    { value: "storage", label: "Storage", icon: <Cloud className="h-4 w-4" /> },
+    { value: "email", label: "Email", icon: <Server className="h-4 w-4" /> }
+  ];
 
   return (
     <div className="container px-4 md:px-6 py-4 md:py-6 max-w-7xl mx-auto space-y-6">
@@ -31,37 +39,28 @@ const Settings = () => {
         </p>
       </div>
 
-      <Tabs 
-        value={currentPath}
-        onValueChange={handleTabChange}
-        className="w-full"
-      >
-        <TabsList className={isMobile ? "grid grid-cols-2 mb-4 w-full" : "grid grid-cols-5 w-full max-w-4xl"}>
-          <TabsTrigger value="general" className="flex gap-2 items-center">
-            <SettingsIcon className="h-4 w-4" />
-            <span className={isMobile ? "inline" : "hidden sm:inline"}>General</span>
-          </TabsTrigger>
-          <TabsTrigger value="mail" className="flex gap-2 items-center">
-            <Mail className="h-4 w-4" />
-            <span className={isMobile ? "inline" : "hidden sm:inline"}>Mail</span>
-          </TabsTrigger>
-          <TabsTrigger value="payment" className="flex gap-2 items-center">
-            <CreditCard className="h-4 w-4" />
-            <span className={isMobile ? "inline" : "hidden sm:inline"}>Payment</span>
-          </TabsTrigger>
-          <TabsTrigger value="storage" className="flex gap-2 items-center">
-            <Cloud className="h-4 w-4" />
-            <span className={isMobile ? "inline" : "hidden sm:inline"}>Storage</span>
-          </TabsTrigger>
-          <TabsTrigger value="email" className="flex gap-2 items-center">
-            <Server className="h-4 w-4" />
-            <span className={isMobile ? "inline" : "hidden sm:inline"}>Email</span>
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
+      <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-6">
+        {/* Sidebar Navigation */}
+        <div className="bg-card rounded-lg border shadow-sm overflow-hidden">
+          <div className="flex flex-col">
+            {navItems.map((item) => (
+              <Button
+                key={item.value}
+                variant={currentPath === item.value ? "secondary" : "ghost"}
+                className="justify-start rounded-none h-12 px-4"
+                onClick={() => handleNavigation(item.value)}
+              >
+                {item.icon}
+                <span className="ml-2">{item.label}</span>
+              </Button>
+            ))}
+          </div>
+        </div>
 
-      <div className="bg-card rounded-lg border shadow-sm p-4 md:p-6">
-        <Outlet />
+        {/* Content Area */}
+        <div className="bg-card rounded-lg border shadow-sm p-4 md:p-6">
+          <Outlet />
+        </div>
       </div>
     </div>
   );

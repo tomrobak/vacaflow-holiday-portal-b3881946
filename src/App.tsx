@@ -50,7 +50,7 @@ function App() {
         {/* Admin routes */}
         <Route path="/" element={<MainLayout><Outlet /></MainLayout>}>
           <Route index element={<Dashboard />} />
-          <Route path="customers/*" element={<Customers />} />
+          <Route path="customers" element={<Customers />} />
           <Route path="customers/new" element={<NewCustomer />} />
           <Route path="customers/dashboard/:id" element={<CustomerDashboard />} />
           <Route path="customers/:id" element={<CustomerDetail />} />
@@ -66,7 +66,7 @@ function App() {
           <Route path="calendar/*" element={<Calendar />} />
           <Route path="messages/*" element={<Messages />} />
           
-          {/* Settings routes - simplified */}
+          {/* Settings routes */}
           <Route path="settings" element={<Settings />}>
             <Route index element={<GeneralSettings />} />
             <Route path="general" element={<GeneralSettings />} />

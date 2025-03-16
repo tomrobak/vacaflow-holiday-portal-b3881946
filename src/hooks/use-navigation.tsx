@@ -1,3 +1,4 @@
+
 import { useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
@@ -14,6 +15,9 @@ import {
   Cloud,
   Server,
   Image,
+  UserCheck,
+  UserX,
+  Clock,
 } from "lucide-react";
 
 export type NavigationItem = {
@@ -82,6 +86,21 @@ export function useNavigation() {
             label: "Add Customer",
             href: "/customers/new",
             icon: Plus,
+          },
+          {
+            label: "Active Customers",
+            href: "/customers?status=active",
+            icon: UserCheck,
+          },
+          {
+            label: "Inactive Customers",
+            href: "/customers?status=inactive",
+            icon: UserX,
+          },
+          {
+            label: "Pending Customers",
+            href: "/customers?status=pending",
+            icon: Clock,
           },
         ]
       },

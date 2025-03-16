@@ -36,16 +36,16 @@ export interface Property {
 }
 
 export interface PropertyFormData {
-  name: string;
-  description: string;
-  location: string;
+  name?: string;
+  description?: string;
+  location?: string;
   address?: string;
-  price: string;
-  bedrooms: string;
-  bathrooms: string;
+  price?: string;
+  bedrooms?: string;
+  bathrooms?: string;
   maxGuests?: string;
   squareFeet?: string;
-  amenities?: string[]; // Made optional to match form behavior
+  amenities?: string[];
   availableFrom: Date;
   availableTo: Date;
   propertyType: string;

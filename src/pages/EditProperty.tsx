@@ -149,29 +149,29 @@ const mockPropertyData: Property = {
 const formSchema = z.object({
   name: z.string().min(2, {
     message: "Property name must be at least 2 characters.",
-  }),
+  }).optional(),
   description: z.string().min(10, {
     message: "Description must be at least 10 characters.",
-  }),
+  }).optional(),
   location: z.string().min(2, {
     message: "Location must be at least 2 characters.",
-  }),
+  }).optional(),
   address: z.string().optional(),
   price: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
     message: "Price must be a positive number.",
-  }),
+  }).optional(),
   bedrooms: z.string().refine(
     (val) => !isNaN(Number(val)) && Number(val) >= 0,
     {
       message: "Number of bedrooms must be a non-negative number.",
     }
-  ),
+  ).optional(),
   bathrooms: z.string().refine(
     (val) => !isNaN(Number(val)) && Number(val) >= 0,
     {
       message: "Number of bathrooms must be a non-negative number.",
     }
-  ),
+  ).optional(),
   maxGuests: z.string().refine(
     (val) => !isNaN(Number(val)) && Number(val) > 0,
     {

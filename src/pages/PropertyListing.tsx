@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Calendar, Home, Users, DollarSign, Star, Info, ShowerHead, Bed, Square, MapPin, Share, Heart, Check } from "lucide-react";
@@ -15,9 +14,8 @@ import PropertyAmenities from "@/components/property/PropertyAmenities";
 import PropertyAvailabilityCalendar from "@/components/property/PropertyAvailabilityCalendar";
 import PropertyLocationMap from "@/components/property/PropertyLocationMap";
 import PropertyReviews from "@/components/property/PropertyReviews";
-import { useToast } from "sonner";
+import { toast } from "sonner";
 
-// Mock property data for demonstration
 const getMockProperty = (id: string): Property => {
   return {
     id,
@@ -65,7 +63,6 @@ const getMockProperty = (id: string): Property => {
 const PropertyListing = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const toast = useToast();
   const [property, setProperty] = useState<Property | null>(id ? getMockProperty(id) : null);
   
   if (!property) {
@@ -90,7 +87,6 @@ const PropertyListing = () => {
 
   return (
     <div className="container py-6 space-y-8 max-w-7xl mx-auto">
-      {/* Property Header */}
       <div>
         <div className="flex justify-between items-start mb-2">
           <h1 className="text-2xl md:text-3xl font-bold">{property.name}</h1>
@@ -120,13 +116,10 @@ const PropertyListing = () => {
         </div>
       </div>
 
-      {/* Property Gallery */}
       <PropertyGallery property={property} />
       
-      {/* Property Content - Main + Sidebar layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-8">
-          {/* Property Details */}
           <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between border-b pb-6">
               <div>
@@ -167,10 +160,8 @@ const PropertyListing = () => {
             </div>
           </div>
           
-          {/* Property Amenities */}
           <PropertyAmenities amenities={property.amenities} />
           
-          {/* Property Tabs - Calendar, Reviews, Location */}
           <Tabs defaultValue="calendar">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="calendar">
@@ -198,7 +189,6 @@ const PropertyListing = () => {
           </Tabs>
         </div>
         
-        {/* Booking Card Sidebar */}
         <div className="lg:col-span-1">
           <PropertyBookingCard property={property} />
         </div>

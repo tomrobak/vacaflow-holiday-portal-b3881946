@@ -98,7 +98,7 @@ const NewCustomer = () => {
       preferredContactMethod: "email",
       receiveMarketingEmails: false,
       receiveBookingUpdates: true,
-      receivePaymentEmails: true,
+      receivePaymentReminders: true,  // Changed from receivePaymentEmails to receivePaymentReminders
       notes: "",
       tags: [],
     },

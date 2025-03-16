@@ -37,12 +37,20 @@ import PortalSettings from "@/pages/settings/PortalSettings";
 import AdminProfile from "@/pages/settings/AdminProfile";
 import SmsSettings from "@/pages/settings/SmsSettings";
 import SmsTemplatesPage from "@/pages/settings/SmsTemplatesPage";
+import PropertyListing from "@/pages/PropertyListing";
+import Checkout from "@/pages/Checkout";
+import BookingConfirmation from "@/pages/BookingConfirmation";
 
 function App() {
   return (
     <Router>
       <Toaster position="top-right" />
       <Routes>
+        {/* Public Property and Booking Routes */}
+        <Route path="/property/:id" element={<PropertyListing />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/confirmation" element={<BookingConfirmation />} />
+        
         {/* Customer routes */}
         <Route path="/customer/login" element={<CustomerLogin />} />
         <Route path="/customer" element={<CustomerLayout><Outlet /></CustomerLayout>}>

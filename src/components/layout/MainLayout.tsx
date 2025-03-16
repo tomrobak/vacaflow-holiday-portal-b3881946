@@ -1,4 +1,3 @@
-
 import { ReactNode, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -8,6 +7,7 @@ import {
   PanelLeft,
   User,
   X,
+  Settings,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {

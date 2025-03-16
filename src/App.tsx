@@ -13,6 +13,7 @@ import NotFound from "@/pages/NotFound";
 import NewPayment from "@/pages/NewPayment";
 import PaymentDetail from "@/pages/PaymentDetail";
 import Messages from "@/pages/Messages";
+import MessagesSms from "@/pages/MessagesSms";
 import NewProperty from "@/pages/NewProperty";
 import PropertyDetail from "@/pages/PropertyDetail";
 import PropertyCalendar from "@/pages/PropertyCalendar";
@@ -34,6 +35,7 @@ import EmailSettings from "@/pages/settings/EmailSettings";
 import ImageSettings from "@/pages/settings/ImageSettings";
 import PortalSettings from "@/pages/settings/PortalSettings";
 import AdminProfile from "@/pages/settings/AdminProfile";
+import SmsSettings from "@/pages/settings/SmsSettings";
 
 function App() {
   return (
@@ -67,6 +69,7 @@ function App() {
           <Route path="payments/:id" element={<PaymentDetail />} />
           <Route path="calendar/*" element={<Calendar />} />
           <Route path="messages/*" element={<Messages />} />
+          <Route path="messages/sms" element={<MessagesSms />} />
           
           {/* Settings routes */}
           <Route path="settings" element={<Settings />}>
@@ -79,6 +82,7 @@ function App() {
             <Route path="images" element={<ImageSettings />} />
             <Route path="portal" element={<PortalSettings />} />
             <Route path="profile" element={<AdminProfile />} />
+            <Route path="sms" element={<SmsSettings />} />
           </Route>
           
           <Route path="*" element={<NotFound />} />

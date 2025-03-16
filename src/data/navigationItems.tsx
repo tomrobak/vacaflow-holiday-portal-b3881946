@@ -19,6 +19,7 @@ import {
   Palette,
   User,
   Sliders,
+  SendHorizonal,
 } from "lucide-react";
 import { NavigationItem } from "@/types/navigation";
 
@@ -103,6 +104,18 @@ export const navigationItems: NavigationItem[] = [
     label: "Messages",
     href: "/messages",
     icon: MessageSquare,
+    children: [
+      {
+        label: "Email Messages",
+        href: "/messages",
+        icon: Mail,
+      },
+      {
+        label: "SMS Messages",
+        href: "/messages/sms",
+        icon: SendHorizonal,
+      },
+    ]
   },
   {
     label: "Settings",
@@ -123,6 +136,11 @@ export const navigationItems: NavigationItem[] = [
         label: "Payment",
         href: "/settings/payment",
         icon: CreditCard,
+      },
+      {
+        label: "SMS",
+        href: "/settings/sms",
+        icon: SendHorizonal,
       },
       {
         label: "Portal Settings",

@@ -16,6 +16,7 @@ import {
   Search,
   Trash2,
   User,
+  SendHorizonal,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -299,6 +300,12 @@ const Messages = () => {
             <Link to="/messages/new">
               <Plus className="mr-2 h-4 w-4" />
               New Message
+            </Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link to="/messages/sms">
+              <SendHorizonal className="mr-2 h-4 w-4" />
+              SMS Messages
             </Link>
           </Button>
         </div>

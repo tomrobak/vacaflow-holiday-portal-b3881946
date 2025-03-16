@@ -1,66 +1,37 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
-  FormControl,
-  FormDescription,
   FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
+import { BasicInfoTab } from "@/components/customers/BasicInfoTab";
+import { AddressTab } from "@/components/customers/AddressTab";
+import { PreferencesTab } from "@/components/customers/PreferencesTab";
+import { NotesAndTagsTab } from "@/components/customers/NotesAndTagsTab";
+import { customerFormSchema, CustomerFormValues } from "@/types/customer";
 
-// Customer form schema
-const customerFormSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  phone: z.string().optional(),
-  address: z.string().optional(),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  zipCode: z.string().optional(),
-  country: z.string().optional(),
-  status: z.enum(["active", "inactive", "pending"]),
-  notes: z.string().optional(),
-});
-
-type CustomerFormValues = z.infer<typeof customerFormSchema>;
-
-// Define a proper customer type that matches our schema plus the additional fields
-type Customer = {
+// Define a proper customer type that includes the schema plus additional fields
+interface Customer extends CustomerFormValues {
   id: string;
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  country: string;
-  status: "active" | "inactive" | "pending";
-  notes: string;
   totalBookings: number;
   totalSpent: number;
   lastBooking: Date | null;
   createdAt: Date;
-};
+  updatedAt: Date;
+}
 
 // Mock customer data
 const mockCustomer: Customer = {
@@ -69,16 +40,25 @@ const mockCustomer: Customer = {
   email: "john.smith@example.com",
   phone: "+1 (555) 123-4567",
   address: "123 Main Street",
+  addressLine2: "",
   city: "Miami",
   state: "Florida",
   zipCode: "33101",
   country: "United States",
+  company: "",
   status: "active",
+  type: "individual",
   notes: "Prefers beachfront properties. Allergic to pets. Often books for family vacations.",
+  preferredContactMethod: "email",
+  receiveMarketingEmails: false,
+  receiveBookingUpdates: true,
+  receivePaymentReminders: true,
+  tags: [],
   totalBookings: 8,
   totalSpent: 6250.75,
   lastBooking: new Date(Date.now() - 1000 * 60 * 60 * 24 * 14),
   createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 365),
+  updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30),
 };
 
 const EditCustomer = () => {
@@ -96,13 +76,21 @@ const EditCustomer = () => {
       name: customer.name,
       email: customer.email,
       phone: customer.phone,
+      company: customer.company,
       address: customer.address,
+      addressLine2: customer.addressLine2,
       city: customer.city,
       state: customer.state,
       zipCode: customer.zipCode,
       country: customer.country,
       status: customer.status,
+      type: customer.type,
+      preferredContactMethod: customer.preferredContactMethod,
+      receiveMarketingEmails: customer.receiveMarketingEmails,
+      receiveBookingUpdates: customer.receiveBookingUpdates,
+      receivePaymentReminders: customer.receivePaymentReminders,
       notes: customer.notes,
+      tags: customer.tags,
     },
   });
   
@@ -112,13 +100,21 @@ const EditCustomer = () => {
       name: customer.name,
       email: customer.email,
       phone: customer.phone,
+      company: customer.company,
       address: customer.address,
+      addressLine2: customer.addressLine2,
       city: customer.city,
       state: customer.state,
       zipCode: customer.zipCode,
       country: customer.country,
       status: customer.status,
+      type: customer.type,
+      preferredContactMethod: customer.preferredContactMethod,
+      receiveMarketingEmails: customer.receiveMarketingEmails,
+      receiveBookingUpdates: customer.receiveBookingUpdates,
+      receivePaymentReminders: customer.receivePaymentReminders,
       notes: customer.notes,
+      tags: customer.tags,
     });
   }, [customer, form]);
   
@@ -137,6 +133,7 @@ const EditCustomer = () => {
       setCustomer({
         ...customer,
         ...data,
+        updatedAt: new Date(),
       });
       
       toast.success("Customer updated successfully!");
@@ -150,7 +147,7 @@ const EditCustomer = () => {
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-4xl mx-auto">
+    <div className="p-6 space-y-6 max-w-6xl mx-auto">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Button variant="outline" size="icon" onClick={() => navigate(`/customers/${id}`)}>
@@ -169,179 +166,34 @@ const EditCustomer = () => {
       
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <div className="grid gap-6 md:grid-cols-2">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="John Doe" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <Tabs defaultValue="basic" className="w-full">
+            <TabsList className="grid grid-cols-4 mb-8">
+              <TabsTrigger value="basic">Basic Information</TabsTrigger>
+              <TabsTrigger value="address">Address Details</TabsTrigger>
+              <TabsTrigger value="preferences">Preferences</TabsTrigger>
+              <TabsTrigger value="notes">Notes & Tags</TabsTrigger>
+            </TabsList>
             
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input placeholder="john.doe@example.com" type="email" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <TabsContent value="basic" className="space-y-6">
+              <BasicInfoTab control={form.control} />
+            </TabsContent>
             
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Phone Number</FormLabel>
-                  <FormControl>
-                    <Input placeholder="+1 (555) 123-4567" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <TabsContent value="address" className="space-y-6">
+              <AddressTab control={form.control} />
+            </TabsContent>
             
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Status</FormLabel>
-                  <Select 
-                    onValueChange={field.onChange} 
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a status" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
-                      <SelectItem value="pending">Pending</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    Set the customer's account status
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          
-          <Separator />
-          
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">Address Information</h3>
-            <div className="grid gap-6 md:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="address"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Address</FormLabel>
-                    <FormControl>
-                      <Input placeholder="123 Main St" {...field} value={field.value || ""} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+            <TabsContent value="preferences" className="space-y-6">
+              <PreferencesTab control={form.control} />
+            </TabsContent>
+            
+            <TabsContent value="notes" className="space-y-6">
+              <NotesAndTagsTab 
+                control={form.control} 
+                watch={form.watch} 
+                setValue={form.setValue} 
               />
-              
-              <FormField
-                control={form.control}
-                name="city"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>City</FormLabel>
-                    <FormControl>
-                      <Input placeholder="New York" {...field} value={field.value || ""} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="state"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>State / Province</FormLabel>
-                    <FormControl>
-                      <Input placeholder="NY" {...field} value={field.value || ""} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="zipCode"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>ZIP / Postal Code</FormLabel>
-                    <FormControl>
-                      <Input placeholder="10001" {...field} value={field.value || ""} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="country"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Country</FormLabel>
-                    <FormControl>
-                      <Input placeholder="United States" {...field} value={field.value || ""} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </div>
-          
-          <Separator />
-          
-          <FormField
-            control={form.control}
-            name="notes"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Notes</FormLabel>
-                <FormControl>
-                  <Textarea 
-                    placeholder="Any additional information about this customer..." 
-                    className="min-h-32"
-                    {...field}
-                    value={field.value || ""}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Add any relevant notes or preferences for this customer.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            </TabsContent>
+          </Tabs>
           
           <div className="flex justify-end space-x-4">
             <Button 

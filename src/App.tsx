@@ -65,7 +65,7 @@ function App() {
           <Route path="calendar/*" element={<Calendar />} />
           <Route path="messages/*" element={<Messages />} />
           
-          {/* Settings routes */}
+          {/* Settings routes - simplified */}
           <Route path="settings" element={<Settings />}>
             <Route index element={<GeneralSettings />} />
             <Route path="general" element={<GeneralSettings />} />

@@ -120,7 +120,10 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                 <nav className="flex-1 overflow-auto p-2 space-y-1">
                   {navigationItems.map((item) => 
                     renderNavItem(item, () => {
-                      document.querySelector('[data-radix-sheet-close]')?.click?.();
+                      const closeButton = document.querySelector('[data-radix-sheet-close]');
+                      if (closeButton && closeButton instanceof HTMLElement) {
+                        closeButton.click();
+                      }
                     })
                   )}
                 </nav>

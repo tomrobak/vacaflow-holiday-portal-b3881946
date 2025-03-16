@@ -54,7 +54,12 @@ const CustomerLayout = ({ children }: CustomerLayoutProps) => {
                   <Link 
                     to="/customer/dashboard" 
                     className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-secondary"
-                    onClick={() => document.querySelector('[data-radix-sheet-close]')?.click?.()}
+                    onClick={() => {
+                      const closeButton = document.querySelector('[data-radix-sheet-close]');
+                      if (closeButton && closeButton instanceof HTMLElement) {
+                        closeButton.click();
+                      }
+                    }}
                   >
                     <Home className="h-5 w-5" />
                     <span>Dashboard</span>
@@ -62,7 +67,12 @@ const CustomerLayout = ({ children }: CustomerLayoutProps) => {
                   <Link 
                     to="/customer/bookings" 
                     className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-secondary"
-                    onClick={() => document.querySelector('[data-radix-sheet-close]')?.click?.()}
+                    onClick={() => {
+                      const closeButton = document.querySelector('[data-radix-sheet-close]');
+                      if (closeButton && closeButton instanceof HTMLElement) {
+                        closeButton.click();
+                      }
+                    }}
                   >
                     <Calendar className="h-5 w-5" />
                     <span>Bookings</span>
@@ -70,7 +80,12 @@ const CustomerLayout = ({ children }: CustomerLayoutProps) => {
                   <Link 
                     to="/customer/payments" 
                     className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-secondary"
-                    onClick={() => document.querySelector('[data-radix-sheet-close]')?.click?.()}
+                    onClick={() => {
+                      const closeButton = document.querySelector('[data-radix-sheet-close]');
+                      if (closeButton && closeButton instanceof HTMLElement) {
+                        closeButton.click();
+                      }
+                    }}
                   >
                     <CreditCard className="h-5 w-5" />
                     <span>Payments</span>
@@ -78,7 +93,12 @@ const CustomerLayout = ({ children }: CustomerLayoutProps) => {
                   <Link 
                     to="/customer/messages" 
                     className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-secondary"
-                    onClick={() => document.querySelector('[data-radix-sheet-close]')?.click?.()}
+                    onClick={() => {
+                      const closeButton = document.querySelector('[data-radix-sheet-close]');
+                      if (closeButton && closeButton instanceof HTMLElement) {
+                        closeButton.click();
+                      }
+                    }}
                   >
                     <MessageSquare className="h-5 w-5" />
                     <span>Messages</span>

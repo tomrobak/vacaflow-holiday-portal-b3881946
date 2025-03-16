@@ -45,7 +45,7 @@ export interface PropertyFormData {
   bathrooms: string;
   maxGuests?: string;
   squareFeet?: string;
-  amenities: string[];
+  amenities?: string[]; // Made optional to match form behavior
   availableFrom: Date;
   availableTo: Date;
   propertyType: string;

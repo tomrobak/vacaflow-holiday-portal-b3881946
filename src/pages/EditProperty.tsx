@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { usePropertyImages } from "@/hooks/usePropertyImages";
-import { Property } from "@/types/property";
+import { Property, PropertyFormData } from "@/types/property";
 import PropertyBasicInfoTab from "@/components/property/PropertyBasicInfoTab";
 import PropertyAmenitiesTab from "@/components/property/PropertyAmenitiesTab";
 import PropertyAddonsTab from "@/components/property/PropertyAddonsTab";

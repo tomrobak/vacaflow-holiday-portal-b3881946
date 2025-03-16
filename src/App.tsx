@@ -31,6 +31,7 @@ import MailSettings from "@/pages/settings/MailSettings";
 import PaymentSettings from "@/pages/settings/PaymentSettings";
 import StorageSettings from "@/pages/settings/StorageSettings";
 import EmailSettings from "@/pages/settings/EmailSettings";
+import ImageSettings from "@/pages/settings/ImageSettings";
 
 function App() {
   return (
@@ -73,6 +74,7 @@ function App() {
             <Route path="payment" element={<PaymentSettings />} />
             <Route path="storage" element={<StorageSettings />} />
             <Route path="email" element={<EmailSettings />} />
+            <Route path="images" element={<ImageSettings />} />
           </Route>
           
           <Route path="*" element={<NotFound />} />

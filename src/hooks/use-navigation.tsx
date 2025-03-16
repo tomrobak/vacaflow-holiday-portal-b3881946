@@ -1,4 +1,3 @@
-
 import { useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
@@ -14,6 +13,7 @@ import {
   Mail,
   Cloud,
   Server,
+  Image,
 } from "lucide-react";
 
 export type NavigationItem = {
@@ -119,6 +119,11 @@ export function useNavigation() {
             label: "Storage",
             href: "/settings/storage",
             icon: Cloud,
+          },
+          {
+            label: "Images",
+            href: "/settings/images",
+            icon: Image,
           },
           {
             label: "Email Delivery",

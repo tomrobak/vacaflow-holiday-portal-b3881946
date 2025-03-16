@@ -43,16 +43,16 @@ const CustomerLogin = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-50 to-blue-100">
-      <div className="w-full max-w-md px-4">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-primary">Vacaflow</h1>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-50 to-blue-100 px-4 py-8">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-6">
+          <h1 className="text-2xl md:text-3xl font-bold text-primary">Vacaflow</h1>
           <p className="text-muted-foreground">Customer Portal</p>
         </div>
         
         <Card>
           <CardHeader>
-            <CardTitle>Customer Login</CardTitle>
+            <CardTitle className="text-xl">Customer Login</CardTitle>
             <CardDescription>
               Sign in to access your bookings, payments, and more.
             </CardDescription>

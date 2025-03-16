@@ -145,11 +145,24 @@ export function useNavigation() {
     return item.children.some(child => isActive(child.href));
   };
 
+  const getActiveNavigationItem = () => {
+    const rootItem = navigationItems.find(item => {
+      if (currentPath === "/") {
+        return item.href === "/";
+      }
+      const pathSegment = `/${currentPath.split('/')[1]}`;
+      return item.href === pathSegment;
+    });
+    
+    return rootItem;
+  };
+
   return {
     navigate,
     navigationItems,
     currentPath,
     isActive,
     isChildActive,
+    getActiveNavigationItem,
   };
 }

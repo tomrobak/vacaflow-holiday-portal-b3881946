@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -932,5 +933,253 @@ const EditProperty = () => {
               </Card>
             </div>
 
-            <
+            <Card>
+              <CardHeader>
+                <CardTitle>Upload Images</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Upload property images to use as hero image or in the gallery
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="border-2 border-dashed border-muted-foreground/25 rounded-md p-8 text-center">
+                  <div className="flex flex-col items-center">
+                    <Upload className="h-8 w-8 mb-2 text-muted-foreground" />
+                    <p className="text-sm font-medium mb-1">Drag & drop your images here</p>
+                    <p className="text-xs text-muted-foreground mb-4">
+                      Supports JPG, PNG and WebP formats
+                    </p>
+                    <Button 
+                      variant="secondary" 
+                      onClick={() => document.getElementById("image-upload")?.click()}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Browse Files
+                    </Button>
+                    <input 
+                      type="file" 
+                      id="image-upload" 
+                      className="hidden" 
+                      accept="image/*" 
+                      multiple 
+                      onChange={handleImageUpload}
+                    />
+                  </div>
+                </div>
 
+                {uploadedImages.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-medium">Uploaded Images</h3>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                      {uploadedImages.map((image, index) => (
+                        <div key={index} className="relative group">
+                          <div className="aspect-square rounded-md overflow-hidden border bg-muted">
+                            <img 
+                              src={image.url} 
+                              alt={image.name} 
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="absolute inset-0 bg-black/60 flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button 
+                              size="icon" 
+                              variant="outline" 
+                              className="h-8 w-8 bg-white"
+                              onClick={() => setAsHeroImage(image.url)}
+                              title="Set as hero image"
+                            >
+                              <Image className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              size="icon" 
+                              variant="outline" 
+                              className="h-8 w-8 bg-white"
+                              onClick={() => addToGallery(image.url)}
+                              title="Add to gallery"
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              size="icon" 
+                              variant="outline" 
+                              className="h-8 w-8 bg-white"
+                              onClick={() => removeImage(index)}
+                              title="Remove image"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="availability" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Availability Period</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Set the period when this property is available for booking
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="availableFrom"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Available From</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-full pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Pick a date</span>
+                                )}
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormDescription>
+                          The date from which this property becomes available
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="availableTo"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Available To</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-full pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Pick a date</span>
+                                )}
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormDescription>
+                          The date until which this property is available
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="mt-6 pt-6 border-t">
+                  <FormField
+                    control={form.control}
+                    name="googleCalendarSync"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel>Google Calendar Sync</FormLabel>
+                          <FormDescription>
+                            Synchronize bookings with a Google Calendar to prevent double bookings
+                          </FormDescription>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+
+                  {watchGoogleCalendarSync && (
+                    <div className="mt-4">
+                      <FormField
+                        control={form.control}
+                        name="googleCalendarId"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Google Calendar ID</FormLabel>
+                            <FormControl>
+                              <div className="relative">
+                                <CalendarLucide className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                  placeholder="your-calendar-id@group.calendar.google.com"
+                                  className="pl-8"
+                                  {...field}
+                                />
+                              </div>
+                            </FormControl>
+                            <FormDescription>
+                              Enter the ID of the Google Calendar you want to sync with
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <div className="flex justify-end gap-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate(`/properties/${id}`)}
+            >
+              Cancel
+            </Button>
+            <Button type="submit">Save Changes</Button>
+          </div>
+        </form>
+      </Form>
+    </div>
+  );
+};
+
+export default EditProperty;

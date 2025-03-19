@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { toast } from "sonner";
 import { Addon, AddonCategory, AddonFormValues } from "@/types/addon";
@@ -62,6 +61,7 @@ const mockAddons: Addon[] = [
 ];
 
 export const categoryLabels: Record<string, string> = {
+  all: "All Categories",
   checkout: "Checkout",
   checkin: "Check-in",
   transportation: "Transportation",
@@ -82,7 +82,7 @@ export const initialAddonForm: AddonFormValues = {
 export function useAddons() {
   const [addons, setAddons] = useState<Addon[]>(mockAddons);
   const [searchQuery, setSearchQuery] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState<string>("");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [currentAddon, setCurrentAddon] = useState<Addon | null>(null);
@@ -92,7 +92,7 @@ export function useAddons() {
   const filteredAddons = addons.filter(addon => {
     const matchesSearch = addon.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           addon.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = categoryFilter === "" || addon.category === categoryFilter;
+    const matchesCategory = categoryFilter === "all" || addon.category === categoryFilter;
     return matchesSearch && matchesCategory;
   });
 
@@ -228,7 +228,7 @@ export function useAddons() {
     removeImage,
     clearFilters: () => {
       setSearchQuery("");
-      setCategoryFilter("");
+      setCategoryFilter("all");
     }
   };
 }

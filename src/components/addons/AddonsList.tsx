@@ -30,11 +30,11 @@ const AddonsList = ({
         <Package className="h-12 w-12 text-muted-foreground mb-4" />
         <h3 className="text-lg font-medium">No addons found</h3>
         <p className="text-sm text-muted-foreground text-center max-w-md mt-1">
-          {searchQuery || categoryFilter
+          {searchQuery || (categoryFilter && categoryFilter !== "all")
             ? "Try adjusting your search or filters to find what you're looking for."
             : "You haven't created any addons yet. Click 'Add New Addon' to get started."}
         </p>
-        {(searchQuery || categoryFilter) && (
+        {(searchQuery || (categoryFilter && categoryFilter !== "all")) && (
           <Button 
             variant="outline" 
             className="mt-4"

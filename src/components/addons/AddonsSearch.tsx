@@ -44,7 +44,7 @@ const AddonsSearch = ({
           </div>
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="">All Categories</SelectItem>
+          <SelectItem value="all">All Categories</SelectItem>
           <SelectItem value="checkout">Checkout</SelectItem>
           <SelectItem value="checkin">Check-in</SelectItem>
           <SelectItem value="transportation">Transportation</SelectItem>

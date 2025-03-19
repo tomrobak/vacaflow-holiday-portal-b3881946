@@ -5,13 +5,16 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, CreditCard, CalendarClock, Home, Info, User, Package } from "lucide-react";
+import { ArrowLeft, CreditCard, CalendarClock, Home, Info, User, Package, Plus, X } from "lucide-react";
 import LoginForm from "@/components/checkout/LoginForm";
 import GuestInfoForm from "@/components/checkout/GuestInfoForm";
 import PaymentForm from "@/components/checkout/PaymentForm";
 import BookingSummary from "@/components/checkout/BookingSummary";
 import { toast } from "sonner";
 import { Addon } from "@/types/addon";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Mock addons data
 const mockAddons: Addon[] = [
@@ -71,6 +74,7 @@ const Checkout = () => {
   const [activeTab, setActiveTab] = useState("guest");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [bookingId, setBookingId] = useState<string | null>(null);
+  const [isAddonsDialogOpen, setIsAddonsDialogOpen] = useState(false);
   
   // In a real app, this would come from the location state
   const bookingData = location.state || {
@@ -90,10 +94,35 @@ const Checkout = () => {
     }
   };
   
+  // State to manage selected addons
+  const [selectedAddonIds, setSelectedAddonIds] = useState<string[]>(
+    bookingData.addons || []
+  );
+  
   // Get addon details from selected IDs
-  const selectedAddons = bookingData.addons?.map(addonId => 
+  const selectedAddons = selectedAddonIds.map(addonId => 
     mockAddons.find(addon => addon.id === addonId)
-  ).filter(Boolean) || [];
+  ).filter(Boolean) as Addon[];
+  
+  // Available addons (those not already selected)
+  const availableAddons = mockAddons.filter(
+    addon => !selectedAddonIds.includes(addon.id)
+  );
+  
+  // Calculate updated price with current addons
+  const calculateUpdatedPrice = () => {
+    const addonsTotal = selectedAddons.reduce((total, addon) => total + addon.price, 0);
+    const total = bookingData.price.subtotal + bookingData.price.cleaningFee + 
+                  bookingData.price.serviceFee + addonsTotal;
+    
+    return {
+      ...bookingData.price,
+      addonsTotal,
+      total
+    };
+  };
+  
+  const updatedPrice = calculateUpdatedPrice();
   
   const handleGuestInfoComplete = () => {
     setActiveTab("payment");
@@ -101,7 +130,6 @@ const Checkout = () => {
   
   const handleLoginComplete = () => {
     setIsLoggedIn(true);
-    setActiveTab("payment");
     toast.success("Successfully logged in!");
   };
   
@@ -115,11 +143,21 @@ const Checkout = () => {
         startDate: bookingData.startDate,
         endDate: bookingData.endDate,
         guests: bookingData.guests,
-        addons: bookingData.addons,
-        total: bookingData.price.total,
+        addons: selectedAddonIds,
+        total: updatedPrice.total,
         paymentId
       } 
     });
+  };
+  
+  const addAddon = (addonId: string) => {
+    setSelectedAddonIds([...selectedAddonIds, addonId]);
+    toast.success("Add-on added to your booking");
+  };
+  
+  const removeAddon = (addonId: string) => {
+    setSelectedAddonIds(selectedAddonIds.filter(id => id !== addonId));
+    toast.success("Add-on removed from your booking");
   };
   
   return (
@@ -149,35 +187,31 @@ const Checkout = () => {
             
             <TabsContent value="guest" className="pt-6">
               <Card>
+                {!isLoggedIn && (
+                  <>
+                    <CardHeader>
+                      <CardTitle>Sign in to your account</CardTitle>
+                      <CardDescription>
+                        Sign in for a faster checkout experience
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <LoginForm onComplete={handleLoginComplete} />
+                    </CardContent>
+                    <Separator />
+                  </>
+                )}
+                
                 <CardHeader>
                   <CardTitle>Guest Information</CardTitle>
                   <CardDescription>
                     {isLoggedIn 
                       ? "You're signed in. Update your information if needed."
-                      : "Enter your details or sign in to your account."}
+                      : "Or continue as a guest by entering your details below."}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {isLoggedIn ? (
-                    <GuestInfoForm onComplete={handleGuestInfoComplete} />
-                  ) : (
-                    <div className="space-y-6">
-                      <GuestInfoForm onComplete={handleGuestInfoComplete} />
-                      
-                      <div className="relative">
-                        <div className="absolute inset-0 flex items-center">
-                          <span className="w-full border-t" />
-                        </div>
-                        <div className="relative flex justify-center text-xs uppercase">
-                          <span className="bg-background px-2 text-muted-foreground">
-                            Or sign in to your account
-                          </span>
-                        </div>
-                      </div>
-                      
-                      <LoginForm onComplete={handleLoginComplete} />
-                    </div>
-                  )}
+                  <GuestInfoForm onComplete={handleGuestInfoComplete} />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -191,7 +225,7 @@ const Checkout = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <PaymentForm onComplete={handlePaymentComplete} totalAmount={bookingData.price.total} />
+                  <PaymentForm onComplete={handlePaymentComplete} totalAmount={updatedPrice.total} />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -204,20 +238,94 @@ const Checkout = () => {
             startDate={bookingData.startDate}
             endDate={bookingData.endDate}
             guests={bookingData.guests}
-            price={bookingData.price}
+            price={updatedPrice}
           />
           
-          {selectedAddons.length > 0 && (
-            <Card className="mt-6">
-              <CardHeader className="pb-3">
+          <Card className="mt-6">
+            <CardHeader className="pb-3">
+              <div className="flex justify-between items-center">
                 <CardTitle className="flex items-center">
                   <Package className="h-4 w-4 mr-2" />
-                  Selected Add-ons
+                  Your Add-ons
                 </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {selectedAddons.map((addon: Addon) => (
-                  <div key={addon.id} className="flex justify-between items-start">
+                <Dialog open={isAddonsDialogOpen} onOpenChange={setIsAddonsDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm" className="h-8">
+                      <Plus className="h-3.5 w-3.5 mr-1" />
+                      Add More
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Add more add-ons</DialogTitle>
+                    </DialogHeader>
+                    {availableAddons.length === 0 ? (
+                      <div className="py-6 text-center text-muted-foreground">
+                        You've already added all available add-ons
+                      </div>
+                    ) : (
+                      <ScrollArea className="max-h-[60vh]">
+                        <div className="space-y-4 py-2">
+                          {availableAddons.map((addon) => (
+                            <div key={addon.id} className="flex items-start gap-3 p-2 rounded-md hover:bg-muted/50">
+                              <div className="h-12 w-12 rounded-md overflow-hidden flex-shrink-0">
+                                {addon.featuredImage ? (
+                                  <img 
+                                    src={addon.featuredImage} 
+                                    alt={addon.name} 
+                                    className="h-full w-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="h-full w-full bg-muted flex items-center justify-center">
+                                    <Package className="h-5 w-5 text-muted-foreground" />
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex-1">
+                                <div className="flex justify-between">
+                                  <h4 className="font-medium">{addon.name}</h4>
+                                  <span className="font-semibold">${addon.price}</span>
+                                </div>
+                                <p className="text-sm text-muted-foreground">{addon.description}</p>
+                                <Button 
+                                  variant="secondary" 
+                                  size="sm" 
+                                  className="mt-2"
+                                  onClick={() => {
+                                    addAddon(addon.id);
+                                    setIsAddonsDialogOpen(false);
+                                  }}
+                                >
+                                  Add to booking
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </ScrollArea>
+                    )}
+                  </DialogContent>
+                </Dialog>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {selectedAddons.length === 0 ? (
+                <div className="text-center py-6 text-muted-foreground">
+                  <Package className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p>No add-ons selected</p>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="mt-2"
+                    onClick={() => setIsAddonsDialogOpen(true)}
+                  >
+                    <Plus className="h-3.5 w-3.5 mr-1" />
+                    Add Add-ons
+                  </Button>
+                </div>
+              ) : (
+                selectedAddons.map((addon) => (
+                  <div key={addon.id} className="flex justify-between items-start bg-muted/40 p-3 rounded-md">
                     <div className="flex items-start">
                       <div className="h-10 w-10 rounded-md overflow-hidden flex-shrink-0 mr-2">
                         {addon.featuredImage ? (
@@ -233,18 +341,33 @@ const Checkout = () => {
                         )}
                       </div>
                       <div>
-                        <p className="font-medium text-sm">{addon.name}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium text-sm">{addon.name}</p>
+                          <Badge variant="outline" className="h-5 text-xs">
+                            {addon.category}
+                          </Badge>
+                        </div>
                         <p className="text-xs text-muted-foreground line-clamp-1">
                           {addon.description}
                         </p>
                       </div>
                     </div>
-                    <p className="font-semibold text-sm">${addon.price}</p>
+                    <div className="flex items-start gap-2">
+                      <p className="font-semibold text-sm">${addon.price}</p>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-6 w-6 rounded-full"
+                        onClick={() => removeAddon(addon.id)}
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
                   </div>
-                ))}
-              </CardContent>
-            </Card>
-          )}
+                ))
+              )}
+            </CardContent>
+          </Card>
           
           <Card className="mt-6">
             <CardHeader className="pb-3">

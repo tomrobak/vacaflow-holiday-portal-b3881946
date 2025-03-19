@@ -30,3 +30,9 @@ export interface PropertyAddon {
   price: number;
   active: boolean;
 }
+
+export interface SelectedAddon {
+  addonId: string;
+  quantity?: number;
+  notes?: string;
+}

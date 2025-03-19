@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import Dashboard from "@/pages/Dashboard";
@@ -44,13 +45,14 @@ import EditProperty from "@/pages/EditProperty";
 import EditBooking from "@/pages/EditBooking";
 import EditCustomer from "@/pages/EditCustomer";
 import AddonsSettings from "@/pages/settings/AddonsSettings";
+import BookingDetail from "@/pages/BookingDetail";
 
 function App() {
   return (
     <Router>
       <Toaster position="top-right" />
       <Routes>
-        <Route path="/" element={<MainLayout />}>
+        <Route path="/" element={<MainLayout><Outlet /></MainLayout>}>
           <Route index element={<Index />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="properties" element={<Properties />} />
@@ -89,7 +91,7 @@ function App() {
           <Route path="confirmation" element={<BookingConfirmation />} />
         </Route>
         <Route path="/property/:id" element={<PropertyListing />} />
-        <Route path="/customer" element={<CustomerLayout />}>
+        <Route path="/customer" element={<CustomerLayout><Outlet /></CustomerLayout>}>
           <Route index element={<CustomerDashboard />} />
           <Route path="dashboard" element={<CustomerDashboard />} />
           <Route path="bookings" element={<CustomerBookings />} />

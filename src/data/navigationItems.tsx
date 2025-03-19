@@ -1,3 +1,4 @@
+
 import {
   LineChart,
   Home,
@@ -18,120 +19,130 @@ import {
   Image,
   Package,
 } from "lucide-react";
-
-interface NavigationItem {
-  title: string;
-  href: string;
-  icon: React.ReactNode;
-  submenu?: {
-    title: string;
-    href: string;
-    icon: React.ReactNode;
-  }[];
-}
+import { NavigationItem } from "@/types/navigation";
 
 export const navigationItems: NavigationItem[] = [
   {
     title: "Dashboard",
+    label: "Dashboard",
     href: "/dashboard",
-    icon: <LineChart className="w-5 h-5" />,
+    icon: LineChart,
   },
   {
     title: "Properties",
+    label: "Properties",
     href: "/properties",
-    icon: <Home className="w-5 h-5" />,
+    icon: Home,
   },
   {
     title: "Bookings",
+    label: "Bookings",
     href: "/bookings",
-    icon: <CalendarCheck2 className="w-5 h-5" />,
+    icon: CalendarCheck2,
   },
   {
     title: "Calendar",
+    label: "Calendar",
     href: "/calendar",
-    icon: <CalendarDays className="w-5 h-5" />,
+    icon: CalendarDays,
   },
   {
     title: "Customers",
+    label: "Customers",
     href: "/customers",
-    icon: <Users className="w-5 h-5" />,
+    icon: Users,
   },
   {
     title: "Payments",
+    label: "Payments",
     href: "/payments",
-    icon: <CreditCard className="w-5 h-5" />,
+    icon: CreditCard,
   },
   {
     title: "Messages",
+    label: "Messages",
     href: "/messages",
-    icon: <MessageSquare className="w-5 h-5" />,
-    submenu: [
+    icon: MessageSquare,
+    children: [
       {
         title: "SMS",
+        label: "SMS",
         href: "/messages/sms",
-        icon: <SmartphoneIcon className="w-5 h-5" />,
+        icon: SmartphoneIcon,
       },
     ],
   },
   {
     title: "Settings",
+    label: "Settings",
     href: "/settings",
-    icon: <Settings className="w-5 h-5" />,
-    submenu: [
+    icon: Settings,
+    children: [
       {
         title: "General",
+        label: "General",
         href: "/settings",
-        icon: <Sliders className="w-5 h-5" />,
+        icon: Sliders,
       },
       {
         title: "Add-ons",
+        label: "Add-ons",
         href: "/settings/addons",
-        icon: <Package className="w-5 h-5" />,
+        icon: Package,
       },
       {
         title: "Admin Profile",
+        label: "Admin Profile",
         href: "/settings/admin",
-        icon: <User className="w-5 h-5" />,
+        icon: User,
       },
       {
         title: "Email",
+        label: "Email",
         href: "/settings/email",
-        icon: <Mail className="w-5 h-5" />,
+        icon: Mail,
       },
       {
         title: "SMS",
+        label: "SMS",
         href: "/settings/sms",
-        icon: <SmartphoneIcon className="w-5 h-5" />,
+        icon: SmartphoneIcon,
       },
       {
         title: "SMS Templates",
+        label: "SMS Templates",
         href: "/settings/sms-templates",
-        icon: <FileText className="w-5 h-5" />,
+        icon: FileText,
       },
       {
         title: "Payment",
+        label: "Payment",
         href: "/settings/payment",
-        icon: <CreditCard className="w-5 h-5" />,
+        icon: CreditCard,
       },
       {
         title: "Customer Portal",
+        label: "Customer Portal",
         href: "/settings/portal",
-        icon: <UserCircle className="w-5 h-5" />,
+        icon: UserCircle,
       },
       {
         title: "Mail Server",
+        label: "Mail Server",
         href: "/settings/mail",
-        icon: <Inbox className="w-5 h-5" />,
+        icon: Inbox,
       },
       {
         title: "Storage",
+        label: "Storage",
         href: "/settings/storage",
-        icon: <HardDrive className="w-5 h-5" />,
+        icon: HardDrive,
       },
       {
         title: "Image Settings",
+        label: "Image Settings",
         href: "/settings/images",
-        icon: <Image className="w-5 h-5" />,
+        icon: Image,
       },
     ],
   },

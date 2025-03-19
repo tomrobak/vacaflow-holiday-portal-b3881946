@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { NavigationItem as NavigationItemType } from "@/hooks/use-navigation";
+import { NavigationItem as NavigationItemType } from "@/types/navigation";
 
 interface NavigationItemProps {
   item: NavigationItemType;

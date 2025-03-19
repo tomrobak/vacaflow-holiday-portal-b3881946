@@ -5,7 +5,7 @@ import { navigationItems as defaultNavigationItems } from "@/data/navigationItem
 import { isActiveRoute, isChildRouteActive, getActiveNavigationItem } from "@/utils/navigationUtils";
 import { NavigationItem } from "@/types/navigation";
 
-export type { NavigationItem } from "@/types/navigation";
+export { NavigationItem };
 
 export function useNavigation(customItems?: NavigationItem[]) {
   const navigate = useNavigate();

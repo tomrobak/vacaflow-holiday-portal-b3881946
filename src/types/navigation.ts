@@ -1,9 +1,10 @@
 
-import { LucideIcon } from "lucide-react";
+import { ReactNode } from "react";
 
-export type NavigationItem = {
+export interface NavigationItem {
+  title: string;
   label: string;
   href: string;
   icon: React.ElementType;
   children?: NavigationItem[];
-};
+}

@@ -21,19 +21,20 @@ import {
   formatCategoryName,
   mockPropertyData
 } from "@/components/property/EditPropertyTypes";
+import { Addon, AddonCategory } from "@/types/addon";
 
 const EditProperty = () => {
   const { id = "1" } = useParams();
   const [activeTab, setActiveTab] = useState("basic");
   
   // Mock data - in a real app this would come from an API
-  const [availableAddons] = useState([
+  const [availableAddons] = useState<Addon[]>([
     {
       id: "1",
       name: "Late Checkout",
       description: "Extend your stay until 3 PM instead of the standard 11 AM checkout time.",
       price: 45,
-      category: "checkout",
+      category: "checkout" as AddonCategory,
       featuredImage: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7",
       gallery: [],
       active: true,
@@ -45,7 +46,7 @@ const EditProperty = () => {
       name: "Early Check-in",
       description: "Check in as early as 10 AM instead of the standard 3 PM check-in time.",
       price: 45,
-      category: "checkin",
+      category: "checkin" as AddonCategory,
       featuredImage: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b",
       gallery: [],
       active: true,
@@ -57,7 +58,7 @@ const EditProperty = () => {
       name: "Train Station Pickup",
       description: "We'll pick you up from the train station and bring you directly to the property.",
       price: 30,
-      category: "transportation",
+      category: "transportation" as AddonCategory,
       featuredImage: "https://images.unsplash.com/photo-1721322800607-8c38375eef04",
       gallery: [],
       active: true,
@@ -69,7 +70,7 @@ const EditProperty = () => {
       name: "Professional Photo Session",
       description: "1-hour photo session with a professional photographer at the property or nearby landmarks.",
       price: 120,
-      category: "entertainment",
+      category: "entertainment" as AddonCategory,
       featuredImage: "https://images.unsplash.com/photo-1472396961693-142e6e269027",
       gallery: [],
       active: true,

@@ -5,12 +5,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Property } from "@/types/property";
 import { DateRange } from "react-day-picker";
 import { addDays, differenceInDays, isPast, format, isSameMonth } from "date-fns";
-import { Badge } from "@/components/ui/badge";
 import { 
   X, 
-  ChevronRight
+  ChevronRight,
+  CalendarDays
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface PropertyAvailabilityCalendarProps {
   property: Property;
@@ -56,7 +57,7 @@ const PropertyAvailabilityCalendar = ({ property }: PropertyAvailabilityCalendar
 
   // Format date for display
   const formatDate = (date: Date) => {
-    return format(date, "MMM d, yyyy");
+    return format(date, "EEE, MMM d, yyyy");
   };
 
   // Handle screen resize
@@ -82,10 +83,13 @@ const PropertyAvailabilityCalendar = ({ property }: PropertyAvailabilityCalendar
     
     return (
       <div className="mt-6 px-1.5">
-        <div className="bg-accent/30 rounded-xl p-4 flex flex-col space-y-4">
+        <div className="calendar-selection-summary flex flex-col space-y-4">
           {date.from && (
             <div className="flex items-center justify-between">
-              <div className="text-sm font-medium">Check-in</div>
+              <div className="text-sm font-medium flex items-center gap-1.5">
+                <div className="calendar-legend-dot bg-primary"></div>
+                Check-in
+              </div>
               <div className="font-medium">{formatDate(date.from)}</div>
             </div>
           )}
@@ -93,13 +97,19 @@ const PropertyAvailabilityCalendar = ({ property }: PropertyAvailabilityCalendar
           {date.to && date.from !== date.to && (
             <>
               <div className="flex items-center justify-between">
-                <div className="text-sm font-medium">Check-out</div>
+                <div className="text-sm font-medium flex items-center gap-1.5">
+                  <div className="calendar-legend-dot bg-primary"></div>
+                  Check-out
+                </div>
                 <div className="font-medium">{formatDate(date.to)}</div>
               </div>
               
-              <div className="pt-2 border-t border-border flex justify-between items-center">
-                <div className="text-sm text-muted-foreground">Total</div>
-                <div className="font-semibold">{calculateNights()} nights</div>
+              <div className="pt-3 border-t border-border flex justify-between items-center">
+                <div className="text-sm text-muted-foreground flex items-center gap-1.5">
+                  <CalendarDays className="h-4 w-4" />
+                  Total Stay
+                </div>
+                <div className="font-semibold">{calculateNights()} night{calculateNights() !== 1 ? 's' : ''}</div>
               </div>
             </>
           )}
@@ -119,20 +129,29 @@ const PropertyAvailabilityCalendar = ({ property }: PropertyAvailabilityCalendar
     <Card className="border-none shadow-none">
       <CardContent className="p-0">
         {date?.from && date?.to && (
-          <div className="flex justify-between items-center mb-4 px-1">
+          <div className="flex justify-between items-center mb-5 px-1">
             <div className="flex-1">
               <h3 className="text-lg font-semibold">Your trip</h3>
               <p className="text-sm text-muted-foreground mt-0.5">
                 {calculateNights()} night{calculateNights() !== 1 ? 's' : ''}
               </p>
             </div>
-            <button 
-              onClick={handleClearDates} 
-              className="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-full hover:bg-accent"
-              aria-label="Clear dates"
-            >
-              <X className="h-4 w-4" />
-            </button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button 
+                    onClick={handleClearDates} 
+                    className="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-full hover:bg-accent"
+                    aria-label="Clear dates"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Clear selected dates</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         )}
 
@@ -173,18 +192,22 @@ const PropertyAvailabilityCalendar = ({ property }: PropertyAvailabilityCalendar
           />
         </div>
 
-        <div className="flex flex-wrap gap-3 mt-5 px-1.5 text-xs">
-          <div className="flex items-center gap-1.5">
-            <div className="h-3 w-3 rounded-full bg-primary"></div>
+        <div className="flex flex-wrap gap-3 mt-6 px-2 text-xs">
+          <div className="calendar-legend-item">
+            <span className="calendar-legend-dot bg-primary"></span>
             <span>Selected</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <div className="h-3 w-3 rounded-full bg-red-300"></div>
+          <div className="calendar-legend-item">
+            <span className="calendar-legend-dot bg-red-300"></span>
             <span>Unavailable</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <div className="h-3 w-3 rounded-full bg-primary/15"></div>
+          <div className="calendar-legend-item">
+            <span className="calendar-legend-dot bg-primary/15"></span>
             <span>Selected range</span>
+          </div>
+          <div className="calendar-legend-item">
+            <span className="calendar-legend-dot border border-accent"></span>
+            <span>Today</span>
           </div>
         </div>
       </CardContent>

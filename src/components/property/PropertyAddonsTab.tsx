@@ -22,7 +22,7 @@ const PropertyAddonsTab = ({
   const navigate = useNavigate();
   
   const handleCreateAddon = () => {
-    navigate("/addons");
+    navigate("/admin/addons");
   };
 
   const categoryLabels: Record<string, string> = {

@@ -1,5 +1,5 @@
 
-import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Outlet, Navigate } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import Dashboard from "@/pages/Dashboard";
 import Customers from "@/pages/Customers";
@@ -47,14 +47,26 @@ import EditCustomer from "@/pages/EditCustomer";
 import AddonsSettings from "@/pages/settings/AddonsSettings";
 import BookingDetail from "@/pages/BookingDetail";
 import Addons from "@/pages/Addons";
+import LoginRegister from "@/pages/LoginRegister";
 
 function App() {
   return (
     <Router>
       <Toaster position="top-right" />
       <Routes>
-        <Route path="/" element={<MainLayout><Outlet /></MainLayout>}>
-          <Route index element={<Index />} />
+        {/* Main login/register page for all users */}
+        <Route path="/" element={<LoginRegister />} />
+
+        {/* Property listing page - accessible to everyone */}
+        <Route path="/property/:id" element={<PropertyListing />} />
+        
+        {/* Checkout flow */}
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/confirmation" element={<BookingConfirmation />} />
+
+        {/* Admin dashboard and routes */}
+        <Route path="/admin" element={<MainLayout><Outlet /></MainLayout>}>
+          <Route index element={<Dashboard />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="properties" element={<Properties />} />
           <Route path="properties/:id" element={<PropertyDetail />} />
@@ -89,18 +101,19 @@ function App() {
             <Route path="storage" element={<StorageSettings />} />
             <Route path="images" element={<ImageSettings />} />
           </Route>
-          <Route path="checkout" element={<Checkout />} />
-          <Route path="confirmation" element={<BookingConfirmation />} />
         </Route>
-        <Route path="/property/:id" element={<PropertyListing />} />
+
+        {/* Customer dashboard and routes */}
         <Route path="/customer" element={<CustomerLayout><Outlet /></CustomerLayout>}>
-          <Route index element={<CustomerDashboard />} />
+          <Route index element={<CustomerDashboardPage />} />
           <Route path="dashboard" element={<CustomerDashboardPage />} />
           <Route path="bookings" element={<CustomerBookings />} />
           <Route path="payments" element={<CustomerPayments />} />
           <Route path="messages" element={<CustomerMessages />} />
         </Route>
-        <Route path="/login" element={<CustomerLogin />} />
+
+        {/* Catch-all and redirects */}
+        <Route path="/login" element={<Navigate to="/" replace />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>

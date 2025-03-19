@@ -46,6 +46,7 @@ import EditBooking from "@/pages/EditBooking";
 import EditCustomer from "@/pages/EditCustomer";
 import AddonsSettings from "@/pages/settings/AddonsSettings";
 import BookingDetail from "@/pages/BookingDetail";
+import Addons from "@/pages/Addons";
 
 function App() {
   return (
@@ -60,6 +61,7 @@ function App() {
           <Route path="properties/:id/edit" element={<EditProperty />} />
           <Route path="properties/:id/calendar" element={<PropertyCalendar />} />
           <Route path="new-property" element={<NewProperty />} />
+          <Route path="addons" element={<Addons />} />
           <Route path="bookings" element={<Bookings />} />
           <Route path="bookings/:id" element={<BookingDetail />} />
           <Route path="bookings/:id/edit" element={<EditBooking />} />

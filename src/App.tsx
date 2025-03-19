@@ -95,7 +95,7 @@ function App() {
         <Route path="/property/:id" element={<PropertyListing />} />
         <Route path="/customer" element={<CustomerLayout><Outlet /></CustomerLayout>}>
           <Route index element={<CustomerDashboard />} />
-          <Route path="dashboard" element={<CustomerDashboard />} />
+          <Route path="dashboard" element={<CustomerDashboardPage />} />
           <Route path="bookings" element={<CustomerBookings />} />
           <Route path="payments" element={<CustomerPayments />} />
           <Route path="messages" element={<CustomerMessages />} />

@@ -79,8 +79,8 @@ const PropertyAvailabilityCalendar = ({ property }: PropertyAvailabilityCalendar
   };
   
   return (
-    <Card className="border-none shadow-none bg-background">
-      <CardHeader className="pb-3 px-0">
+    <Card className="shadow-none border border-border rounded-xl overflow-hidden">
+      <CardHeader className="pb-3 pt-5 px-5">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-xl font-semibold">
             <CalendarDays className="h-5 w-5 text-primary" />
@@ -89,12 +89,12 @@ const PropertyAvailabilityCalendar = ({ property }: PropertyAvailabilityCalendar
           
           {date?.from && date?.to && (
             <div className="flex gap-2 items-center">
-              <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30 px-2 py-1 font-medium">
+              <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30 px-2.5 py-1 font-medium rounded-full">
                 {calculateNights()} night{calculateNights() !== 1 ? 's' : ''}
               </Badge>
               <button 
                 onClick={handleClearDates} 
-                className="text-muted-foreground hover:text-foreground transition-colors"
+                className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-full hover:bg-accent"
                 aria-label="Clear dates"
               >
                 <X className="h-4 w-4" />
@@ -104,19 +104,19 @@ const PropertyAvailabilityCalendar = ({ property }: PropertyAvailabilityCalendar
         </div>
         
         {date?.from && date?.to ? (
-          <div className="text-sm mt-1 text-muted-foreground font-medium">
+          <div className="text-sm mt-2 text-muted-foreground font-medium flex items-center">
             <span>{formatDate(date.from)} — {formatDate(date.to)}</span>
           </div>
         ) : (
-          <div className="flex items-center text-sm mt-1 text-muted-foreground">
-            <Info className="mr-1 h-4 w-4" />
+          <div className="flex items-center text-sm mt-2 text-muted-foreground">
+            <Info className="mr-1.5 h-4 w-4 text-muted-foreground/70" />
             <span>Select check-in and check-out dates</span>
           </div>
         )}
       </CardHeader>
       
-      <CardContent className="px-0 pb-0">
-        <div className="rounded-lg border bg-card p-1">
+      <CardContent className="px-4 pb-5">
+        <div className="rounded-lg border bg-card overflow-hidden">
           <Calendar
             mode="range"
             selected={date}
@@ -131,14 +131,14 @@ const PropertyAvailabilityCalendar = ({ property }: PropertyAvailabilityCalendar
               day_hidden: "invisible",
               nav_button: "hover:bg-accent text-foreground transition-colors",
               cell: "relative p-0 text-center text-sm first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-              day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground rounded-md transition-colors",
+              day: "h-10 w-10 p-0 font-normal aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground rounded-md transition-colors",
               caption: "flex justify-center pt-1 relative items-center text-sm font-medium",
               nav: "space-x-1 flex items-center",
               table: "w-full border-collapse space-y-1",
               head_row: "flex w-full",
               row: "flex w-full mt-2",
               head_cell: "text-muted-foreground rounded-md w-10 font-normal text-[0.8rem] sm:w-12",
-              caption_label: "text-sm font-medium",
+              caption_label: "text-sm font-semibold",
             }}
             defaultMonth={new Date()}
             weekStartsOn={1}
@@ -147,7 +147,7 @@ const PropertyAvailabilityCalendar = ({ property }: PropertyAvailabilityCalendar
           />
         </div>
         
-        <div className="mt-4 flex flex-wrap gap-3 text-xs">
+        <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
           <div className="flex items-center gap-1.5">
             <div className="h-3 w-3 rounded-full bg-primary"></div>
             <span>Selected</span>
@@ -166,9 +166,9 @@ const PropertyAvailabilityCalendar = ({ property }: PropertyAvailabilityCalendar
           </div>
         </div>
 
-        <div className="mt-6 flex flex-col space-y-2">
+        <div className="mt-6">
           {date?.from && date?.to && (
-            <div className="rounded-lg border bg-accent/30 p-3 flex flex-col space-y-1">
+            <div className="rounded-xl border bg-accent/10 p-4 flex flex-col space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <CalendarCheck className="h-4 w-4 text-green-600" />
@@ -176,14 +176,14 @@ const PropertyAvailabilityCalendar = ({ property }: PropertyAvailabilityCalendar
                 </div>
                 <span className="font-medium">{formatDate(date.from)}</span>
               </div>
-              <div className="flex items-center justify-between mt-2">
+              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <CalendarX className="h-4 w-4 text-red-600" />
                   <span className="font-medium">Check-out</span>
                 </div>
                 <span className="font-medium">{formatDate(date.to)}</span>
               </div>
-              <div className="border-t mt-2 pt-2 flex justify-between items-center">
+              <div className="border-t pt-3 flex justify-between items-center">
                 <span className="text-muted-foreground">Total stay</span>
                 <span className="font-medium">{calculateNights()} night{calculateNights() !== 1 ? 's' : ''}</span>
               </div>

@@ -6,6 +6,7 @@ declare namespace google {
   namespace maps {
     class Map {
       constructor(mapDiv: Element, opts?: MapOptions);
+      setCenter(latLng: { lat: number; lng: number } | { lat(): number; lng(): number }): void;
     }
     class Marker {
       constructor(opts?: MarkerOptions);

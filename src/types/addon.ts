@@ -1,10 +1,12 @@
 
+export type AddonCategory = 'checkout' | 'checkin' | 'transportation' | 'entertainment' | 'other';
+
 export interface Addon {
   id: string;
   name: string;
   description: string;
   price: number;
-  category: string;
+  category: AddonCategory;
   featuredImage?: string;
   gallery?: string[];
   active: boolean;
@@ -22,4 +24,9 @@ export interface AddonFormValues {
   active: boolean;
 }
 
-export type AddonCategory = 'checkout' | 'checkin' | 'transportation' | 'entertainment' | 'other';
+export interface PropertyAddon {
+  addonId: string;
+  propertyId: string;
+  price: number;
+  active: boolean;
+}

@@ -8,30 +8,43 @@ import { UseFormReturn } from "react-hook-form";
 import { PropertyFormData } from "@/types/property";
 import { Addon } from "@/types/addon";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 interface PropertyAddonsTabProps {
   form: UseFormReturn<PropertyFormData>;
   availableAddons: Addon[];
-  onCreateAddon: () => void;
 }
 
 const PropertyAddonsTab = ({ 
   form, 
-  availableAddons, 
-  onCreateAddon 
+  availableAddons
 }: PropertyAddonsTabProps) => {
+  const navigate = useNavigate();
+  
+  const handleCreateAddon = () => {
+    navigate("/settings/addons");
+  };
+
+  const categoryLabels: Record<string, string> = {
+    checkout: "Checkout",
+    checkin: "Check-in",
+    transportation: "Transportation",
+    entertainment: "Entertainment",
+    other: "Other",
+  };
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle>Property Addons</CardTitle>
+          <CardTitle>Property Add-ons</CardTitle>
           <p className="text-sm text-muted-foreground mt-1">
-            Select addons that are available for this property
+            Select add-ons that are available for this property
           </p>
         </div>
-        <Button variant="outline" onClick={onCreateAddon}>
+        <Button variant="outline" onClick={handleCreateAddon}>
           <PlusCircle className="mr-2 h-4 w-4" /> 
-          Create Addon
+          Manage Add-ons
         </Button>
       </CardHeader>
       <CardContent>
@@ -80,7 +93,7 @@ const PropertyAddonsTab = ({
                         <div className="flex justify-between items-start">
                           <h3 className="font-medium">{addon.name}</h3>
                           <Badge className="ml-2 capitalize">
-                            {addon.category}
+                            {categoryLabels[addon.category]}
                           </Badge>
                         </div>
                         <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
@@ -92,6 +105,24 @@ const PropertyAddonsTab = ({
                   );
                 })}
               </div>
+              {availableAddons.length === 0 && (
+                <div className="border border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center">
+                  <Package className="h-8 w-8 text-muted-foreground mb-2" />
+                  <h3 className="font-medium">No add-ons available</h3>
+                  <p className="text-sm text-muted-foreground mt-1 max-w-md">
+                    You haven't created any add-ons yet. Add your first add-on to offer extras for this property.
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="mt-4"
+                    onClick={handleCreateAddon}
+                  >
+                    <PlusCircle className="mr-2 h-4 w-4" /> 
+                    Create Add-on
+                  </Button>
+                </div>
+              )}
               <FormMessage />
             </FormItem>
           )}

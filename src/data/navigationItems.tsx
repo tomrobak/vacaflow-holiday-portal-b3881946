@@ -1,177 +1,137 @@
-
 import {
-  Calendar,
-  CreditCard,
+  LineChart,
   Home,
+  CalendarCheck2,
+  CalendarDays,
+  Users,
+  CreditCard,
   MessageSquare,
   Settings,
-  Users,
-  Building,
-  BookOpen,
-  Plus,
-  Mail,
-  Cloud,
-  Server,
-  Image,
-  UserCheck,
-  UserX,
-  Clock,
-  Palette,
-  User,
   Sliders,
-  SendHorizonal,
+  User,
+  Mail,
+  Smartphone as SmartphoneIcon,
   FileText,
+  UserCircle,
+  Inbox,
+  HardDrive,
+  Image,
+  Package,
 } from "lucide-react";
-import { NavigationItem } from "@/types/navigation";
+
+interface NavigationItem {
+  title: string;
+  href: string;
+  icon: React.ReactNode;
+  submenu?: {
+    title: string;
+    href: string;
+    icon: React.ReactNode;
+  }[];
+}
 
 export const navigationItems: NavigationItem[] = [
   {
-    label: "Dashboard",
-    href: "/",
-    icon: Home,
+    title: "Dashboard",
+    href: "/dashboard",
+    icon: <LineChart className="w-5 h-5" />,
   },
   {
-    label: "Properties",
+    title: "Properties",
     href: "/properties",
-    icon: Building,
-    children: [
+    icon: <Home className="w-5 h-5" />,
+  },
+  {
+    title: "Bookings",
+    href: "/bookings",
+    icon: <CalendarCheck2 className="w-5 h-5" />,
+  },
+  {
+    title: "Calendar",
+    href: "/calendar",
+    icon: <CalendarDays className="w-5 h-5" />,
+  },
+  {
+    title: "Customers",
+    href: "/customers",
+    icon: <Users className="w-5 h-5" />,
+  },
+  {
+    title: "Payments",
+    href: "/payments",
+    icon: <CreditCard className="w-5 h-5" />,
+  },
+  {
+    title: "Messages",
+    href: "/messages",
+    icon: <MessageSquare className="w-5 h-5" />,
+    submenu: [
       {
-        label: "All Properties",
-        href: "/properties",
-        icon: Building,
-      },
-      {
-        label: "Add Property",
-        href: "/properties/new",
-        icon: Plus,
+        title: "SMS",
+        href: "/messages/sms",
+        icon: <SmartphoneIcon className="w-5 h-5" />,
       },
     ],
   },
   {
-    label: "Bookings",
-    href: "/bookings",
-    icon: BookOpen,
-    children: [
-      {
-        label: "All Bookings",
-        href: "/bookings",
-        icon: BookOpen,
-      },
-      {
-        label: "Calendar",
-        href: "/calendar",
-        icon: Calendar,
-      },
-    ]
-  },
-  {
-    label: "Customers",
-    href: "/customers",
-    icon: Users,
-    children: [
-      {
-        label: "All Customers",
-        href: "/customers",
-        icon: Users,
-      },
-      {
-        label: "Add Customer",
-        href: "/customers/new",
-        icon: Plus,
-      },
-      {
-        label: "Active Customers",
-        href: "/customers?status=active",
-        icon: UserCheck,
-      },
-      {
-        label: "Inactive Customers",
-        href: "/customers?status=inactive",
-        icon: UserX,
-      },
-      {
-        label: "Pending Customers",
-        href: "/customers?status=pending",
-        icon: Clock,
-      },
-    ]
-  },
-  {
-    label: "Payments",
-    href: "/payments",
-    icon: CreditCard,
-  },
-  {
-    label: "Messages",
-    href: "/messages",
-    icon: MessageSquare,
-    children: [
-      {
-        label: "Email Messages",
-        href: "/messages",
-        icon: Mail,
-      },
-      {
-        label: "SMS Messages",
-        href: "/messages/sms",
-        icon: SendHorizonal,
-      },
-    ]
-  },
-  {
-    label: "Settings",
+    title: "Settings",
     href: "/settings",
-    icon: Settings,
-    children: [
+    icon: <Settings className="w-5 h-5" />,
+    submenu: [
       {
-        label: "General",
-        href: "/settings/general",
-        icon: Settings,
+        title: "General",
+        href: "/settings",
+        icon: <Sliders className="w-5 h-5" />,
       },
       {
-        label: "Unified Mailbox",
-        href: "/settings/mail",
-        icon: Mail,
+        title: "Add-ons",
+        href: "/settings/addons",
+        icon: <Package className="w-5 h-5" />,
       },
       {
-        label: "Payment",
-        href: "/settings/payment",
-        icon: CreditCard,
+        title: "Admin Profile",
+        href: "/settings/admin",
+        icon: <User className="w-5 h-5" />,
       },
       {
-        label: "SMS",
-        href: "/settings/sms",
-        icon: SendHorizonal,
-      },
-      {
-        label: "SMS Templates",
-        href: "/settings/sms/templates",
-        icon: FileText,
-      },
-      {
-        label: "Portal Settings",
-        href: "/settings/portal",
-        icon: Palette,
-      },
-      {
-        label: "Admin Profile",
-        href: "/settings/profile",
-        icon: User,
-      },
-      {
-        label: "Storage",
-        href: "/settings/storage",
-        icon: Cloud,
-      },
-      {
-        label: "Images",
-        href: "/settings/images",
-        icon: Image,
-      },
-      {
-        label: "Email Delivery",
+        title: "Email",
         href: "/settings/email",
-        icon: Server,
+        icon: <Mail className="w-5 h-5" />,
+      },
+      {
+        title: "SMS",
+        href: "/settings/sms",
+        icon: <SmartphoneIcon className="w-5 h-5" />,
+      },
+      {
+        title: "SMS Templates",
+        href: "/settings/sms-templates",
+        icon: <FileText className="w-5 h-5" />,
+      },
+      {
+        title: "Payment",
+        href: "/settings/payment",
+        icon: <CreditCard className="w-5 h-5" />,
+      },
+      {
+        title: "Customer Portal",
+        href: "/settings/portal",
+        icon: <UserCircle className="w-5 h-5" />,
+      },
+      {
+        title: "Mail Server",
+        href: "/settings/mail",
+        icon: <Inbox className="w-5 h-5" />,
+      },
+      {
+        title: "Storage",
+        href: "/settings/storage",
+        icon: <HardDrive className="w-5 h-5" />,
+      },
+      {
+        title: "Image Settings",
+        href: "/settings/images",
+        icon: <Image className="w-5 h-5" />,
       },
     ],
   },

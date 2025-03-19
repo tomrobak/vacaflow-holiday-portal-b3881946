@@ -19,22 +19,66 @@ import {
   propertyTypes,
   getAmenitiesByCategory,
   formatCategoryName,
-  mockAddons,
   mockPropertyData
 } from "@/components/property/EditPropertyTypes";
 
 const EditProperty = () => {
   const { id = "1" } = useParams();
   const [activeTab, setActiveTab] = useState("basic");
-  const [isAddAddonDialogOpen, setIsAddAddonDialogOpen] = useState(false);
-  const [availableAddons] = useState(mockAddons);
+  
+  // Mock data - in a real app this would come from an API
+  const [availableAddons] = useState([
+    {
+      id: "1",
+      name: "Late Checkout",
+      description: "Extend your stay until 3 PM instead of the standard 11 AM checkout time.",
+      price: 45,
+      category: "checkout",
+      featuredImage: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7",
+      gallery: [],
+      active: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    {
+      id: "2",
+      name: "Early Check-in",
+      description: "Check in as early as 10 AM instead of the standard 3 PM check-in time.",
+      price: 45,
+      category: "checkin",
+      featuredImage: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b",
+      gallery: [],
+      active: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    {
+      id: "3",
+      name: "Train Station Pickup",
+      description: "We'll pick you up from the train station and bring you directly to the property.",
+      price: 30,
+      category: "transportation",
+      featuredImage: "https://images.unsplash.com/photo-1721322800607-8c38375eef04",
+      gallery: [],
+      active: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    {
+      id: "4",
+      name: "Professional Photo Session",
+      description: "1-hour photo session with a professional photographer at the property or nearby landmarks.",
+      price: 120,
+      category: "entertainment",
+      featuredImage: "https://images.unsplash.com/photo-1472396961693-142e6e269027",
+      gallery: [],
+      active: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+  ]);
 
   const amenitiesByCategory = getAmenitiesByCategory();
-
-  const handleCreateAddon = () => {
-    setIsAddAddonDialogOpen(false);
-    // Navigate to addons page would go here
-  };
 
   return (
     <EditPropertyDataProvider propertyId={id} mockPropertyData={mockPropertyData}>
@@ -70,7 +114,7 @@ const EditProperty = () => {
               <TabsList className="w-full justify-start">
                 <TabsTrigger value="basic">Basic Info</TabsTrigger>
                 <TabsTrigger value="features">Features & Amenities</TabsTrigger>
-                <TabsTrigger value="addons">Addons</TabsTrigger>
+                <TabsTrigger value="addons">Add-ons</TabsTrigger>
                 <TabsTrigger value="images">Images & Gallery</TabsTrigger>
                 <TabsTrigger value="availability">Availability</TabsTrigger>
               </TabsList>
@@ -93,8 +137,7 @@ const EditProperty = () => {
                 <TabsContent value="addons">
                   <PropertyAddonsTab 
                     form={form} 
-                    availableAddons={availableAddons} 
-                    onCreateAddon={handleCreateAddon} 
+                    availableAddons={availableAddons}
                   />
                 </TabsContent>
 

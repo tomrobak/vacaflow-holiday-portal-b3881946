@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import Dashboard from "@/pages/Dashboard";
@@ -40,63 +39,65 @@ import SmsTemplatesPage from "@/pages/settings/SmsTemplatesPage";
 import PropertyListing from "@/pages/PropertyListing";
 import Checkout from "@/pages/Checkout";
 import BookingConfirmation from "@/pages/BookingConfirmation";
+import Index from "@/pages/Index";
+import EditProperty from "@/pages/EditProperty";
+import EditBooking from "@/pages/EditBooking";
+import EditCustomer from "@/pages/EditCustomer";
+import AddonsSettings from "@/pages/settings/AddonsSettings";
 
 function App() {
   return (
     <Router>
       <Toaster position="top-right" />
       <Routes>
-        {/* Public Property and Booking Routes */}
+        <Route path="/" element={<MainLayout />}>
+          <Route index element={<Index />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="properties" element={<Properties />} />
+          <Route path="properties/:id" element={<PropertyDetail />} />
+          <Route path="properties/:id/edit" element={<EditProperty />} />
+          <Route path="properties/:id/calendar" element={<PropertyCalendar />} />
+          <Route path="new-property" element={<NewProperty />} />
+          <Route path="bookings" element={<Bookings />} />
+          <Route path="bookings/:id" element={<BookingDetail />} />
+          <Route path="bookings/:id/edit" element={<EditBooking />} />
+          <Route path="new-booking" element={<NewBooking />} />
+          <Route path="calendar" element={<Calendar />} />
+          <Route path="customers" element={<Customers />} />
+          <Route path="customers/:id" element={<CustomerDetail />} />
+          <Route path="customers/:id/edit" element={<EditCustomer />} />
+          <Route path="new-customer" element={<NewCustomer />} />
+          <Route path="payments" element={<Payments />} />
+          <Route path="payments/:id" element={<PaymentDetail />} />
+          <Route path="new-payment" element={<NewPayment />} />
+          <Route path="messages" element={<Messages />} />
+          <Route path="messages/sms" element={<MessagesSms />} />
+          <Route path="settings" element={<Settings />}>
+            <Route index element={<GeneralSettings />} />
+            <Route path="addons" element={<AddonsSettings />} />
+            <Route path="admin" element={<AdminProfile />} />
+            <Route path="email" element={<EmailSettings />} />
+            <Route path="payment" element={<PaymentSettings />} />
+            <Route path="sms" element={<SmsSettings />} />
+            <Route path="sms-templates" element={<SmsTemplatesPage />} />
+            <Route path="portal" element={<PortalSettings />} />
+            <Route path="mail" element={<MailSettings />} />
+            <Route path="storage" element={<StorageSettings />} />
+            <Route path="images" element={<ImageSettings />} />
+          </Route>
+          <Route path="checkout" element={<Checkout />} />
+          <Route path="confirmation" element={<BookingConfirmation />} />
+        </Route>
         <Route path="/property/:id" element={<PropertyListing />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/confirmation" element={<BookingConfirmation />} />
-        
-        {/* Customer routes */}
-        <Route path="/customer/login" element={<CustomerLogin />} />
-        <Route path="/customer" element={<CustomerLayout><Outlet /></CustomerLayout>}>
-          <Route path="dashboard" element={<CustomerDashboardPage />} />
+        <Route path="/customer" element={<CustomerLayout />}>
+          <Route index element={<CustomerDashboard />} />
+          <Route path="dashboard" element={<CustomerDashboard />} />
           <Route path="bookings" element={<CustomerBookings />} />
           <Route path="payments" element={<CustomerPayments />} />
           <Route path="messages" element={<CustomerMessages />} />
         </Route>
-
-        {/* Admin routes */}
-        <Route path="/" element={<MainLayout><Outlet /></MainLayout>}>
-          <Route index element={<Dashboard />} />
-          <Route path="customers" element={<Customers />} />
-          <Route path="customers/new" element={<NewCustomer />} />
-          <Route path="customers/dashboard/:id" element={<CustomerDashboard />} />
-          <Route path="customers/:id" element={<CustomerDetail />} />
-          <Route path="properties/*" element={<Properties />} />
-          <Route path="properties/new" element={<NewProperty />} />
-          <Route path="properties/:id" element={<PropertyDetail />} />
-          <Route path="properties/:id/calendar" element={<PropertyCalendar />} />
-          <Route path="bookings/*" element={<Bookings />} />
-          <Route path="bookings/new" element={<NewBooking />} />
-          <Route path="payments" element={<Payments />} />
-          <Route path="payments/new" element={<NewPayment />} />
-          <Route path="payments/:id" element={<PaymentDetail />} />
-          <Route path="calendar/*" element={<Calendar />} />
-          <Route path="messages/*" element={<Messages />} />
-          <Route path="messages/sms" element={<MessagesSms />} />
-          
-          {/* Settings routes */}
-          <Route path="settings" element={<Settings />}>
-            <Route index element={<GeneralSettings />} />
-            <Route path="general" element={<GeneralSettings />} />
-            <Route path="mail" element={<MailSettings />} />
-            <Route path="payment" element={<PaymentSettings />} />
-            <Route path="storage" element={<StorageSettings />} />
-            <Route path="email" element={<EmailSettings />} />
-            <Route path="images" element={<ImageSettings />} />
-            <Route path="portal" element={<PortalSettings />} />
-            <Route path="profile" element={<AdminProfile />} />
-            <Route path="sms" element={<SmsSettings />} />
-            <Route path="sms/templates" element={<SmsTemplatesPage />} />
-          </Route>
-          
-          <Route path="*" element={<NotFound />} />
-        </Route>
+        <Route path="/login" element={<CustomerLogin />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
   );

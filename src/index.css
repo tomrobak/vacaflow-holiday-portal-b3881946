@@ -158,15 +158,31 @@
   font-weight: 400;
 }
 
+/* Improved styles for range start and end */
 .airbnb-style-calendar .rdp-day_range_start,
 .airbnb-style-calendar .rdp-day_range_end {
   background-color: hsl(var(--primary));
   color: hsl(var(--primary-foreground));
+  font-weight: 500;
+  position: relative;
+  z-index: 10;
 }
 
+/* Create the half-circle effect */
 .airbnb-style-calendar .rdp-day_range_start {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
+}
+
+.airbnb-style-calendar .rdp-day_range_start::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 50%;
+  height: 100%;
+  background-color: hsl(var(--primary) / 0.12);
+  z-index: -1;
 }
 
 .airbnb-style-calendar .rdp-day_range_end {
@@ -174,6 +190,18 @@
   border-bottom-left-radius: 0;
 }
 
+.airbnb-style-calendar .rdp-day_range_end::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background-color: hsl(var(--primary) / 0.12);
+  z-index: -1;
+}
+
+/* Style for today */
 .airbnb-style-calendar .rdp-day_today {
   border: 1px solid hsl(var(--muted));
   background-color: transparent;

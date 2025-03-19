@@ -169,6 +169,8 @@ const PropertyAvailabilityCalendar = ({ property }: PropertyAvailabilityCalendar
               day_selected: "!bg-primary !text-primary-foreground hover:!bg-primary hover:!text-primary-foreground focus:!bg-primary focus:!text-primary-foreground",
               day_today: "font-bold border border-accent",
               day_range_middle: "!bg-primary/15 !text-foreground rounded-none",
+              day_range_start: "day-range-start !rounded-l-full !rounded-r-none", 
+              day_range_end: "day-range-end !rounded-r-full !rounded-l-none",
               day_hidden: "invisible",
               nav_button: cn(
                 "hover:bg-accent text-foreground transition-colors rounded-full p-1",

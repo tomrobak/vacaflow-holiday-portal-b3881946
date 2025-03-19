@@ -35,6 +35,12 @@ export const navigationItems: NavigationItem[] = [
     icon: Home,
   },
   {
+    title: "Add-ons",
+    label: "Add-ons",
+    href: "/addons",
+    icon: Package,
+  },
+  {
     title: "Bookings",
     label: "Bookings",
     href: "/bookings",

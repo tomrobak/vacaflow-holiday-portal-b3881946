@@ -2,9 +2,9 @@
 import React from "react";
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Alert, AlertCircle, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle, LockKeyhole } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { LockKeyhole } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 import { EmailConfigForm } from "@/components/settings/email/emailTypes";
 

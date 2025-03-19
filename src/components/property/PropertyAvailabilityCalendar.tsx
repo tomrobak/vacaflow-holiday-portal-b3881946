@@ -1,17 +1,14 @@
 
 import { useState, useEffect } from "react";
 import { Calendar } from "@/components/ui/calendar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Property } from "@/types/property";
 import { DateRange } from "react-day-picker";
-import { addDays, differenceInDays, isPast, format } from "date-fns";
+import { addDays, differenceInDays, isPast, format, isSameMonth } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Info, 
-  CalendarDays, 
   X, 
-  CalendarCheck, 
-  CalendarX 
+  ChevronRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -22,6 +19,7 @@ interface PropertyAvailabilityCalendarProps {
 const PropertyAvailabilityCalendar = ({ property }: PropertyAvailabilityCalendarProps) => {
   const [date, setDate] = useState<DateRange | undefined>();
   const [numberOfMonths, setNumberOfMonths] = useState(2);
+  const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
   
   // In a real app, you would fetch booked dates from an API
   const bookedDates = [
@@ -77,77 +75,105 @@ const PropertyAvailabilityCalendar = ({ property }: PropertyAvailabilityCalendar
   const handleClearDates = () => {
     setDate(undefined);
   };
-  
-  return (
-    <Card className="shadow-none border border-border rounded-xl overflow-hidden">
-      <CardHeader className="pb-3 pt-5 px-5">
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-xl font-semibold">
-            <CalendarDays className="h-5 w-5 text-primary" />
-            Availability
-          </CardTitle>
-          
-          {date?.from && date?.to && (
-            <div className="flex gap-2 items-center">
-              <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30 px-2.5 py-1 font-medium rounded-full">
-                {calculateNights()} night{calculateNights() !== 1 ? 's' : ''}
-              </Badge>
-              <button 
-                onClick={handleClearDates} 
-                className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-full hover:bg-accent"
-                aria-label="Clear dates"
-              >
-                <X className="h-4 w-4" />
-              </button>
+
+  // Custom footer component for the calendar selection summary
+  const renderSelectionSummary = () => {
+    if (!date?.from) return null;
+    
+    return (
+      <div className="mt-6 px-1.5">
+        <div className="bg-accent/30 rounded-xl p-4 flex flex-col space-y-4">
+          {date.from && (
+            <div className="flex items-center justify-between">
+              <div className="text-sm font-medium">Check-in</div>
+              <div className="font-medium">{formatDate(date.from)}</div>
             </div>
           )}
+          
+          {date.to && date.from !== date.to && (
+            <>
+              <div className="flex items-center justify-between">
+                <div className="text-sm font-medium">Check-out</div>
+                <div className="font-medium">{formatDate(date.to)}</div>
+              </div>
+              
+              <div className="pt-2 border-t border-border flex justify-between items-center">
+                <div className="text-sm text-muted-foreground">Total</div>
+                <div className="font-semibold">{calculateNights()} nights</div>
+              </div>
+            </>
+          )}
         </div>
-        
-        {date?.from && date?.to ? (
-          <div className="text-sm mt-2 text-muted-foreground font-medium flex items-center">
-            <span>{formatDate(date.from)} — {formatDate(date.to)}</span>
-          </div>
-        ) : (
-          <div className="flex items-center text-sm mt-2 text-muted-foreground">
-            <Info className="mr-1.5 h-4 w-4 text-muted-foreground/70" />
-            <span>Select check-in and check-out dates</span>
+      </div>
+    );
+  };
+  
+  const handleMonthChange = (month: Date) => {
+    setCurrentMonth(month);
+  };
+
+  // Determine if we should show a single month
+  const shouldShowSingleMonth = window.innerWidth < 768;
+
+  return (
+    <Card className="border-none shadow-none">
+      <CardContent className="p-0">
+        {date?.from && date?.to && (
+          <div className="flex justify-between items-center mb-4 px-1">
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold">Your trip</h3>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                {calculateNights()} night{calculateNights() !== 1 ? 's' : ''}
+              </p>
+            </div>
+            <button 
+              onClick={handleClearDates} 
+              className="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-full hover:bg-accent"
+              aria-label="Clear dates"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
         )}
-      </CardHeader>
-      
-      <CardContent className="px-4 pb-5">
-        <div className="rounded-lg border bg-card overflow-hidden">
+
+        <div className="airbnb-style-calendar">
           <Calendar
             mode="range"
             selected={date}
             onSelect={setDate}
             numberOfMonths={numberOfMonths}
             disabled={isDateUnavailable}
+            month={currentMonth}
+            onMonthChange={handleMonthChange}
             classNames={{
               day_disabled: "text-red-300 line-through opacity-50",
               day_selected: "!bg-primary !text-primary-foreground hover:!bg-primary hover:!text-primary-foreground focus:!bg-primary focus:!text-primary-foreground",
-              day_today: "bg-accent text-accent-foreground font-bold",
-              day_range_middle: "!bg-primary/15 !text-foreground",
+              day_today: "font-bold border border-accent",
+              day_range_middle: "!bg-primary/15 !text-foreground rounded-none",
               day_hidden: "invisible",
-              nav_button: "hover:bg-accent text-foreground transition-colors",
-              cell: "relative p-0 text-center text-sm first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-              day: "h-10 w-10 p-0 font-normal aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground rounded-md transition-colors",
-              caption: "flex justify-center pt-1 relative items-center text-sm font-medium",
-              nav: "space-x-1 flex items-center",
-              table: "w-full border-collapse space-y-1",
-              head_row: "flex w-full",
-              row: "flex w-full mt-2",
-              head_cell: "text-muted-foreground rounded-md w-10 font-normal text-[0.8rem] sm:w-12",
-              caption_label: "text-sm font-semibold",
+              nav_button: cn(
+                "hover:bg-accent text-foreground transition-colors rounded-full p-1",
+                "absolute top-1"
+              ),
+              nav_button_previous: "left-1",
+              nav_button_next: "right-1",
+              cell: "text-center relative rounded-md p-0 focus-within:relative focus-within:z-20",
+              day: "h-10 w-10 p-0 font-normal aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground rounded-full transition-colors focus:outline-none",
+              caption: "flex justify-center pt-1 relative items-center",
+              caption_label: "text-base font-semibold capitalize mx-2",
+              head_cell: "text-muted-foreground font-normal text-[0.8rem] w-10 h-6",
+              table: "w-full border-collapse space-y-2",
+              months: "flex space-x-6 mt-2",
             }}
             defaultMonth={new Date()}
             weekStartsOn={1}
             fixedWeeks
-            className="w-full rounded-md"
+            className="w-full"
+            footer={renderSelectionSummary()}
           />
         </div>
-        
-        <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+
+        <div className="flex flex-wrap gap-3 mt-5 px-1.5 text-xs">
           <div className="flex items-center gap-1.5">
             <div className="h-3 w-3 rounded-full bg-primary"></div>
             <span>Selected</span>
@@ -158,37 +184,8 @@ const PropertyAvailabilityCalendar = ({ property }: PropertyAvailabilityCalendar
           </div>
           <div className="flex items-center gap-1.5">
             <div className="h-3 w-3 rounded-full bg-primary/15"></div>
-            <span>In Range</span>
+            <span>Selected range</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <div className="h-3 w-3 rounded-full bg-accent"></div>
-            <span>Today</span>
-          </div>
-        </div>
-
-        <div className="mt-6">
-          {date?.from && date?.to && (
-            <div className="rounded-xl border bg-accent/10 p-4 flex flex-col space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <CalendarCheck className="h-4 w-4 text-green-600" />
-                  <span className="font-medium">Check-in</span>
-                </div>
-                <span className="font-medium">{formatDate(date.from)}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <CalendarX className="h-4 w-4 text-red-600" />
-                  <span className="font-medium">Check-out</span>
-                </div>
-                <span className="font-medium">{formatDate(date.to)}</span>
-              </div>
-              <div className="border-t pt-3 flex justify-between items-center">
-                <span className="text-muted-foreground">Total stay</span>
-                <span className="font-medium">{calculateNights()} night{calculateNights() !== 1 ? 's' : ''}</span>
-              </div>
-            </div>
-          )}
         </div>
       </CardContent>
     </Card>

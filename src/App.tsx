@@ -29,6 +29,10 @@ import CustomerInvoices from "@/pages/customer/CustomerInvoices";
 import CustomerMessages from "@/pages/customer/CustomerMessages";
 import CustomerBookingDetail from "@/pages/customer/CustomerBookingDetail";
 import CustomerCheckout from "@/pages/customer/CustomerCheckout";
+import CustomerReviews from "@/pages/customer/CustomerReviews";
+import AddReview from "@/pages/customer/AddReview";
+import EditReview from "@/pages/customer/EditReview";
+import DeleteReview from "@/pages/customer/DeleteReview";
 import Settings from "@/pages/Settings";
 import GeneralSettings from "@/pages/settings/GeneralSettings";
 import MailSettings from "@/pages/settings/MailSettings";
@@ -51,6 +55,12 @@ import BookingDetail from "@/pages/BookingDetail";
 import Addons from "@/pages/Addons";
 import LoginRegister from "@/pages/LoginRegister";
 import Sitemap from "@/pages/Sitemap";
+import ViewPropertyReviews from "@/pages/ViewPropertyReviews";
+import PropertyReviews from "@/pages/admin/PropertyReviews";
+import PendingReviews from "@/pages/admin/PendingReviews";
+import AdminEditReview from "@/pages/admin/EditReview";
+import ApproveReview from "@/pages/admin/ApproveReview";
+import RejectReview from "@/pages/admin/RejectReview";
 
 function App() {
   return (
@@ -65,6 +75,7 @@ function App() {
         
         {/* Property listing page - accessible to everyone */}
         <Route path="/property/:id" element={<PropertyListing />} />
+        <Route path="/property/:id/reviews" element={<ViewPropertyReviews />} />
         
         {/* Checkout flow */}
         <Route path="/checkout" element={<Checkout />} />
@@ -78,6 +89,7 @@ function App() {
           <Route path="properties/:id" element={<PropertyDetail />} />
           <Route path="properties/:id/edit" element={<EditProperty />} />
           <Route path="properties/:id/calendar" element={<PropertyCalendar />} />
+          <Route path="properties/:id/reviews" element={<PropertyReviews />} />
           <Route path="new-property" element={<NewProperty />} />
           <Route path="addons" element={<Addons />} />
           <Route path="bookings" element={<Bookings />} />
@@ -94,6 +106,10 @@ function App() {
           <Route path="new-payment" element={<NewPayment />} />
           <Route path="messages" element={<Messages />} />
           <Route path="messages/sms" element={<MessagesSms />} />
+          <Route path="reviews/pending" element={<PendingReviews />} />
+          <Route path="reviews/:id/edit" element={<AdminEditReview />} />
+          <Route path="reviews/:id/approve" element={<ApproveReview />} />
+          <Route path="reviews/:id/reject" element={<RejectReview />} />
           <Route path="settings" element={<Settings />}>
             <Route index element={<GeneralSettings />} />
             <Route path="addons" element={<AddonsSettings />} />
@@ -114,10 +130,14 @@ function App() {
           <Route path="dashboard" element={<CustomerDashboardPage />} />
           <Route path="bookings" element={<CustomerBookings />} />
           <Route path="bookings/:id" element={<CustomerBookingDetail />} />
+          <Route path="bookings/:id/add-review" element={<AddReview />} />
           <Route path="payments" element={<CustomerPayments />} />
           <Route path="invoices" element={<CustomerInvoices />} />
           <Route path="checkout/:id" element={<CustomerCheckout />} />
           <Route path="messages" element={<CustomerMessages />} />
+          <Route path="reviews" element={<CustomerReviews />} />
+          <Route path="reviews/:id/edit" element={<EditReview />} />
+          <Route path="reviews/:id/delete" element={<DeleteReview />} />
         </Route>
 
         {/* Catch-all and redirects */}

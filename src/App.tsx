@@ -36,7 +36,6 @@ import ImageSettings from "@/pages/settings/ImageSettings";
 import PortalSettings from "@/pages/settings/PortalSettings";
 import AdminProfile from "@/pages/settings/AdminProfile";
 import SmsSettings from "@/pages/settings/SmsSettings";
-import SmsTemplatesPage from "@/pages/settings/SmsTemplatesPage";
 import PropertyListing from "@/pages/PropertyListing";
 import Checkout from "@/pages/Checkout";
 import BookingConfirmation from "@/pages/BookingConfirmation";
@@ -95,7 +94,6 @@ function App() {
             <Route path="email" element={<EmailSettings />} />
             <Route path="payment" element={<PaymentSettings />} />
             <Route path="sms" element={<SmsSettings />} />
-            <Route path="sms-templates" element={<SmsTemplatesPage />} />
             <Route path="portal" element={<PortalSettings />} />
             <Route path="mail" element={<MailSettings />} />
             <Route path="storage" element={<StorageSettings />} />

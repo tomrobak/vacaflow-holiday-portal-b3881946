@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { 
-  Card, CardContent, CardDescription, CardHeader, CardTitle 
+  Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter 
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -10,13 +10,14 @@ import { Separator } from "@/components/ui/separator";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { 
-  Image, Save, RefreshCw, Sliders, ImagePlus, 
-  FileImage, Trash2, Download, Check, X, Wrench, 
-  Loader2, Settings, Search, Grip, Trash
+  Image, Save, RefreshCw, Sliders, FileImage, 
+  Trash2, Download, Check, X, Wrench, 
+  Loader2, Settings, Search, Trash, Plus
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
@@ -64,6 +65,7 @@ const mockImages = [
 ];
 
 const ImageSettings = () => {
+  const [activeTab, setActiveTab] = useState("configuration");
   const [selectedImages, setSelectedImages] = useState<number[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -153,419 +155,442 @@ const ImageSettings = () => {
   });
 
   return (
-    <div className="space-y-6">
-      <div>
+    <div>
+      <div className="mb-6">
         <h2 className="text-2xl font-bold">Image Settings</h2>
         <p className="text-muted-foreground">Configure image processing, optimization, and storage options</p>
       </div>
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {/* Image Processing Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Image className="h-5 w-5" />
-                Image Processing Configuration
-              </CardTitle>
-              <CardDescription>
-                Configure how images are processed when uploaded to your platform
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Conversion Settings */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium">Conversion Settings</h3>
-                
-                <FormField
-                  control={form.control}
-                  name="convertToWebP"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base">
-                          Convert Images to WebP
-                        </FormLabel>
-                        <FormDescription>
-                          Automatically convert uploaded images to WebP format for better performance
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="w-full mb-6">
+          <TabsTrigger value="configuration" className="flex-1">
+            Configuration
+          </TabsTrigger>
+          <TabsTrigger value="images" className="flex-1">
+            Image Library
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="configuration">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Conversion & Naming Card */}
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-xl">
+                      <Image className="h-5 w-5" />
+                      Format & Naming
+                    </CardTitle>
+                    <CardDescription>
+                      Configure image formats and file naming conventions
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4 pt-0">
+                    <div className="space-y-4">
+                      <FormField
+                        control={form.control}
+                        name="convertToWebP"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                            <div className="space-y-0.5">
+                              <FormLabel className="text-base">
+                                Convert to WebP
+                              </FormLabel>
+                              <FormDescription className="text-xs">
+                                Automatically convert images to WebP format
+                              </FormDescription>
+                            </div>
+                            <FormControl>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="preserveOriginal"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                            <div className="space-y-0.5">
+                              <FormLabel className="text-base">
+                                Preserve Original Format
+                              </FormLabel>
+                              <FormDescription className="text-xs">
+                                Keep original file alongside converted version
+                              </FormDescription>
+                            </div>
+                            <FormControl>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <Separator className="my-3" />
+                      
+                      <FormField
+                        control={form.control}
+                        name="replaceSpaces"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                            <div className="space-y-0.5">
+                              <FormLabel className="text-base">
+                                Replace Spaces in Filenames
+                              </FormLabel>
+                              <FormDescription className="text-xs">
+                                Replace spaces with a character
+                              </FormDescription>
+                            </div>
+                            <FormControl>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      
+                      {form.watch("replaceSpaces") && (
+                        <FormField
+                          control={form.control}
+                          name="spacesReplacement"
+                          render={({ field }) => (
+                            <FormItem>
+                              <Select 
+                                onValueChange={field.onChange} 
+                                defaultValue={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select replacement" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="dash">Hyphen (-)</SelectItem>
+                                  <SelectItem value="underscore">Underscore (_)</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormDescription className="text-xs">
+                                Character to use when replacing spaces
+                              </FormDescription>
+                            </FormItem>
+                          )}
                         />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="preserveOriginal"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base">
-                          Preserve Original Format
-                        </FormLabel>
-                        <FormDescription>
-                          Keep the original image file alongside the WebP version
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              <Separator className="my-4" />
-              
-              {/* Naming Convention */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium">Naming Convention</h3>
-                
-                <FormField
-                  control={form.control}
-                  name="replaceSpaces"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base">
-                          Replace Spaces in Filenames
-                        </FormLabel>
-                        <FormDescription>
-                          Replace spaces in filenames with hyphens or underscores
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                
-                {form.watch("replaceSpaces") && (
-                  <FormField
-                    control={form.control}
-                    name="spacesReplacement"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Space Replacement Character</FormLabel>
-                        <Select 
-                          onValueChange={field.onChange} 
-                          defaultValue={field.value}
-                        >
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Compression & Optimization Card */}
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-xl">
+                      <Sliders className="h-5 w-5" />
+                      Compression & Optimization
+                    </CardTitle>
+                    <CardDescription>
+                      Configure quality and optimization settings
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4 pt-0">
+                    <FormField
+                      control={form.control}
+                      name="enableCompression"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                          <div className="space-y-0.5">
+                            <FormLabel className="text-base">
+                              Enable Compression
+                            </FormLabel>
+                            <FormDescription className="text-xs">
+                              Compress images to reduce file size
+                            </FormDescription>
+                          </div>
                           <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select replacement" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="dash">Hyphen (-)</SelectItem>
-                            <SelectItem value="underscore">Underscore (_)</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormDescription>
-                          Character to use when replacing spaces in filenames
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
-              </div>
-              
-              <Separator className="my-4" />
-              
-              {/* Compression Settings */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium">Compression Settings</h3>
-                
-                <FormField
-                  control={form.control}
-                  name="enableCompression"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base">
-                          Enable Image Compression
-                        </FormLabel>
-                        <FormDescription>
-                          Compress images to reduce file size while maintaining quality
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                
-                {form.watch("enableCompression") && (
-                  <FormField
-                    control={form.control}
-                    name="compressionQuality"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Compression Quality (1-100)</FormLabel>
-                        <div className="flex items-center gap-4">
-                          <FormControl>
-                            <Input
-                              type="number"
-                              min="1"
-                              max="100"
-                              {...field}
-                              onChange={(e) => field.onChange(parseInt(e.target.value))}
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
                             />
                           </FormControl>
-                          <span className="text-muted-foreground w-12">{field.value}%</span>
-                        </div>
-                        <FormDescription>
-                          Higher values maintain better quality but result in larger file sizes
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    {form.watch("enableCompression") && (
+                      <FormField
+                        control={form.control}
+                        name="compressionQuality"
+                        render={({ field }) => (
+                          <FormItem>
+                            <div className="flex items-center justify-between">
+                              <FormLabel>Compression Quality</FormLabel>
+                              <span className="text-muted-foreground text-sm w-10 text-right">{field.value}%</span>
+                            </div>
+                            <FormControl>
+                              <Input
+                                type="range"
+                                min="1"
+                                max="100"
+                                className="w-full"
+                                {...field}
+                                onChange={(e) => field.onChange(parseInt(e.target.value))}
+                              />
+                            </FormControl>
+                            <FormDescription className="text-xs">
+                              Higher = better quality but larger file size
+                            </FormDescription>
+                          </FormItem>
+                        )}
+                      />
                     )}
-                  />
-                )}
+                    
+                    <Separator className="my-3" />
+                    
+                    <div className="space-y-4">
+                      <FormField
+                        control={form.control}
+                        name="enableLazyLoading"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                            <div className="space-y-0.5">
+                              <FormLabel className="text-base">
+                                Lazy Loading
+                              </FormLabel>
+                              <FormDescription className="text-xs">
+                                Load images when they enter viewport
+                              </FormDescription>
+                            </div>
+                            <FormControl>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="enableBlurPlaceholder"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                            <div className="space-y-0.5">
+                              <FormLabel className="text-base">
+                                Blur Placeholders
+                              </FormLabel>
+                              <FormDescription className="text-xs">
+                                Show blur placeholders while loading
+                              </FormDescription>
+                            </div>
+                            <FormControl>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="generateAltText"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                            <div className="space-y-0.5">
+                              <FormLabel className="text-base">
+                                AI Alt Text Generation
+                              </FormLabel>
+                              <FormDescription className="text-xs">
+                                Auto-generate alt text for accessibility
+                              </FormDescription>
+                            </div>
+                            <FormControl>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                {/* Responsive Images Card */}
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-xl">
+                      <RefreshCw className="h-5 w-5" />
+                      Responsive Images
+                    </CardTitle>
+                    <CardDescription>
+                      Configure responsive image generation
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4 pt-0">
+                    <FormField
+                      control={form.control}
+                      name="generateResponsiveVariants"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                          <div className="space-y-0.5">
+                            <FormLabel className="text-base">
+                              Generate Responsive Variants
+                            </FormLabel>
+                            <FormDescription className="text-xs">
+                              Create multiple sizes of each image
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    {form.watch("generateResponsiveVariants") && (
+                      <FormField
+                        control={form.control}
+                        name="responsiveSizes"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Responsive Image Widths (px)</FormLabel>
+                            <FormControl>
+                              <Input {...field} placeholder="576,768,992,1200" />
+                            </FormControl>
+                            <FormDescription className="text-xs">
+                              Comma-separated list of widths for variants
+                            </FormDescription>
+                          </FormItem>
+                        )}
+                      />
+                    )}
+                    
+                    <Separator className="my-3" />
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="maxWidth"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Max Width (px)</FormLabel>
+                            <FormControl>
+                              <Input 
+                                type="number" 
+                                min="0" 
+                                max="10000" 
+                                {...field}
+                                onChange={(e) => field.onChange(parseInt(e.target.value))}
+                              />
+                            </FormControl>
+                            <FormDescription className="text-xs">
+                              0 = no limit
+                            </FormDescription>
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="maxHeight"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Max Height (px)</FormLabel>
+                            <FormControl>
+                              <Input 
+                                type="number" 
+                                min="0" 
+                                max="10000" 
+                                {...field}
+                                onChange={(e) => field.onChange(parseInt(e.target.value))}
+                              />
+                            </FormControl>
+                            <FormDescription className="text-xs">
+                              0 = no limit
+                            </FormDescription>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                {/* Storage Settings Card */}
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-xl">
+                      <Settings className="h-5 w-5" />
+                      Storage Settings
+                    </CardTitle>
+                    <CardDescription>
+                      Configure where and how images are stored
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4 pt-0">
+                    <FormField
+                      control={form.control}
+                      name="imagePath"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Storage Path</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="images" />
+                          </FormControl>
+                          <FormDescription>
+                            Base path for storing uploaded images
+                          </FormDescription>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <Alert className="mt-4">
+                      <Settings className="h-4 w-4" />
+                      <AlertTitle>Storage Integration</AlertTitle>
+                      <AlertDescription className="text-xs">
+                        Images will be stored using your configured provider.
+                        <Button 
+                          variant="link" 
+                          className="p-0 h-auto font-normal text-primary" 
+                          onClick={() => { /* Navigate to storage settings */ }}
+                        >
+                          Configure storage settings
+                        </Button>
+                      </AlertDescription>
+                    </Alert>
+                  </CardContent>
+                </Card>
               </div>
-              
-              <Separator className="my-4" />
-              
-              {/* Responsive Images */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium">Responsive Images</h3>
-                
-                <FormField
-                  control={form.control}
-                  name="generateResponsiveVariants"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base">
-                          Generate Responsive Image Variants
-                        </FormLabel>
-                        <FormDescription>
-                          Create multiple sizes of each image for responsive web design
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                
-                {form.watch("generateResponsiveVariants") && (
-                  <FormField
-                    control={form.control}
-                    name="responsiveSizes"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Responsive Image Widths (px)</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="576,768,992,1200" />
-                        </FormControl>
-                        <FormDescription>
-                          Comma-separated list of widths for responsive image variants
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
-              </div>
-              
-              <Separator className="my-4" />
-              
-              {/* Optimization Features */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium">Optimization Features</h3>
-                
-                <FormField
-                  control={form.control}
-                  name="enableLazyLoading"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base">
-                          Enable Lazy Loading
-                        </FormLabel>
-                        <FormDescription>
-                          Only load images when they enter the viewport for better performance
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="enableBlurPlaceholder"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base">
-                          Generate Blur Placeholders
-                        </FormLabel>
-                        <FormDescription>
-                          Create low-resolution placeholders for images while they load
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="generateAltText"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base">
-                          Auto-generate Alt Text
-                        </FormLabel>
-                        <FormDescription>
-                          Use AI to generate descriptive alt text for uploaded images
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              <Separator className="my-4" />
-              
-              {/* Dimensions and Storage */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium">Maximum Dimensions</h3>
-                  
-                  <FormField
-                    control={form.control}
-                    name="maxWidth"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Max Width (px)</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="number" 
-                            min="0" 
-                            max="10000" 
-                            {...field}
-                            onChange={(e) => field.onChange(parseInt(e.target.value))}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          Maximum width for uploaded images (0 = no limit)
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="maxHeight"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Max Height (px)</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="number" 
-                            min="0" 
-                            max="10000" 
-                            {...field}
-                            onChange={(e) => field.onChange(parseInt(e.target.value))}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          Maximum height for uploaded images (0 = no limit)
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium">Storage Settings</h3>
-                  
-                  <FormField
-                    control={form.control}
-                    name="imagePath"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Storage Path</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="images" />
-                        </FormControl>
-                        <FormDescription>
-                          Base path for storing uploaded images
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <Alert>
-                    <Settings className="h-4 w-4" />
-                    <AlertTitle>Storage Integration</AlertTitle>
-                    <AlertDescription>
-                      Images will be stored using your configured storage provider.
-                      <Button 
-                        variant="link" 
-                        className="p-0 h-auto font-normal text-primary" 
-                        onClick={() => { /* Navigate to storage settings */ }}
-                      >
-                        Configure storage settings
-                      </Button>
-                    </AlertDescription>
-                  </Alert>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
-          {/* Image Gallery Management */}
+              <Button type="submit" className="flex gap-2">
+                <Save className="h-4 w-4" />
+                Save Image Settings
+              </Button>
+            </form>
+          </Form>
+        </TabsContent>
+
+        <TabsContent value="images">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <FileImage className="h-5 w-5" />
-                Uploaded Images
+                Image Library
               </CardTitle>
               <CardDescription>
                 Manage all uploaded images across your platform
@@ -618,117 +643,95 @@ const ImageSettings = () => {
                 </div>
               </div>
               
-              <div className="border rounded-md overflow-hidden">
-                <div className="w-full overflow-auto">
-                  <table className="w-full caption-bottom text-sm">
-                    <thead>
-                      <tr className="border-b bg-muted/50">
-                        <th className="h-12 px-4 text-left align-middle font-medium w-[48px]">
+              {sortedImages.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
+                  {sortedImages.map((image) => (
+                    <Card key={image.id} className="overflow-hidden">
+                      <div className="relative h-32 w-full">
+                        <img 
+                          src={image.url} 
+                          alt={image.name} 
+                          className="h-full w-full object-cover"
+                        />
+                        <div className="absolute top-2 left-2">
                           <Checkbox 
-                            checked={selectedImages.length > 0 && selectedImages.length === mockImages.length}
-                            onCheckedChange={handleSelectAll}
+                            checked={selectedImages.includes(image.id)}
+                            onCheckedChange={() => handleSelect(image.id)}
+                            className="h-5 w-5 bg-white/80 border-gray-400"
                           />
-                        </th>
-                        <th className="h-12 px-4 text-left align-middle font-medium">Image</th>
-                        <th className="h-12 px-4 text-left align-middle font-medium">Filename</th>
-                        <th className="h-12 px-4 text-left align-middle font-medium">Size</th>
-                        <th className="h-12 px-4 text-left align-middle font-medium">Dimensions</th>
-                        <th className="h-12 px-4 text-left align-middle font-medium">Uploaded</th>
-                        <th className="h-12 px-4 text-left align-middle font-medium w-[100px]">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {sortedImages.length > 0 ? (
-                        sortedImages.map((image) => (
-                          <tr key={image.id} className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                            <td className="p-4 align-middle">
-                              <Checkbox 
-                                checked={selectedImages.includes(image.id)}
-                                onCheckedChange={() => handleSelect(image.id)}
-                              />
-                            </td>
-                            <td className="p-4 align-middle">
-                              <div className="h-12 w-12 rounded-md overflow-hidden">
-                                <img src={image.url} alt={image.name} className="h-full w-full object-cover" />
-                              </div>
-                            </td>
-                            <td className="p-4 align-middle font-medium max-w-[200px] truncate">
-                              {image.name}
-                            </td>
-                            <td className="p-4 align-middle text-muted-foreground">{image.size}</td>
-                            <td className="p-4 align-middle text-muted-foreground">{image.dimensions}</td>
-                            <td className="p-4 align-middle text-muted-foreground">{image.uploaded}</td>
-                            <td className="p-4 align-middle">
-                              <div className="flex gap-2">
-                                <Button variant="ghost" size="icon" title="Download">
-                                  <Download className="h-4 w-4" />
-                                </Button>
-                                <Button variant="ghost" size="icon" title="Delete" onClick={() => handleSelect(image.id)}>
-                                  <Trash className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan={7} className="p-4 text-center text-muted-foreground">
-                            No images found
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
+                        </div>
+                      </div>
+                      <CardContent className="p-3">
+                        <h4 className="font-medium text-sm truncate" title={image.name}>
+                          {image.name}
+                        </h4>
+                        <div className="flex justify-between items-center text-xs text-muted-foreground mt-1">
+                          <span>{image.size}</span>
+                          <span>{image.dimensions}</span>
+                        </div>
+                      </CardContent>
+                      <CardFooter className="flex justify-end gap-1 p-2 pt-0">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" title="Download">
+                          <Download className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" title="Delete">
+                          <Trash className="h-4 w-4" />
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  ))}
                 </div>
-              </div>
+              ) : (
+                <div className="text-center p-8">
+                  <FileImage className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
+                  <h3 className="font-medium">No images found</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {searchTerm ? "Try a different search term" : "Upload images to get started"}
+                  </p>
+                </div>
+              )}
               
-              <div className="flex flex-wrap gap-2 mt-4">
-                <Button 
-                  variant="outline" 
-                  className="flex gap-2"
-                  onClick={handleBulkConvert}
-                  disabled={selectedImages.length === 0 || isProcessing}
-                >
-                  {isProcessing ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      <Wrench className="h-4 w-4" />
-                      Process Selected
-                    </>
-                  )}
-                </Button>
-                
-                <Button 
-                  variant="outline" 
-                  className="flex gap-2 text-destructive hover:text-destructive"
-                  onClick={handleDelete}
-                  disabled={selectedImages.length === 0}
-                >
-                  <Trash2 className="h-4 w-4" />
-                  Delete Selected
-                </Button>
-                
-                <div className="ml-auto flex items-center text-sm text-muted-foreground">
-                  {selectedImages.length > 0 ? (
-                    <span>{selectedImages.length} of {mockImages.length} selected</span>
-                  ) : (
-                    <span>{mockImages.length} images total</span>
-                  )}
+              {sortedImages.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-6">
+                  <Button 
+                    variant="outline" 
+                    className="flex gap-2"
+                    onClick={handleBulkConvert}
+                    disabled={selectedImages.length === 0 || isProcessing}
+                  >
+                    {isProcessing ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <Wrench className="h-4 w-4" />
+                        Process Selected
+                      </>
+                    )}
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="flex gap-2 text-destructive hover:text-destructive"
+                    onClick={handleDelete}
+                    disabled={selectedImages.length === 0}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Delete Selected
+                  </Button>
+                  
+                  <Button variant="outline" className="flex gap-2 ml-auto">
+                    <Plus className="h-4 w-4" />
+                    Upload Images
+                  </Button>
                 </div>
-              </div>
+              )}
             </CardContent>
           </Card>
-
-          <Button type="submit" className="flex gap-2">
-            <Save className="h-4 w-4" />
-            Save Image Settings
-          </Button>
-        </form>
-      </Form>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

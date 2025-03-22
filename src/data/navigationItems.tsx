@@ -115,12 +115,6 @@ export const navigationItems: NavigationItem[] = [
         icon: SmartphoneIcon,
       },
       {
-        title: "SMS Templates",
-        label: "SMS Templates",
-        href: "/admin/settings/sms-templates",
-        icon: FileText,
-      },
-      {
         title: "Payment",
         label: "Payment",
         href: "/admin/settings/payment",

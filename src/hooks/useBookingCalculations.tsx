@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { BookingFormValues } from "@/types/booking";
 import { Customer, Property } from "@/types/bookingForm";
+import { differenceInDays } from "date-fns";
 
 interface UseBookingCalculationsProps {
   form: UseFormReturn<BookingFormValues>;
@@ -21,6 +22,7 @@ export function useBookingCalculations({ form, properties, customers }: UseBooki
   const endDate = form.watch("endDate");
   const propertyId = form.watch("propertyId");
   const customerId = form.watch("customerId");
+  const guestCount = form.watch("guestCount");
 
   // Update selections and calculate price
   useEffect(() => {
@@ -38,18 +40,22 @@ export function useBookingCalculations({ form, properties, customers }: UseBooki
       setSelectedCustomer(null);
     }
     
-    if (startDate && endDate) {
-      const nights = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    if (startDate && endDate && startDate < endDate) {
+      const nights = differenceInDays(endDate, startDate);
       setTotalNights(nights);
       
       if (selectedProperty) {
-        setTotalAmount(nights * selectedProperty.price);
+        const accommodationCost = nights * selectedProperty.price;
+        const cleaningFee = selectedProperty.price * 0.15; // 15% of one night
+        const serviceFee = accommodationCost * 0.08; // 8% service fee
+        
+        setTotalAmount(accommodationCost + cleaningFee + serviceFee);
       }
     } else {
       setTotalNights(0);
       setTotalAmount(0);
     }
-  }, [startDate, endDate, propertyId, customerId, selectedProperty, properties, customers]);
+  }, [startDate, endDate, propertyId, customerId, selectedProperty, properties, customers, guestCount]);
 
   return {
     selectedProperty,

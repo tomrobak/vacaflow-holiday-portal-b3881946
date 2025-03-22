@@ -1,9 +1,8 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, CalendarRange } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CardFooter } from "@/components/ui/card";
 import { toast } from "sonner";
 import { BookingFormValues } from "@/types/booking";
 import { notifyGoogleCalendarSynced, notifyGoogleCalendarError } from "@/utils/property-notifications";
@@ -11,6 +10,7 @@ import { syncBookingWithGoogleCalendar } from "@/utils/google-calendar";
 import BookingForm from "@/components/bookings/BookingForm";
 import BookingActions from "@/components/bookings/BookingActions";
 import GoogleCalendarAlert from "@/components/bookings/GoogleCalendarAlert";
+import BookingPriceSummary from "@/components/bookings/BookingPriceSummary";
 
 // Mock data for properties and customers
 const mockProperties = [
@@ -36,6 +36,8 @@ const NewBooking = () => {
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
   const [totalAmount, setTotalAmount] = useState(0);
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [guestCount, setGuestCount] = useState(1);
   const [showEmailDialog, setShowEmailDialog] = useState(false);
   const [showInvoiceDialog, setShowInvoiceDialog] = useState(false);
 
@@ -78,7 +80,7 @@ const NewBooking = () => {
       toast.success("Booking created successfully");
       
       // Navigate back to bookings list
-      navigate("/bookings");
+      navigate("/admin/bookings");
     } catch (error) {
       toast.error("Failed to create booking");
     } finally {
@@ -95,43 +97,70 @@ const NewBooking = () => {
 
   const handleSendInvoice = () => {
     toast.success("Invoice sent to customer", {
-      description: `Invoice for $${totalAmount} sent to ${selectedCustomer?.email}`
+      description: `Invoice for $${totalAmount.toFixed(2)} sent to ${selectedCustomer?.email}`
     });
     setShowInvoiceDialog(false);
   };
 
-  const handleFormChange = (property: any, customer: any, amount: number, date: Date | undefined) => {
+  const handleFormChange = (property: any, customer: any, amount: number, date: Date | undefined, end: Date | undefined, guests: number) => {
     setSelectedProperty(property);
     setSelectedCustomer(customer);
     setTotalAmount(amount);
     setStartDate(date);
+    setEndDate(end);
+    setGuestCount(guests);
   };
   
   return (
-    <div className="p-6 space-y-6">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => navigate("/bookings")}
-        className="pl-0"
-      >
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to Bookings
-      </Button>
-      
-      <div>
-        <h1 className="text-3xl font-bold">New Booking</h1>
-        <p className="text-muted-foreground">Create a new property booking</p>
+    <div className="p-6 space-y-6 max-w-7xl mx-auto">
+      <div className="flex items-center justify-between">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate("/admin/bookings")}
+          className="pl-0"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Bookings
+        </Button>
+        
+        <span className="flex items-center text-muted-foreground text-sm">
+          <CalendarRange className="mr-2 h-4 w-4" />
+          New Reservation
+        </span>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <BookingForm
-          properties={mockProperties}
-          customers={mockCustomers}
-          onSubmit={onSubmit}
-          isSubmitting={isSubmitting}
-        />
-        <CardFooter className="flex flex-col items-stretch gap-4">
+      <div>
+        <h1 className="text-3xl font-bold">Create New Booking</h1>
+        <p className="text-muted-foreground">Fill out the details to create a new property booking</p>
+      </div>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <BookingForm
+            properties={mockProperties}
+            customers={mockCustomers}
+            onSubmit={onSubmit}
+            isSubmitting={isSubmitting}
+            onFormChange={handleFormChange}
+          />
+          
+          {/* Google Calendar Sync Alert */}
+          {selectedProperty && (
+            <div className="mt-6">
+              <GoogleCalendarAlert selectedProperty={selectedProperty} />
+            </div>
+          )}
+        </div>
+        
+        <div className="space-y-6">
+          <BookingPriceSummary 
+            selectedProperty={selectedProperty}
+            startDate={startDate}
+            endDate={endDate}
+            guestCount={guestCount}
+          />
+          
           <BookingActions
             isSubmitting={isSubmitting}
             selectedCustomer={selectedCustomer}
@@ -144,13 +173,10 @@ const NewBooking = () => {
             setShowInvoiceDialog={setShowInvoiceDialog}
             handleSendEmail={handleSendEmail}
             handleSendInvoice={handleSendInvoice}
-            onCancel={() => navigate("/bookings")}
+            onCancel={() => navigate("/admin/bookings")}
           />
-        </CardFooter>
+        </div>
       </div>
-      
-      {/* Google Calendar Sync Alert */}
-      <GoogleCalendarAlert selectedProperty={selectedProperty} />
     </div>
   );
 };

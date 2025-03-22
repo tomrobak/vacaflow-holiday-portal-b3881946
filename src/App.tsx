@@ -25,7 +25,10 @@ import CustomerLogin from "@/pages/CustomerLogin";
 import CustomerDashboardPage from "@/pages/customer/CustomerDashboard";
 import CustomerBookings from "@/pages/customer/CustomerBookings";
 import CustomerPayments from "@/pages/customer/CustomerPayments";
+import CustomerInvoices from "@/pages/customer/CustomerInvoices";
 import CustomerMessages from "@/pages/customer/CustomerMessages";
+import CustomerBookingDetail from "@/pages/customer/CustomerBookingDetail";
+import CustomerCheckout from "@/pages/customer/CustomerCheckout";
 import Settings from "@/pages/Settings";
 import GeneralSettings from "@/pages/settings/GeneralSettings";
 import MailSettings from "@/pages/settings/MailSettings";
@@ -106,7 +109,10 @@ function App() {
           <Route index element={<CustomerDashboardPage />} />
           <Route path="dashboard" element={<CustomerDashboardPage />} />
           <Route path="bookings" element={<CustomerBookings />} />
+          <Route path="bookings/:id" element={<CustomerBookingDetail />} />
           <Route path="payments" element={<CustomerPayments />} />
+          <Route path="invoices" element={<CustomerInvoices />} />
+          <Route path="checkout/:id" element={<CustomerCheckout />} />
           <Route path="messages" element={<CustomerMessages />} />
         </Route>
 

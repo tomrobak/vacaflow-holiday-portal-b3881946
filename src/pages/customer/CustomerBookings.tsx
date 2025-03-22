@@ -5,21 +5,22 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { FileText, Info } from "lucide-react";
+import { FileText, Info, CreditCard, Download } from "lucide-react";
+import { toast } from "sonner";
 
 const CustomerBookings = () => {
   const [activeTab, setActiveTab] = useState("upcoming");
 
   // Mock data that would come from an API in a real application
   const upcomingBookings = [
-    { id: "BK-1001", property: "Beachside Villa", checkIn: "2023-08-12", checkOut: "2023-08-19", status: "confirmed", totalAmount: 1250.00 },
-    { id: "BK-1002", property: "Mountain Cabin", checkIn: "2023-09-20", checkOut: "2023-09-25", status: "pending", totalAmount: 750.00 },
+    { id: "BK-1001", property: "Beachside Villa", checkIn: "2023-08-12", checkOut: "2023-08-19", status: "confirmed", totalAmount: 1250.00, invoiceId: "INV-2001" },
+    { id: "BK-1002", property: "Mountain Cabin", checkIn: "2023-09-20", checkOut: "2023-09-25", status: "pending", totalAmount: 750.00, invoiceId: "INV-2002" },
   ];
 
   const pastBookings = [
-    { id: "BK-0999", property: "Lakeside Cottage", checkIn: "2023-06-10", checkOut: "2023-06-15", status: "completed", totalAmount: 950.00 },
-    { id: "BK-0998", property: "Downtown Apartment", checkIn: "2023-05-05", checkOut: "2023-05-08", status: "completed", totalAmount: 450.00 },
-    { id: "BK-0997", property: "Forest Retreat", checkIn: "2023-03-20", checkOut: "2023-03-25", status: "completed", totalAmount: 675.00 },
+    { id: "BK-0999", property: "Lakeside Cottage", checkIn: "2023-06-10", checkOut: "2023-06-15", status: "completed", totalAmount: 950.00, invoiceId: "INV-1999" },
+    { id: "BK-0998", property: "Downtown Apartment", checkIn: "2023-05-05", checkOut: "2023-05-08", status: "completed", totalAmount: 450.00, invoiceId: "INV-1998" },
+    { id: "BK-0997", property: "Forest Retreat", checkIn: "2023-03-20", checkOut: "2023-03-25", status: "completed", totalAmount: 675.00, invoiceId: "INV-1997" },
   ];
 
   const getStatusColor = (status: string) => {
@@ -33,6 +34,16 @@ const CustomerBookings = () => {
       default:
         return "bg-gray-100 text-gray-800";
     }
+  };
+
+  const handleDownloadInvoice = (invoiceId: string) => {
+    toast.success(`Invoice ${invoiceId} download started`);
+    // In a real app, this would trigger an actual download
+  };
+
+  const handleDownloadReceipt = (bookingId: string) => {
+    toast.success(`Receipt for booking ${bookingId} download started`);
+    // In a real app, this would trigger an actual download
   };
 
   const renderBookingsList = (bookings: any[]) => {
@@ -54,22 +65,45 @@ const CustomerBookings = () => {
               </div>
             </CardHeader>
             <CardContent className="pt-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <div className="font-medium">${booking.totalAmount.toFixed(2)}</div>
                   <div className="text-sm text-muted-foreground">Booking #{booking.id}</div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <Button variant="outline" size="sm" asChild>
                     <Link to={`/customer/bookings/${booking.id}`}>
                       <Info className="h-4 w-4 mr-1" />
                       Details
                     </Link>
                   </Button>
-                  {booking.status === "confirmed" && (
-                    <Button variant="outline" size="sm">
-                      <FileText className="h-4 w-4 mr-1" />
-                      Invoice
+                  
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleDownloadInvoice(booking.invoiceId)}
+                  >
+                    <FileText className="h-4 w-4 mr-1" />
+                    Invoice
+                  </Button>
+                  
+                  {booking.status === "completed" && (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleDownloadReceipt(booking.id)}
+                    >
+                      <Download className="h-4 w-4 mr-1" />
+                      Receipt
+                    </Button>
+                  )}
+                  
+                  {(booking.status === "confirmed" || booking.status === "pending") && (
+                    <Button variant="default" size="sm" asChild>
+                      <Link to={`/customer/checkout/${booking.invoiceId}`}>
+                        <CreditCard className="h-4 w-4 mr-1" />
+                        Pay Now
+                      </Link>
                     </Button>
                   )}
                 </div>

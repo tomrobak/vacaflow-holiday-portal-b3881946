@@ -50,6 +50,7 @@ import AddonsSettings from "@/pages/settings/AddonsSettings";
 import BookingDetail from "@/pages/BookingDetail";
 import Addons from "@/pages/Addons";
 import LoginRegister from "@/pages/LoginRegister";
+import Sitemap from "@/pages/Sitemap";
 
 function App() {
   return (
@@ -59,6 +60,9 @@ function App() {
         {/* Main login/register page for all users */}
         <Route path="/" element={<LoginRegister />} />
 
+        {/* Sitemap page - accessible to everyone */}
+        <Route path="/sitemap" element={<Sitemap />} />
+        
         {/* Property listing page - accessible to everyone */}
         <Route path="/property/:id" element={<PropertyListing />} />
         

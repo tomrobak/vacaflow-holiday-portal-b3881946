@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Link } from "react-router-dom";
-import { Home, Calendar, CreditCard, Users, Settings } from "lucide-react";
+import { Home, Calendar, CreditCard, Users, Settings, FileText } from "lucide-react";
 
 const Index = () => {
   return (
@@ -19,6 +19,11 @@ const Index = () => {
         <p className="text-base md:text-xl text-muted-foreground max-w-2xl mx-auto">
           A comprehensive vacation property rental management application
         </p>
+        <div className="mt-2">
+          <Link to="/sitemap" className="text-primary hover:underline text-sm">
+            View Sitemap
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">

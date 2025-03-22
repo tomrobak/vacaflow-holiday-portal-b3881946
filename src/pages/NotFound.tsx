@@ -19,6 +19,11 @@ const NotFound = () => {
             <Link to="/dashboard">Dashboard</Link>
           </Button>
         </div>
+        <div className="mt-4">
+          <Link to="/sitemap" className="text-primary hover:underline text-sm">
+            View Sitemap
+          </Link>
+        </div>
       </div>
     </div>
   );

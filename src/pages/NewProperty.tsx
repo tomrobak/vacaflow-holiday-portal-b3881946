@@ -1,9 +1,10 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { CalendarIcon, Building, Upload, X, Plus, MapPin, Calendar as CalendarLucide } from "lucide-react";
+import { Building, Upload, X, Plus, MapPin, Calendar as CalendarLucide, DollarSign, Image as ImageIcon } from "lucide-react";
 import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
@@ -26,15 +27,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { notifyPropertyCreated } from "@/utils/property-notifications";
+import { Badge } from "@/components/ui/badge";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -75,22 +71,23 @@ const formSchema = z.object({
     }
   ).optional(),
   amenities: z.array(z.string()).optional(),
-  availableFrom: z.date(),
-  availableTo: z.date(),
+  customAmenities: z.array(z.object({
+    id: z.string(),
+    label: z.string()
+  })).optional(),
   propertyType: z.string(),
   isActive: z.boolean().default(true),
   featured: z.boolean().default(false),
   googleCalendarSync: z.boolean().default(false),
   googleCalendarId: z.string().optional(),
+  customPrices: z.array(z.object({
+    id: z.string(),
+    from: z.date(),
+    to: z.date(),
+    price: z.string()
+  })).optional(),
+  featuredImage: z.string().optional(),
 }).refine(
-  (data) => {
-    return data.availableTo > data.availableFrom;
-  },
-  {
-    message: "End date must be after start date.",
-    path: ["availableTo"],
-  }
-).refine(
   (data) => {
     return !data.googleCalendarSync || (data.googleCalendarSync && data.googleCalendarId && data.googleCalendarId.trim() !== "");
   },
@@ -99,6 +96,14 @@ const formSchema = z.object({
     path: ["googleCalendarId"],
   }
 );
+
+const propertyTypes = [
+  { value: "house", label: "House" },
+  { value: "apartment", label: "Apartment" },
+  { value: "cabin", label: "Cabin" },
+  { value: "villa", label: "Villa" },
+  { value: "condo", label: "Condominium" },
+];
 
 const amenitiesOptions = [
   { id: "wifi", label: "WiFi" },
@@ -119,19 +124,25 @@ const amenitiesOptions = [
   { id: "workspace", label: "Workspace" },
 ];
 
-const propertyTypes = [
-  { value: "house", label: "House" },
-  { value: "apartment", label: "Apartment" },
-  { value: "cabin", label: "Cabin" },
-  { value: "villa", label: "Villa" },
-  { value: "condo", label: "Condominium" },
-];
-
 const NewProperty = () => {
   const navigate = useNavigate();
   const [uploadedImages, setUploadedImages] = useState<
     { name: string; url: string }[]
   >([]);
+  const [customAmenities, setCustomAmenities] = useState<{ id: string; label: string }[]>([]);
+  const [newAmenity, setNewAmenity] = useState("");
+  const [customPrices, setCustomPrices] = useState<{
+    id: string;
+    from: Date;
+    to: Date;
+    price: string;
+  }[]>([]);
+  const [newCustomPrice, setNewCustomPrice] = useState({
+    from: new Date(),
+    to: new Date(new Date().setDate(new Date().getDate() + 7)),
+    price: "",
+  });
+  const [featuredImage, setFeaturedImage] = useState<{ name: string; url: string } | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -146,19 +157,23 @@ const NewProperty = () => {
       maxGuests: "",
       squareFeet: "",
       amenities: [],
-      availableFrom: new Date(),
-      availableTo: new Date(new Date().setMonth(new Date().getMonth() + 3)),
+      customAmenities: [],
       propertyType: "house",
       isActive: true,
       featured: false,
       googleCalendarSync: false,
       googleCalendarId: "",
+      customPrices: [],
+      featuredImage: "",
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log("Form values:", values);
     console.log("Uploaded images:", uploadedImages);
+    console.log("Featured image:", featuredImage);
+    console.log("Custom amenities:", customAmenities);
+    console.log("Custom prices:", customPrices);
 
     notifyPropertyCreated({ 
       name: values.name,
@@ -179,11 +194,76 @@ const NewProperty = () => {
     }
   };
 
+  const handleFeaturedImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      const imageUrl = URL.createObjectURL(file);
+      setFeaturedImage({
+        name: file.name,
+        url: imageUrl
+      });
+      form.setValue("featuredImage", imageUrl);
+    }
+  };
+
   const removeImage = (index: number) => {
     const newImages = [...uploadedImages];
     URL.revokeObjectURL(newImages[index].url);
     newImages.splice(index, 1);
     setUploadedImages(newImages);
+  };
+
+  const removeFeaturedImage = () => {
+    if (featuredImage) {
+      URL.revokeObjectURL(featuredImage.url);
+      setFeaturedImage(null);
+      form.setValue("featuredImage", "");
+    }
+  };
+
+  const addCustomAmenity = () => {
+    if (newAmenity.trim() !== "") {
+      const newCustomAmenity = {
+        id: `custom-${Date.now()}`,
+        label: newAmenity.trim()
+      };
+      setCustomAmenities([...customAmenities, newCustomAmenity]);
+      form.setValue("customAmenities", [...customAmenities, newCustomAmenity]);
+      setNewAmenity("");
+    }
+  };
+
+  const removeCustomAmenity = (id: string) => {
+    const updatedAmenities = customAmenities.filter(amenity => amenity.id !== id);
+    setCustomAmenities(updatedAmenities);
+    form.setValue("customAmenities", updatedAmenities);
+  };
+
+  const addCustomPrice = () => {
+    if (newCustomPrice.price.trim() !== "" && !isNaN(Number(newCustomPrice.price)) && Number(newCustomPrice.price) > 0) {
+      const newPrice = {
+        id: `price-${Date.now()}`,
+        from: newCustomPrice.from,
+        to: newCustomPrice.to,
+        price: newCustomPrice.price
+      };
+      
+      setCustomPrices([...customPrices, newPrice]);
+      form.setValue("customPrices", [...customPrices, newPrice]);
+      
+      // Reset the form for new custom price
+      setNewCustomPrice({
+        from: new Date(),
+        to: new Date(new Date().setDate(new Date().getDate() + 7)),
+        price: "",
+      });
+    }
+  };
+
+  const removeCustomPrice = (id: string) => {
+    const updatedPrices = customPrices.filter(price => price.id !== id);
+    setCustomPrices(updatedPrices);
+    form.setValue("customPrices", updatedPrices);
   };
 
   const watchGoogleCalendarSync = form.watch("googleCalendarSync");
@@ -371,20 +451,115 @@ const NewProperty = () => {
                   <FormItem>
                     <FormLabel>Price per Night (USD)</FormLabel>
                     <FormControl>
-                      <Input
-                        type="number"
-                        min="0"
-                        placeholder="200"
-                        {...field}
-                      />
+                      <div className="relative">
+                        <DollarSign className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          type="number"
+                          min="0"
+                          placeholder="200"
+                          className="pl-8"
+                          {...field}
+                        />
+                      </div>
                     </FormControl>
                     <FormDescription>
-                      Enter the price per night in USD.
+                      Enter the base price per night in USD.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Custom Pricing</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Set custom prices for specific dates (e.g., holidays, peak seasons)
+                  </p>
+                  
+                  <div className="space-y-4">
+                    {customPrices.length > 0 && (
+                      <div className="space-y-2">
+                        {customPrices.map((priceItem) => (
+                          <div key={priceItem.id} className="flex items-center justify-between p-3 border rounded-md">
+                            <div>
+                              <Badge variant="outline" className="mb-1">
+                                ${priceItem.price}/night
+                              </Badge>
+                              <div className="text-sm">
+                                {format(priceItem.from, "MMM d, yyyy")} - {format(priceItem.to, "MMM d, yyyy")}
+                              </div>
+                            </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => removeCustomPrice(priceItem.id)}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
+                    <div className="space-y-2 border p-3 rounded-md">
+                      <div className="grid grid-cols-3 gap-2">
+                        <div className="space-y-1">
+                          <label className="text-sm font-medium">From</label>
+                          <Input
+                            type="date"
+                            value={newCustomPrice.from.toISOString().split('T')[0]}
+                            onChange={(e) => {
+                              const date = new Date(e.target.value);
+                              setNewCustomPrice({ ...newCustomPrice, from: date });
+                            }}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-sm font-medium">To</label>
+                          <Input
+                            type="date"
+                            value={newCustomPrice.to.toISOString().split('T')[0]}
+                            onChange={(e) => {
+                              const date = new Date(e.target.value);
+                              setNewCustomPrice({ ...newCustomPrice, to: date });
+                            }}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-sm font-medium">Price (USD)</label>
+                          <div className="relative">
+                            <DollarSign className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              type="number"
+                              min="0"
+                              placeholder="300"
+                              className="pl-8"
+                              value={newCustomPrice.price}
+                              onChange={(e) => {
+                                setNewCustomPrice({ ...newCustomPrice, price: e.target.value });
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <Button 
+                        type="button" 
+                        variant="secondary" 
+                        size="sm"
+                        className="w-full mt-2"
+                        onClick={addCustomPrice}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Custom Price
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
 
             <div className="space-y-6">
@@ -473,87 +648,56 @@ const NewProperty = () => {
                 )}
               />
 
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="availableFrom"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Available From</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant={"outline"}
-                              className={cn(
-                                "w-full pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "PPP")
-                              ) : (
-                                <span>Pick a date</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            initialFocus
-                            className={cn("p-3 pointer-events-auto")}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Custom Amenities</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Add custom amenities not listed above
+                  </p>
+                  
+                  {customAmenities.length > 0 && (
+                    <div className="space-y-2 mb-4">
+                      {customAmenities.map((amenity) => (
+                        <div key={amenity.id} className="flex items-center justify-between p-2 border rounded-md">
+                          <span>{amenity.label}</span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeCustomAmenity(amenity.id)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
                   )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="availableTo"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Available To</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant={"outline"}
-                              className={cn(
-                                "w-full pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "PPP")
-                              ) : (
-                                <span>Pick a date</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            initialFocus
-                            className={cn("p-3 pointer-events-auto")}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Input
+                      placeholder="Enter custom amenity..."
+                      value={newAmenity}
+                      onChange={(e) => setNewAmenity(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          addCustomAmenity();
+                        }
+                      }}
+                    />
+                    <Button 
+                      type="button" 
+                      variant="secondary"
+                      onClick={addCustomAmenity}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
 
               <div className="space-y-4">
                 <FormField
@@ -651,8 +795,77 @@ const NewProperty = () => {
                 )}
               </div>
 
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Featured Image</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <FormField
+                    control={form.control}
+                    name="featuredImage"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormDescription className="mb-4">
+                          Upload a high-quality main image that will be displayed prominently in listings
+                        </FormDescription>
+                        <FormControl>
+                          <>
+                            {featuredImage ? (
+                              <div className="relative rounded-md overflow-hidden h-60 bg-gray-100 mb-4">
+                                <img 
+                                  src={featuredImage.url} 
+                                  alt="Featured" 
+                                  className="w-full h-full object-cover"
+                                />
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  className="absolute top-2 right-2"
+                                  onClick={removeFeaturedImage}
+                                >
+                                  <X className="h-4 w-4 mr-2" />
+                                  Remove
+                                </Button>
+                              </div>
+                            ) : (
+                              <label
+                                htmlFor="featured-image-upload"
+                                className="cursor-pointer block"
+                              >
+                                <div className="border-2 border-dashed rounded-md border-muted-foreground/25 flex flex-col items-center justify-center p-6 text-center transition-colors hover:border-muted-foreground/50 h-60">
+                                  <ImageIcon className="h-10 w-10 mb-4 text-muted-foreground" />
+                                  <p className="mb-1 text-sm font-medium text-muted-foreground">
+                                    Click to upload featured image
+                                  </p>
+                                  <p className="text-xs text-muted-foreground">
+                                    JPG, PNG or WebP, up to 10MB
+                                  </p>
+                                </div>
+                                <input
+                                  id="featured-image-upload"
+                                  type="file"
+                                  className="hidden"
+                                  accept="image/*"
+                                  onChange={handleFeaturedImageUpload}
+                                  value=""
+                                />
+                              </label>
+                            )}
+                            <input 
+                              type="hidden" 
+                              {...field}
+                            />
+                          </>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
+
               <div>
-                <FormLabel>Property Images</FormLabel>
+                <FormLabel>Property Gallery Images</FormLabel>
                 <div className="mt-2">
                   <Card>
                     <CardContent className="p-4">
@@ -705,7 +918,7 @@ const NewProperty = () => {
                     </CardContent>
                   </Card>
                   <FormDescription className="mt-1">
-                    Upload high-quality images of your property.
+                    Upload additional images of your property for the gallery.
                   </FormDescription>
                 </div>
               </div>

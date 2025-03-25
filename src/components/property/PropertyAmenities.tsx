@@ -1,6 +1,7 @@
 
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
@@ -16,12 +17,11 @@ const PropertyAmenities = ({ amenities }: PropertyAmenitiesProps) => {
     <div className="space-y-4">
       <h3 className="text-lg font-semibold">What this place offers</h3>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+      <div className="flex flex-wrap gap-2 mb-2">
         {visibleAmenities.map((amenity) => (
-          <div key={amenity} className="flex items-center py-1">
-            <Check className="h-4 w-4 mr-2 text-primary" />
-            <span>{amenity}</span>
-          </div>
+          <Badge key={amenity} variant="secondary" className="py-1.5">
+            {amenity}
+          </Badge>
         ))}
       </div>
       
@@ -36,12 +36,11 @@ const PropertyAmenities = ({ amenities }: PropertyAmenitiesProps) => {
             <DialogHeader>
               <DialogTitle>Amenities</DialogTitle>
             </DialogHeader>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 py-4">
+            <div className="flex flex-wrap gap-2 py-4">
               {amenities.map((amenity) => (
-                <div key={amenity} className="flex items-center py-1">
-                  <Check className="h-4 w-4 mr-2 text-primary" />
-                  <span>{amenity}</span>
-                </div>
+                <Badge key={amenity} variant="secondary" className="py-1.5">
+                  {amenity}
+                </Badge>
               ))}
             </div>
           </DialogContent>

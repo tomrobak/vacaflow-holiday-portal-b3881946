@@ -6,6 +6,8 @@ export type PropertyStatus = 'active' | 'inactive' | 'maintenance' | 'booked';
 export interface PropertyAmenity {
   id: string;
   name: string;
+  category?: string;
+  isCustom?: boolean;
 }
 
 export interface Property {
@@ -20,6 +22,7 @@ export interface Property {
   maxGuests: number;
   squareFeet?: number;
   amenities: string[];
+  customAmenities?: PropertyAmenity[];
   availableFrom: Date;
   availableTo: Date;
   propertyType: PropertyType;
@@ -40,12 +43,15 @@ export interface PropertyFormData {
   description?: string;
   location?: string;
   address?: string;
+  latitude?: string;
+  longitude?: string;
   price?: string;
   bedrooms?: string;
   bathrooms?: string;
   maxGuests?: string;
   squareFeet?: string;
   amenities?: string[];
+  customAmenities?: PropertyAmenity[];
   availableFrom?: Date;
   availableTo?: Date;
   propertyType?: string;
@@ -56,4 +62,10 @@ export interface PropertyFormData {
   heroImage?: string;
   gallery?: string[];
   addons?: string[];
+  customPrices?: {
+    id: string;
+    from: Date;
+    to: Date;
+    price: string;
+  }[];
 }

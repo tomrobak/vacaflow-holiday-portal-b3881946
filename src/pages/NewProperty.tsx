@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -6,8 +5,8 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { 
   Building, Upload, X, Plus, MapPin, Calendar as CalendarLucide, 
-  DollarSign, Image as ImageIcon, GeoLocation, Tag, 
-  ArrowRight, Trash2 
+  DollarSign, Image as ImageIcon, Tag, 
+  ArrowRight, Trash2, Map 
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -135,7 +134,6 @@ const amenitiesOptions = [
   { id: "workspace", label: "Workspace", category: "office" },
 ];
 
-// Group amenities by category for better UI organization
 const amenitiesByCategory = amenitiesOptions.reduce((acc, amenity) => {
   if (!acc[amenity.category]) {
     acc[amenity.category] = [];
@@ -277,7 +275,6 @@ const NewProperty = () => {
       setCustomPrices([...customPrices, newPrice]);
       form.setValue("customPrices", [...customPrices, newPrice]);
       
-      // Reset the form for new custom price
       setNewCustomPrice({
         from: new Date(),
         to: new Date(new Date().setDate(new Date().getDate() + 7)),
@@ -369,7 +366,6 @@ const NewProperty = () => {
                 )}
               />
 
-              {/* New geolocation coordinates input */}
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -535,7 +531,6 @@ const NewProperty = () => {
                 )}
               />
 
-              {/* Updated custom pricing section with cards */}
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Custom Pricing</CardTitle>
@@ -671,7 +666,6 @@ const NewProperty = () => {
                 )}
               />
 
-              {/* Improved amenities section with better layout */}
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Property Amenities</CardTitle>
@@ -740,7 +734,6 @@ const NewProperty = () => {
                 </CardContent>
               </Card>
 
-              {/* Improved custom amenities section with inline add */}
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Custom Amenities</CardTitle>
@@ -899,7 +892,6 @@ const NewProperty = () => {
                 )}
               </div>
 
-              {/* Improved featured image section */}
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Featured Image</CardTitle>

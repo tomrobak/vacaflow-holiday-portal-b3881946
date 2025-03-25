@@ -4,7 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Building, Upload, X, Plus, MapPin, Calendar as CalendarLucide, DollarSign, Image as ImageIcon } from "lucide-react";
+import { 
+  Building, Upload, X, Plus, MapPin, Calendar as CalendarLucide, 
+  DollarSign, Image as ImageIcon, GeoLocation, Tag, 
+  ArrowRight, Trash2 
+} from "lucide-react";
 import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
@@ -27,10 +31,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { notifyPropertyCreated } from "@/utils/property-notifications";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -41,6 +46,12 @@ const formSchema = z.object({
   }),
   location: z.string().min(2, {
     message: "Location must be at least 2 characters.",
+  }),
+  latitude: z.string().optional().refine(val => val === "" || !isNaN(Number(val)), {
+    message: "Latitude must be a valid number.",
+  }),
+  longitude: z.string().optional().refine(val => val === "" || !isNaN(Number(val)), {
+    message: "Longitude must be a valid number.",
   }),
   address: z.string().optional(),
   price: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
@@ -106,23 +117,36 @@ const propertyTypes = [
 ];
 
 const amenitiesOptions = [
-  { id: "wifi", label: "WiFi" },
-  { id: "pool", label: "Swimming Pool" },
-  { id: "gym", label: "Gym" },
-  { id: "parking", label: "Free Parking" },
-  { id: "aircon", label: "Air Conditioning" },
-  { id: "kitchen", label: "Kitchen" },
-  { id: "tv", label: "TV" },
-  { id: "washing", label: "Washing Machine" },
-  { id: "heating", label: "Heating" },
-  { id: "balcony", label: "Balcony" },
-  { id: "fireplace", label: "Fireplace" },
-  { id: "bbq", label: "BBQ" },
-  { id: "hotTub", label: "Hot Tub" },
-  { id: "petsAllowed", label: "Pets Allowed" },
-  { id: "childFriendly", label: "Child Friendly" },
-  { id: "workspace", label: "Workspace" },
+  { id: "wifi", label: "WiFi", category: "internet" },
+  { id: "pool", label: "Swimming Pool", category: "outdoors" },
+  { id: "gym", label: "Gym", category: "fitness" },
+  { id: "parking", label: "Free Parking", category: "parking" },
+  { id: "aircon", label: "Air Conditioning", category: "climate" },
+  { id: "kitchen", label: "Kitchen", category: "kitchen" },
+  { id: "tv", label: "TV", category: "entertainment" },
+  { id: "washing", label: "Washing Machine", category: "laundry" },
+  { id: "heating", label: "Heating", category: "climate" },
+  { id: "balcony", label: "Balcony", category: "outdoors" },
+  { id: "fireplace", label: "Fireplace", category: "climate" },
+  { id: "bbq", label: "BBQ", category: "outdoors" },
+  { id: "hotTub", label: "Hot Tub", category: "outdoors" },
+  { id: "petsAllowed", label: "Pets Allowed", category: "policies" },
+  { id: "childFriendly", label: "Child Friendly", category: "policies" },
+  { id: "workspace", label: "Workspace", category: "office" },
 ];
+
+// Group amenities by category for better UI organization
+const amenitiesByCategory = amenitiesOptions.reduce((acc, amenity) => {
+  if (!acc[amenity.category]) {
+    acc[amenity.category] = [];
+  }
+  acc[amenity.category].push(amenity);
+  return acc;
+}, {} as Record<string, typeof amenitiesOptions>);
+
+const formatCategoryName = (category: string) => {
+  return category.charAt(0).toUpperCase() + category.slice(1);
+};
 
 const NewProperty = () => {
   const navigate = useNavigate();
@@ -150,6 +174,8 @@ const NewProperty = () => {
       name: "",
       description: "",
       location: "",
+      latitude: "",
+      longitude: "",
       address: "",
       price: "",
       bedrooms: "",
@@ -343,6 +369,45 @@ const NewProperty = () => {
                 )}
               />
 
+              {/* New geolocation coordinates input */}
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="latitude"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Latitude (Optional)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="text"
+                          placeholder="e.g. 34.0259"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="longitude"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Longitude (Optional)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="text"
+                          placeholder="e.g. -118.7798"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
               <FormField
                 control={form.control}
                 name="address"
@@ -470,6 +535,7 @@ const NewProperty = () => {
                 )}
               />
 
+              {/* Updated custom pricing section with cards */}
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Custom Pricing</CardTitle>
@@ -479,84 +545,95 @@ const NewProperty = () => {
                     Set custom prices for specific dates (e.g., holidays, peak seasons)
                   </p>
                   
-                  <div className="space-y-4">
+                  <div className="grid grid-cols-1 gap-4">
                     {customPrices.length > 0 && (
-                      <div className="space-y-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {customPrices.map((priceItem) => (
-                          <div key={priceItem.id} className="flex items-center justify-between p-3 border rounded-md">
-                            <div>
-                              <Badge variant="outline" className="mb-1">
-                                ${priceItem.price}/night
-                              </Badge>
-                              <div className="text-sm">
-                                {format(priceItem.from, "MMM d, yyyy")} - {format(priceItem.to, "MMM d, yyyy")}
+                          <Card key={priceItem.id} className="bg-muted/40">
+                            <CardContent className="p-4">
+                              <div className="flex justify-between items-start mb-2">
+                                <Badge variant="success" className="mt-1">
+                                  ${priceItem.price}/night
+                                </Badge>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => removeCustomPrice(priceItem.id)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
                               </div>
-                            </div>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => removeCustomPrice(priceItem.id)}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
+                              <div className="text-sm space-y-1">
+                                <div className="flex items-center gap-2">
+                                  <CalendarLucide className="h-3.5 w-3.5 text-muted-foreground" />
+                                  <span>From: {format(priceItem.from, "MMM d, yyyy")}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <CalendarLucide className="h-3.5 w-3.5 text-muted-foreground" />
+                                  <span>To: {format(priceItem.to, "MMM d, yyyy")}</span>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
                         ))}
                       </div>
                     )}
                     
-                    <div className="space-y-2 border p-3 rounded-md">
-                      <div className="grid grid-cols-3 gap-2">
-                        <div className="space-y-1">
-                          <label className="text-sm font-medium">From</label>
-                          <Input
-                            type="date"
-                            value={newCustomPrice.from.toISOString().split('T')[0]}
-                            onChange={(e) => {
-                              const date = new Date(e.target.value);
-                              setNewCustomPrice({ ...newCustomPrice, from: date });
-                            }}
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-sm font-medium">To</label>
-                          <Input
-                            type="date"
-                            value={newCustomPrice.to.toISOString().split('T')[0]}
-                            onChange={(e) => {
-                              const date = new Date(e.target.value);
-                              setNewCustomPrice({ ...newCustomPrice, to: date });
-                            }}
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-sm font-medium">Price (USD)</label>
-                          <div className="relative">
-                            <DollarSign className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Card>
+                      <CardContent className="p-4 space-y-4">
+                        <h4 className="text-sm font-medium">Add new custom price</h4>
+                        <div className="grid grid-cols-3 gap-2">
+                          <div className="space-y-1">
+                            <label className="text-xs font-medium">From</label>
                             <Input
-                              type="number"
-                              min="0"
-                              placeholder="300"
-                              className="pl-8"
-                              value={newCustomPrice.price}
+                              type="date"
+                              value={newCustomPrice.from.toISOString().split('T')[0]}
                               onChange={(e) => {
-                                setNewCustomPrice({ ...newCustomPrice, price: e.target.value });
+                                const date = new Date(e.target.value);
+                                setNewCustomPrice({ ...newCustomPrice, from: date });
                               }}
                             />
                           </div>
+                          <div className="space-y-1">
+                            <label className="text-xs font-medium">To</label>
+                            <Input
+                              type="date"
+                              value={newCustomPrice.to.toISOString().split('T')[0]}
+                              onChange={(e) => {
+                                const date = new Date(e.target.value);
+                                setNewCustomPrice({ ...newCustomPrice, to: date });
+                              }}
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-xs font-medium">Price (USD)</label>
+                            <div className="relative">
+                              <DollarSign className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                type="number"
+                                min="0"
+                                placeholder="300"
+                                className="pl-8"
+                                value={newCustomPrice.price}
+                                onChange={(e) => {
+                                  setNewCustomPrice({ ...newCustomPrice, price: e.target.value });
+                                }}
+                              />
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                      <Button 
-                        type="button" 
-                        variant="secondary" 
-                        size="sm"
-                        className="w-full mt-2"
-                        onClick={addCustomPrice}
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Custom Price
-                      </Button>
-                    </div>
+                        <Button 
+                          type="button" 
+                          variant="secondary" 
+                          className="w-full"
+                          onClick={addCustomPrice}
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Add Custom Price
+                        </Button>
+                      </CardContent>
+                    </Card>
                   </div>
                 </CardContent>
               </Card>
@@ -594,108 +671,135 @@ const NewProperty = () => {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="amenities"
-                render={() => (
-                  <FormItem>
-                    <div className="mb-4">
-                      <FormLabel className="text-base">Amenities</FormLabel>
-                      <FormDescription>
-                        Select the amenities available at your property.
-                      </FormDescription>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      {amenitiesOptions.map((item) => (
-                        <FormField
-                          key={item.id}
-                          control={form.control}
-                          name="amenities"
-                          render={({ field }) => {
-                            return (
-                              <FormItem
-                                key={item.id}
-                                className="flex flex-row items-start space-x-3 space-y-0"
-                              >
-                                <FormControl>
-                                  <Checkbox
-                                    checked={field.value?.includes(item.id)}
-                                    onCheckedChange={(checked) => {
-                                      return checked
-                                        ? field.onChange([
-                                            ...(field.value || []),
-                                            item.id,
-                                          ])
-                                        : field.onChange(
-                                            field.value?.filter(
-                                              (value) => value !== item.id
-                                            )
-                                          );
+              {/* Improved amenities section with better layout */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Property Amenities</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="amenities"
+                    render={() => (
+                      <FormItem>
+                        <FormDescription className="mb-4">
+                          Select the amenities available at your property
+                        </FormDescription>
+                        
+                        <div className="space-y-5">
+                          {Object.entries(amenitiesByCategory).map(([category, amenities]) => (
+                            <div key={category} className="space-y-2">
+                              <h3 className="text-sm font-medium">
+                                {formatCategoryName(category)}
+                              </h3>
+                              <div className="grid grid-cols-2 gap-2">
+                                {amenities.map((item) => (
+                                  <FormField
+                                    key={item.id}
+                                    control={form.control}
+                                    name="amenities"
+                                    render={({ field }) => {
+                                      return (
+                                        <FormItem
+                                          key={item.id}
+                                          className="flex flex-row items-start space-x-3 space-y-0"
+                                        >
+                                          <FormControl>
+                                            <Checkbox
+                                              checked={field.value?.includes(item.id)}
+                                              onCheckedChange={(checked) => {
+                                                return checked
+                                                  ? field.onChange([
+                                                      ...(field.value || []),
+                                                      item.id,
+                                                    ])
+                                                  : field.onChange(
+                                                      field.value?.filter(
+                                                        (value) => value !== item.id
+                                                      )
+                                                    );
+                                              }}
+                                            />
+                                          </FormControl>
+                                          <FormLabel className="font-normal text-sm">
+                                            {item.label}
+                                          </FormLabel>
+                                        </FormItem>
+                                      );
                                     }}
                                   />
-                                </FormControl>
-                                <FormLabel className="font-normal">
-                                  {item.label}
-                                </FormLabel>
-                              </FormItem>
-                            );
-                          }}
-                        />
-                      ))}
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
 
+              {/* Improved custom amenities section with inline add */}
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Custom Amenities</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <p className="text-sm text-muted-foreground">
-                    Add custom amenities not listed above
-                  </p>
-                  
-                  {customAmenities.length > 0 && (
-                    <div className="space-y-2 mb-4">
-                      {customAmenities.map((amenity) => (
-                        <div key={amenity.id} className="flex items-center justify-between p-2 border rounded-md">
-                          <span>{amenity.label}</span>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => removeCustomAmenity(amenity.id)}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  <FormDescription>
+                    Add your own custom amenities not listed above
+                  </FormDescription>
                   
                   <div className="flex items-center space-x-2">
-                    <Input
-                      placeholder="Enter custom amenity..."
-                      value={newAmenity}
-                      onChange={(e) => setNewAmenity(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          addCustomAmenity();
-                        }
-                      }}
-                    />
+                    <div className="relative flex-1">
+                      <Tag className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Enter amenity name..."
+                        className="pl-8"
+                        value={newAmenity}
+                        onChange={(e) => setNewAmenity(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            addCustomAmenity();
+                          }
+                        }}
+                      />
+                    </div>
                     <Button 
                       type="button" 
-                      variant="secondary"
                       onClick={addCustomAmenity}
                     >
                       <Plus className="h-4 w-4 mr-2" />
                       Add
                     </Button>
                   </div>
+                  
+                  {customAmenities.length > 0 && (
+                    <div className="mt-4">
+                      <h3 className="text-sm font-medium mb-2">Your Custom Amenities</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {customAmenities.map((amenity) => (
+                          <Badge 
+                            key={amenity.id} 
+                            variant="outline"
+                            className="flex items-center gap-1 py-1.5"
+                          >
+                            {amenity.label}
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-4 w-4 p-0 ml-1 hover:bg-transparent"
+                              onClick={() => removeCustomAmenity(amenity.id)}
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -795,6 +899,7 @@ const NewProperty = () => {
                 )}
               </div>
 
+              {/* Improved featured image section */}
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Featured Image</CardTitle>
